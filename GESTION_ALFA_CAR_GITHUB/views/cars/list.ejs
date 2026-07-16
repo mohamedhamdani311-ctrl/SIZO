@@ -1,0 +1,122 @@
+<%- include('../partials/head', {title: 'Nos Voitures - ALFA CAR', extraCss: '<link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">'}) %>
+<body data-theme="light">
+    <%- include('../partials/navbar') %>
+
+    <!-- Hero Banner -->
+    <section style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:100px 0 60px;color:white;text-align:center;">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">Nos Voitures</h1>
+            <p class="lead opacity-75">Découvrez notre sélection de véhicules premium</p>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section style="background:var(--bg);padding:30px 0;">
+        <div class="container">
+            <div class="card shadow-sm border-0" style="border-radius:16px;">
+                <div class="card-body p-4">
+                    <form action="/cars" method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Marque</label>
+                            <select name="marque" class="form-select">
+                                <option value="">Toutes</option>
+                                <% if(typeof brands!=='undefined' && brands){ brands.forEach(function(b){ %>
+                                <option value="<%= b.marque %>" <%= typeof filters!=='undefined' && filters && filters.marque===b.marque?'selected':'' %>><%= b.marque %></option>
+                                <% }); } %>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Carburant</label>
+                            <select name="carburant" class="form-select">
+                                <option value="">Tous</option>
+                                <option value="Essence" <%= typeof filters!=='undefined' && filters && filters.carburant==='Essence'?'selected':'' %>>Essence</option>
+                                <option value="Diesel" <%= typeof filters!=='undefined' && filters && filters.carburant==='Diesel'?'selected':'' %>>Diesel</option>
+                                <option value="Hybride" <%= typeof filters!=='undefined' && filters && filters.carburant==='Hybride'?'selected':'' %>>Hybride</option>
+                                <option value="Électrique" <%= typeof filters!=='undefined' && filters && filters.carburant==='Électrique'?'selected':'' %>>Électrique</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Boîte</label>
+                            <select name="boite_vitesse" class="form-select">
+                                <option value="">Toutes</option>
+                                <option value="Manuelle" <%= typeof filters!=='undefined' && filters && filters.boite_vitesse==='Manuelle'?'selected':'' %>>Manuelle</option>
+                                <option value="Automatique" <%= typeof filters!=='undefined' && filters && filters.boite_vitesse==='Automatique'?'selected':'' %>>Automatique</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Prix Max</label>
+                            <input type="number" name="prix_max" class="form-control" value="<%= typeof filters!=='undefined' && filters ? filters.prix_max||'' : '' %>" placeholder="MAD">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>Chercher</button>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/cars" class="btn btn-outline-secondary w-100">Réinitialiser</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cars Grid -->
+    <section style="padding:50px 0;min-height:50vh;">
+        <div class="container">
+            <% if(typeof cars!=='undefined' && cars && cars.length>0){ %>
+            <div class="row g-4">
+                <% cars.forEach(function(c, i){ %>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="<%= (i%3)*100 %>">
+                    <div class="card shadow-sm h-100 border-0" style="border-radius:16px;overflow:hidden;transition:transform 0.3s,box-shadow 0.3s;">
+                        <% if(c.image){ %>
+                            <img src="<%= c.image %>" class="card-img-top" style="height:220px;object-fit:cover;" alt="<%= c.marque %> <%= c.modele %>">
+                        <% }else{ %>
+                            <div style="height:220px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-car fa-4x text-white opacity-50"></i>
+                            </div>
+                        <% } %>
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="fw-bold mb-0"><%= c.marque %> <%= c.modele %></h5>
+                                <span class="badge bg-secondary"><%= c.annee %></span>
+                            </div>
+                            <div class="d-flex gap-3 mb-3 text-muted">
+                                <small><i class="fas fa-gas-pump me-1"></i><%= c.carburant %></small>
+                                <small><i class="fas fa-cog me-1"></i><%= c.boite_vitesse %></small>
+                                <small><i class="fas fa-tachometer-alt me-1"></i><%= c.kilometrage ? parseInt(c.kilometrage).toLocaleString('fr-FR') : '0' %> km</small>
+                            </div>
+                            <h4 class="fw-bold mb-0" style="color:#e94560"><%= c.prix ? parseFloat(c.prix).toLocaleString('fr-FR') : '0' %> MAD</h4>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 p-4 pt-0">
+                            <a href="/cars/<%= c.id_voiture %>" class="btn btn-outline-primary w-100" style="border-radius:10px;"><i class="fas fa-eye me-1"></i>Voir Détails</a>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+            <!-- Pagination -->
+            <% if(typeof pagination!=='undefined' && pagination && pagination.totalPages > 1){ %>
+            <nav class="mt-5"><ul class="pagination justify-content-center">
+                <li class="page-item <%= pagination.currentPage<=1?'disabled':'' %>"><a class="page-link" href="/cars?page=<%= pagination.currentPage-1 %>&<%= typeof filters!=='undefined' && filters ? Object.entries(filters).filter(([k,v])=>v).map(([k,v])=>k+'='+v).join('&') : '' %>">&laquo;</a></li>
+                <% for(let p=1; p<=pagination.totalPages; p++){ %>
+                <li class="page-item <%= p===pagination.currentPage?'active':'' %>"><a class="page-link" href="/cars?page=<%= p %>&<%= typeof filters!=='undefined' && filters ? Object.entries(filters).filter(([k,v])=>v).map(([k,v])=>k+'='+v).join('&') : '' %>"><%= p %></a></li>
+                <% } %>
+                <li class="page-item <%= pagination.currentPage>=pagination.totalPages?'disabled':'' %>"><a class="page-link" href="/cars?page=<%= pagination.currentPage+1 %>&<%= typeof filters!=='undefined' && filters ? Object.entries(filters).filter(([k,v])=>v).map(([k,v])=>k+'='+v).join('&') : '' %>">&raquo;</a></li>
+            </ul></nav>
+            <% } %>
+            <% }else{ %>
+            <div class="text-center py-5">
+                <i class="fas fa-car fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">Aucune voiture trouvée</h4>
+                <p class="text-muted">Essayez de modifier vos critères de recherche.</p>
+                <a href="/cars" class="btn btn-primary"><i class="fas fa-redo me-1"></i>Voir toutes les voitures</a>
+            </div>
+            <% } %>
+        </div>
+    </section>
+
+    <%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/main.js"></script>
+    <script>AOS.init({duration:800,once:true});</script>
+</body></html>

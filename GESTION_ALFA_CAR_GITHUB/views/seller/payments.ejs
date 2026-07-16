@@ -1,0 +1,50 @@
+<%- include('../partials/head', {title: 'Paiements - Vendeur', extraCss: '<link rel="stylesheet" href="/css/dashboard.css"><link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">'}) %>
+<body data-theme="light">
+<div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    <main class="main-content">
+        <div class="content-header">
+            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/seller'}, {name:'Paiements'}]}) %>
+        </div>
+        <div class="content-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold"><i class="fas fa-credit-card me-2"></i>Paiements</h2>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary" onclick="printTable('paymentsTable','Paiements')"><i class="fas fa-print me-1"></i>Imprimer</button>
+                    <button class="btn btn-outline-danger" onclick="exportTableToPDF('paymentsTable','paiements','Paiements')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+                    <button class="btn btn-outline-success" onclick="exportTableToExcel('paymentsTable','paiements')"><i class="fas fa-file-excel me-1"></i>Excel</button>
+                </div>
+            </div>
+            <div class="card shadow-sm"><div class="card-body">
+                <% if(typeof payments!=='undefined' && payments && payments.length>0){ %>
+                <div class="table-responsive"><table id="paymentsTable" class="table table-striped table-hover datatable">
+                    <thead class="table-dark"><tr><th>#</th><th>Vente</th><th>Client</th><th>Montant</th><th>Type</th><th>Statut</th><th>Date</th><th>Détails Crédit</th><th>Actions</th></tr></thead>
+                    <tbody><% payments.forEach(function(p){ %>
+                    <tr>
+                        <td><%= p.id_paiement %></td><td>#<%= p.id_vente %></td>
+                        <td><%= p.client_nom||'' %> <%= p.client_prenom||'' %></td>
+                        <td class="fw-bold text-primary"><%= p.montant?parseFloat(p.montant).toLocaleString('fr-FR'):'0' %> MAD</td>
+                        <td><% if(p.type_paiement==='cash'){ %><span class="badge bg-info">Cash</span><% }else{ %><span class="badge bg-warning text-dark">Crédit</span><% } %></td>
+                        <td><% if(p.statut==='en_attente'){ %><span class="badge bg-warning text-dark">En attente</span><% }else if(p.statut==='confirme'){ %><span class="badge bg-success">Confirmé</span><% }else{ %><span class="badge bg-danger">Refusé</span><% } %></td>
+                        <td><%= p.date_paiement?new Date(p.date_paiement).toLocaleDateString('fr-FR'):'N/A' %></td>
+                        <td><% if(p.type_paiement==='credit'){ %><small>Avance: <%= p.montant_avance?parseFloat(p.montant_avance).toLocaleString('fr-FR'):'0' %> MAD<br><%= p.nombre_mensualites||0 %> × <%= p.mensualite?parseFloat(p.mensualite).toLocaleString('fr-FR'):'0' %> MAD</small><% }else{ %>-<% } %></td>
+                        <td><% if(p.statut==='en_attente'){ %>
+                            <form action="/seller/payments/approve/<%= p.id_paiement %>" method="POST" class="d-inline"><button type="submit" class="btn btn-sm btn-success" onclick="return confirmApprove(event)"><i class="fas fa-check"></i></button></form>
+                            <form action="/seller/payments/reject/<%= p.id_paiement %>" method="POST" class="d-inline"><button type="submit" class="btn btn-sm btn-danger" onclick="return confirmReject(event)"><i class="fas fa-times"></i></button></form>
+                        <% }else{ %>-<% } %></td>
+                    </tr><% }); %></tbody>
+                </table></div>
+                <% }else{ %><div class="text-center py-5"><i class="fas fa-credit-card fa-4x text-muted mb-3"></i><h4 class="text-muted">Aucun paiement</h4></div><% } %>
+            </div></div>
+        </div>
+    </main>
+</div>
+<%- include('../partials/flash') %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/main.js"></script><script src="/js/dashboard.js"></script><script src="/js/print.js"></script><script src="/js/export.js"></script>
+</body></html>

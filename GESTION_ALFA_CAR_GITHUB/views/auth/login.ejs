@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <%- include('../partials/head', { title: 'Connexion', extraCss: ['/css/auth.css'] }) %>
+  <style>
+    body { margin: 0; padding: 0; min-height: 100vh; font-family: 'Inter', sans-serif; background: #0a0a1a; }
+    .auth-container { display: flex; min-height: 100vh; }
+    .auth-left {
+      flex: 1; display: none; background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a1a3e 100%);
+      position: relative; overflow: hidden; padding: 3rem;
+      flex-direction: column; justify-content: center; align-items: center;
+    }
+    @media (min-width: 992px) { .auth-left { display: flex; } }
+    .auth-left::before {
+      content: ''; position: absolute; top: -50%; right: -50%;
+      width: 100%; height: 100%; background: radial-gradient(circle, rgba(108,92,231,0.15), transparent 60%);
+    }
+    .auth-left::after {
+      content: ''; position: absolute; bottom: -30%; left: -30%;
+      width: 80%; height: 80%; background: radial-gradient(circle, rgba(0,206,201,0.1), transparent 60%);
+    }
+    .auth-right {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 2rem; background: #0a0a1a;
+    }
+    .auth-card {
+      width: 100%; max-width: 440px;
+      background: rgba(20, 20, 50, 0.6); backdrop-filter: blur(20px);
+      border: 1px solid rgba(108,92,231,0.15); border-radius: 24px;
+      padding: 2.5rem; box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    }
+    .auth-card .form-control {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; border-radius: 12px; padding: 14px 16px; font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+    .auth-card .form-control:focus {
+      border-color: rgba(108,92,231,0.5); box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
+      background: rgba(255,255,255,0.08);
+    }
+    .auth-card .form-control::placeholder { color: rgba(255,255,255,0.3); }
+    .auth-card label { color: rgba(255,255,255,0.7); font-weight: 500; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .auth-btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #6c5ce7, #a855f7);
+      color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem;
+      cursor: pointer; transition: all 0.4s ease;
+      box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+    }
+    .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(108,92,231,0.5); }
+    .input-group-text {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-right: none; color: rgba(255,255,255,0.4); border-radius: 12px 0 0 12px;
+    }
+    .input-group .form-control { border-left: none; border-radius: 0 12px 12px 0; }
+    .form-check-input { background-color: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+    .form-check-input:checked { background-color: #6c5ce7; border-color: #6c5ce7; }
+    .form-check-label { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <%- include('../partials/flash') %>
+
+  <div class="auth-container">
+    <!-- Left Side - Illustration -->
+    <div class="auth-left">
+      <div style="position: relative; z-index: 2; text-align: center; max-width: 500px;">
+        <div style="width: 120px; height: 120px; background: linear-gradient(135deg, rgba(108,92,231,0.2), rgba(0,206,201,0.15)); border-radius: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; border: 1px solid rgba(108,92,231,0.2);">
+          <i class="fas fa-car-side" style="font-size: 3rem; color: #6c5ce7;"></i>
+        </div>
+        <h2 style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 2rem; color: #fff; margin-bottom: 1rem;">
+          Bienvenue chez <span style="background: linear-gradient(135deg, #6c5ce7, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ALFA CAR</span>
+        </h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 1rem; line-height: 1.8;">
+          Connectez-vous pour accéder à votre espace personnel et gérer vos véhicules, réservations et bien plus encore.
+        </p>
+        <div style="display: flex; gap: 2rem; justify-content: center; margin-top: 3rem;">
+          <div style="text-align: center;">
+            <div style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: #6c5ce7;">500+</div>
+            <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4);">Voitures</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: #00cec9;">1000+</div>
+            <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4);">Clients</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: #fdcb6e;">5</div>
+            <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4);">Agences</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="auth-right">
+      <div class="auth-card">
+        <!-- Logo -->
+        <div class="text-center mb-4">
+          <a href="/" class="d-inline-flex align-items-center text-decoration-none mb-3">
+            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #6c5ce7, #00cec9); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 10px; box-shadow: 0 4px 15px rgba(108,92,231,0.3);">
+              <i class="fas fa-car-side text-white" style="font-size: 1.1rem;"></i>
+            </div>
+            <span style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.3rem; color: #fff;">ALFA <span style="background: linear-gradient(135deg, #6c5ce7, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CAR</span></span>
+          </a>
+          <h3 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin-bottom: 0.3rem;">Connexion</h3>
+          <p style="color: rgba(255,255,255,0.4); font-size: 0.9rem;">Entrez vos identifiants pour accéder à votre compte</p>
+        </div>
+
+        <form action="/auth/login" method="POST">
+          <div class="mb-3">
+            <label class="form-label"><i class="fas fa-user me-1"></i>Nom d'utilisateur</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              <input type="text" class="form-control" name="username" placeholder="Entrez votre nom d'utilisateur" required autofocus>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"><i class="fas fa-lock me-1"></i>Mot de passe</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              <input type="password" class="form-control" name="password" id="password" placeholder="Entrez votre mot de passe" required>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
+              <label class="form-check-label" for="rememberMe">Se souvenir de moi</label>
+            </div>
+            <a href="/auth/forgot-password" style="color: #6c5ce7; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s;" onmouseover="this.style.color='#a855f7'" onmouseout="this.style.color='#6c5ce7'">
+              Mot de passe oublié ?
+            </a>
+          </div>
+
+          <button type="submit" class="auth-btn mb-4">
+            <i class="fas fa-sign-in-alt me-2"></i>Se Connecter
+          </button>
+
+          <div class="text-center">
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">
+              Pas encore de compte ?
+              <a href="/auth/register" style="color: #6c5ce7; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#a855f7'" onmouseout="this.style.color='#6c5ce7'">
+                Créer un Compte
+              </a>
+            </p>
+          </div>
+        </form>
+
+        <div class="text-center mt-3">
+          <a href="/" style="color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; transition: color 0.3s;" onmouseover="this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
+            <i class="fas fa-arrow-left me-1"></i>Retour à l'accueil
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/scripts', { extraScripts: [] }) %>
+</body>
+</html>

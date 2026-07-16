@@ -1,0 +1,87 @@
+<%- include('../partials/head', {title: 'Mon Profil', extraCss: '<link rel="stylesheet" href="/css/dashboard.css">'}) %>
+<body data-theme="light">
+<div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    <main class="main-content">
+        <div class="content-header">
+            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/client'}, {name:'Profil'}]}) %>
+        </div>
+        <div class="content-body">
+            <h2 class="fw-bold mb-4"><i class="fas fa-user me-2"></i>Mon Profil</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm text-center border-0">
+                        <div class="card-body p-4">
+                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:100px;height:100px;background:linear-gradient(135deg,#e94560,#ff6b81);color:white;font-size:2.5rem;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h4 class="fw-bold"><%= typeof clientData!=='undefined' && clientData ? (clientData.nom||'')+' '+(clientData.prenom||'') : user ? user.username : '' %></h4>
+                            <p class="text-muted mb-1"><i class="fas fa-envelope me-1"></i><%= typeof clientData!=='undefined' && clientData ? clientData.email||'N/A' : '' %></p>
+                            <p class="text-muted mb-1"><i class="fas fa-phone me-1"></i><%= typeof clientData!=='undefined' && clientData ? clientData.telephone||'N/A' : '' %></p>
+                            <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-1"></i><%= typeof clientData!=='undefined' && clientData ? clientData.adresse||'N/A' : '' %></p>
+                            <span class="badge bg-success mt-2">Client</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-transparent"><h5 class="mb-0"><i class="fas fa-edit me-2"></i>Modifier le Profil</h5></div>
+                        <div class="card-body p-4">
+                            <form action="/client/profile" method="POST" enctype="multipart/form-data">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nom</label>
+                                        <input type="text" name="nom" class="form-control" value="<%= typeof clientData!=='undefined' && clientData ? clientData.nom||'' : '' %>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Prénom</label>
+                                        <input type="text" name="prenom" class="form-control" value="<%= typeof clientData!=='undefined' && clientData ? clientData.prenom||'' : '' %>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Téléphone</label>
+                                        <input type="text" name="telephone" class="form-control" value="<%= typeof clientData!=='undefined' && clientData ? clientData.telephone||'' : '' %>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" name="email" class="form-control" value="<%= typeof clientData!=='undefined' && clientData ? clientData.email||'' : '' %>">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Adresse</label>
+                                        <input type="text" name="adresse" class="form-control" value="<%= typeof clientData!=='undefined' && clientData ? clientData.adresse||'' : '' %>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Photo de Profil</label>
+                                        <input type="file" name="profile_picture" class="form-control" accept="image/*">
+                                    </div>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="fw-bold mb-3"><i class="fas fa-lock me-2"></i>Changer le Mot de Passe</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Mot de passe actuel</label>
+                                        <input type="password" name="current_password" class="form-control" placeholder="••••••">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Nouveau mot de passe</label>
+                                        <input type="password" name="new_password" class="form-control" placeholder="••••••">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Confirmer</label>
+                                        <input type="password" name="confirm_password" class="form-control" placeholder="••••••">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-save me-2"></i>Mettre à jour</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<%- include('../partials/flash') %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/main.js"></script>
+</body></html>

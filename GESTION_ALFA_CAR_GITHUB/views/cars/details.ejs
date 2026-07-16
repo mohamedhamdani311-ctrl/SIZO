@@ -1,0 +1,86 @@
+<%- include('../partials/head', {title: (typeof car!=='undefined' && car ? car.marque+' '+car.modele+' - ' : '')+'ALFA CAR', extraCss: '<link rel="stylesheet" href="/css/style.css">'}) %>
+<body data-theme="light">
+    <%- include('../partials/navbar') %>
+
+    <% if(typeof car!=='undefined' && car){ %>
+    <!-- Car Hero -->
+    <section style="padding-top:80px;">
+        <div class="container py-5">
+            <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="/">Accueil</a></li><li class="breadcrumb-item"><a href="/cars">Voitures</a></li><li class="breadcrumb-item active"><%= car.marque %> <%= car.modele %></li></ol></nav>
+            <div class="row g-4">
+                <div class="col-md-7">
+                    <div class="card shadow-sm border-0 overflow-hidden" style="border-radius:16px;">
+                        <% if(car.image){ %>
+                            <img src="<%= car.image %>" alt="<%= car.marque %> <%= car.modele %>" style="width:100%;height:450px;object-fit:cover;">
+                        <% }else{ %>
+                            <div style="height:450px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-car fa-5x text-white opacity-50"></i>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="card shadow-sm border-0 h-100" style="border-radius:16px;">
+                        <div class="card-body p-4">
+                            <span class="badge bg-secondary fs-6 mb-2"><%= car.annee %></span>
+                            <h2 class="fw-bold mb-2"><%= car.marque %> <%= car.modele %></h2>
+                            <h3 class="fw-bold mb-4" style="color:#e94560"><%= car.prix ? parseFloat(car.prix).toLocaleString('fr-FR') : '0' %> MAD</h3>
+                            <% if(car.statut==='disponible'){ %>
+                                <span class="badge bg-success fs-6 mb-4"><i class="fas fa-check-circle me-1"></i>Disponible</span>
+                            <% }else{ %>
+                                <span class="badge bg-danger fs-6 mb-4"><i class="fas fa-times-circle me-1"></i>Vendue</span>
+                            <% } %>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6"><div class="p-3 rounded text-center" style="background:#f8f9fa;border-radius:12px!important;"><i class="fas fa-gas-pump fa-lg mb-2 d-block" style="color:#e94560"></i><small class="text-muted d-block">Carburant</small><strong><%= car.carburant %></strong></div></div>
+                                <div class="col-6"><div class="p-3 rounded text-center" style="background:#f8f9fa;border-radius:12px!important;"><i class="fas fa-cog fa-lg mb-2 d-block" style="color:#e94560"></i><small class="text-muted d-block">Boîte</small><strong><%= car.boite_vitesse %></strong></div></div>
+                                <div class="col-6"><div class="p-3 rounded text-center" style="background:#f8f9fa;border-radius:12px!important;"><i class="fas fa-tachometer-alt fa-lg mb-2 d-block" style="color:#e94560"></i><small class="text-muted d-block">Kilométrage</small><strong><%= car.kilometrage ? parseInt(car.kilometrage).toLocaleString('fr-FR') : '0' %> km</strong></div></div>
+                                <div class="col-6"><div class="p-3 rounded text-center" style="background:#f8f9fa;border-radius:12px!important;"><i class="fas fa-palette fa-lg mb-2 d-block" style="color:#e94560"></i><small class="text-muted d-block">Couleur</small><strong><%= car.couleur || 'N/A' %></strong></div></div>
+                            </div>
+                            <% if(car.nom_agence || car.agence_nom){ %>
+                            <p class="text-muted mb-3"><i class="fas fa-building me-2"></i>Agence: <strong><%= car.nom_agence || car.agence_nom %></strong></p>
+                            <% } %>
+                            <div class="d-grid">
+                                <a href="/auth/login" class="btn btn-primary btn-lg" style="border-radius:12px;"><i class="fas fa-sign-in-alt me-2"></i>Connectez-vous pour réserver ou acheter</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% if(car.description){ %>
+            <div class="card shadow-sm border-0 mt-4" style="border-radius:16px;">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-3"><i class="fas fa-info-circle me-2"></i>Description</h4>
+                    <p class="text-muted mb-0"><%= car.description %></p>
+                </div>
+            </div>
+            <% } %>
+            <!-- Similar Cars -->
+            <% if(typeof similarCars!=='undefined' && similarCars && similarCars.length>0){ %>
+            <h3 class="fw-bold mt-5 mb-4">Voitures Similaires</h3>
+            <div class="row g-4">
+                <% similarCars.slice(0,3).forEach(function(s){ %>
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100 border-0" style="border-radius:16px;overflow:hidden;">
+                        <% if(s.image){ %><img src="<%= s.image %>" class="card-img-top" style="height:180px;object-fit:cover;" alt=""><% }else{ %><div style="height:180px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;"><i class="fas fa-car fa-3x text-white opacity-50"></i></div><% } %>
+                        <div class="card-body"><h6 class="fw-bold"><%= s.marque %> <%= s.modele %></h6><h5 class="fw-bold" style="color:#e94560"><%= s.prix?parseFloat(s.prix).toLocaleString('fr-FR'):'0' %> MAD</h5><a href="/cars/<%= s.id_voiture %>" class="btn btn-sm btn-outline-primary">Voir</a></div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+            <% } %>
+        </div>
+    </section>
+    <% }else{ %>
+    <section style="padding:150px 0;text-align:center;">
+        <div class="container">
+            <i class="fas fa-car fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">Voiture non trouvée</h3>
+            <a href="/cars" class="btn btn-primary mt-3">Retour au catalogue</a>
+        </div>
+    </section>
+    <% } %>
+
+    <%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body></html>

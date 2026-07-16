@@ -1,0 +1,197 @@
+<!-- Dashboard Sidebar -->
+<aside id="dashboardSidebar" class="sidebar">
+  <!-- Sidebar Header -->
+  <div class="sidebar-logo">
+    <div class="d-flex align-items-center justify-content-center rounded-2" style="width: 36px; height: 36px; background: linear-gradient(135deg, #6c5ce7, #00cec9);">
+      <i class="fas fa-car-side text-white" style="font-size: 1rem;"></i>
+    </div>
+    <span>ALFA CAR</span>
+    <button id="sidebarToggleClose" class="btn btn-link p-1 d-lg-none ms-auto" style="color: rgba(255,255,255,0.5); font-size: 1.2rem;" onclick="toggleSidebar()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- User Profile Section -->
+  <% if (typeof user !== 'undefined' && user) { %>
+  <div class="user-profile">
+    <div class="user-avatar-placeholder">
+      <%= user.nom ? user.nom.charAt(0).toUpperCase() : (user.username ? user.username.charAt(0).toUpperCase() : 'U') %>
+    </div>
+    <div class="user-info-text">
+      <span class="user-name"><%= user.prenom || '' %> <%= user.nom || user.username %></span>
+      <span class="user-role"><%= user.role === 'admin' ? 'Administrateur' : (user.role === 'vendeur' ? 'Vendeur' : 'Client') %></span>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <% var currentPath = typeof currentPath !== 'undefined' ? currentPath : ''; %>
+
+    <!-- ADMIN Navigation -->
+    <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+    <div class="sidebar-section-title">Principal</div>
+    <a href="/admin/dashboard" class="sidebar-nav-link <%= currentPath === '/admin/dashboard' || currentPath === '/admin' || currentPath === '/admin/' ? 'active' : '' %>">
+      <i class="fas fa-tachometer-alt nav-link-icon"></i>
+      <span class="nav-link-text">Tableau de Bord</span>
+    </a>
+
+    <div class="sidebar-section-title">Gestion</div>
+    <a href="/admin/cars" class="sidebar-nav-link <%= currentPath === '/admin/cars' ? 'active' : '' %>">
+      <i class="fas fa-car nav-link-icon"></i>
+      <span class="nav-link-text">Voitures</span>
+    </a>
+    <a href="/admin/customers" class="sidebar-nav-link <%= currentPath === '/admin/customers' ? 'active' : '' %>">
+      <i class="fas fa-users nav-link-icon"></i>
+      <span class="nav-link-text">Clients</span>
+    </a>
+    <a href="/admin/sellers" class="sidebar-nav-link <%= currentPath === '/admin/sellers' ? 'active' : '' %>">
+      <i class="fas fa-user-tie nav-link-icon"></i>
+      <span class="nav-link-text">Vendeurs</span>
+    </a>
+    <a href="/admin/agencies" class="sidebar-nav-link <%= currentPath === '/admin/agencies' ? 'active' : '' %>">
+      <i class="fas fa-building nav-link-icon"></i>
+      <span class="nav-link-text">Agences</span>
+    </a>
+
+    <div class="sidebar-section-title">Transactions</div>
+    <a href="/admin/reservations" class="sidebar-nav-link <%= currentPath === '/admin/reservations' ? 'active' : '' %>">
+      <i class="fas fa-calendar-check nav-link-icon"></i>
+      <span class="nav-link-text">Réservations</span>
+    </a>
+    <a href="/admin/sales" class="sidebar-nav-link <%= currentPath === '/admin/sales' ? 'active' : '' %>">
+      <i class="fas fa-handshake nav-link-icon"></i>
+      <span class="nav-link-text">Ventes</span>
+    </a>
+    <a href="/admin/payments" class="sidebar-nav-link <%= currentPath === '/admin/payments' ? 'active' : '' %>">
+      <i class="fas fa-credit-card nav-link-icon"></i>
+      <span class="nav-link-text">Paiements</span>
+    </a>
+    <a href="/admin/invoices" class="sidebar-nav-link <%= currentPath === '/admin/invoices' ? 'active' : '' %>">
+      <i class="fas fa-file-invoice-dollar nav-link-icon"></i>
+      <span class="nav-link-text">Factures</span>
+    </a>
+
+    <div class="sidebar-section-title">Système</div>
+    <a href="/admin/reports" class="sidebar-nav-link <%= currentPath === '/admin/reports' ? 'active' : '' %>">
+      <i class="fas fa-chart-bar nav-link-icon"></i>
+      <span class="nav-link-text">Rapports</span>
+    </a>
+    <a href="/admin/accounts" class="sidebar-nav-link <%= currentPath === '/admin/accounts' ? 'active' : '' %>">
+      <i class="fas fa-user-shield nav-link-icon"></i>
+      <span class="nav-link-text">Comptes</span>
+    </a>
+    <a href="/admin/settings" class="sidebar-nav-link <%= currentPath === '/admin/settings' ? 'active' : '' %>">
+      <i class="fas fa-cog nav-link-icon"></i>
+      <span class="nav-link-text">Paramètres</span>
+    </a>
+    <% } %>
+
+    <!-- SELLER Navigation -->
+    <% if (typeof user !== 'undefined' && user && user.role === 'vendeur') { %>
+    <div class="sidebar-section-title">Principal</div>
+    <a href="/seller/dashboard" class="sidebar-nav-link <%= currentPath === '/seller/dashboard' || currentPath === '/seller' || currentPath === '/seller/' ? 'active' : '' %>">
+      <i class="fas fa-tachometer-alt nav-link-icon"></i>
+      <span class="nav-link-text">Tableau de Bord</span>
+    </a>
+
+    <div class="sidebar-section-title">Gestion</div>
+    <a href="/seller/cars" class="sidebar-nav-link <%= currentPath === '/seller/cars' ? 'active' : '' %>">
+      <i class="fas fa-car nav-link-icon"></i>
+      <span class="nav-link-text">Voitures</span>
+    </a>
+    <a href="/seller/customers" class="sidebar-nav-link <%= currentPath === '/seller/customers' ? 'active' : '' %>">
+      <i class="fas fa-users nav-link-icon"></i>
+      <span class="nav-link-text">Clients</span>
+    </a>
+    <a href="/seller/reservations" class="sidebar-nav-link <%= currentPath === '/seller/reservations' ? 'active' : '' %>">
+      <i class="fas fa-calendar-check nav-link-icon"></i>
+      <span class="nav-link-text">Réservations</span>
+    </a>
+    <a href="/seller/sales" class="sidebar-nav-link <%= currentPath === '/seller/sales' ? 'active' : '' %>">
+      <i class="fas fa-handshake nav-link-icon"></i>
+      <span class="nav-link-text">Ventes</span>
+    </a>
+    <a href="/seller/payments" class="sidebar-nav-link <%= currentPath === '/seller/payments' ? 'active' : '' %>">
+      <i class="fas fa-credit-card nav-link-icon"></i>
+      <span class="nav-link-text">Paiements</span>
+    </a>
+    <a href="/seller/profile" class="sidebar-nav-link <%= currentPath === '/seller/profile' ? 'active' : '' %>">
+      <i class="fas fa-user nav-link-icon"></i>
+      <span class="nav-link-text">Profil</span>
+    </a>
+    <% } %>
+
+    <!-- CLIENT Navigation -->
+    <% if (typeof user !== 'undefined' && user && user.role === 'client') { %>
+    <div class="sidebar-section-title">Principal</div>
+    <a href="/client/dashboard" class="sidebar-nav-link <%= currentPath === '/client/dashboard' || currentPath === '/client' || currentPath === '/client/' ? 'active' : '' %>">
+      <i class="fas fa-tachometer-alt nav-link-icon"></i>
+      <span class="nav-link-text">Tableau de Bord</span>
+    </a>
+
+    <div class="sidebar-section-title">Catalogue</div>
+    <a href="/client/cars" class="sidebar-nav-link <%= currentPath === '/client/cars' ? 'active' : '' %>">
+      <i class="fas fa-car nav-link-icon"></i>
+      <span class="nav-link-text">Voitures</span>
+    </a>
+    <a href="/client/reservations" class="sidebar-nav-link <%= currentPath === '/client/reservations' ? 'active' : '' %>">
+      <i class="fas fa-calendar-check nav-link-icon"></i>
+      <span class="nav-link-text">Mes Réservations</span>
+    </a>
+    <a href="/client/purchases" class="sidebar-nav-link <%= currentPath === '/client/purchases' ? 'active' : '' %>">
+      <i class="fas fa-shopping-bag nav-link-icon"></i>
+      <span class="nav-link-text">Mes Achats</span>
+    </a>
+    <a href="/client/invoices" class="sidebar-nav-link <%= currentPath === '/client/invoices' ? 'active' : '' %>">
+      <i class="fas fa-file-invoice nav-link-icon"></i>
+      <span class="nav-link-text">Mes Factures</span>
+    </a>
+    <a href="/client/profile" class="sidebar-nav-link <%= currentPath === '/client/profile' ? 'active' : '' %>">
+      <i class="fas fa-user nav-link-icon"></i>
+      <span class="nav-link-text">Profil</span>
+    </a>
+    <% } %>
+  </nav>
+
+  <!-- Logout -->
+  <div class="sidebar-footer">
+    <a href="/auth/logout" class="sidebar-nav-link text-danger" style="background: transparent;">
+      <i class="fas fa-sign-out-alt nav-link-icon"></i>
+      <span class="nav-link-text">Déconnexion</span>
+    </a>
+  </div>
+</aside>
+
+<!-- Mobile Sidebar Overlay -->
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- Mobile Toggle Button (Visible only on mobile via CSS) -->
+<button id="mobileSidebarToggle" class="mobile-sidebar-toggle" onclick="toggleSidebar()">
+  <i class="fas fa-bars"></i>
+</button>
+
+<script>
+function toggleSidebar() {
+  const sidebar = document.getElementById('dashboardSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  
+  if (sidebar && overlay) {
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('active');
+  }
+}
+
+// Sidebar Desktop Toggle (if you have one)
+const sidebarToggle = document.getElementById('sidebarToggle');
+if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+        const sidebar = document.getElementById('dashboardSidebar');
+        const mainContent = document.querySelector('.main-content');
+        if (sidebar && mainContent) {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('sidebar-collapsed');
+        }
+    });
+}
+</script>

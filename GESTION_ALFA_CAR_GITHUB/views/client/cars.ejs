@@ -1,0 +1,57 @@
+<%- include('../partials/head', {title: 'Voitures Disponibles', extraCss: '<link rel="stylesheet" href="/css/dashboard.css"><link rel="stylesheet" href="/css/style.css">'}) %>
+<body data-theme="light">
+<div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    <main class="main-content">
+        <div class="content-header">
+            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/client'}, {name:'Voitures'}]}) %>
+        </div>
+        <div class="content-body">
+            <h2 class="fw-bold mb-4"><i class="fas fa-car me-2"></i>Voitures Disponibles</h2>
+            <!-- Filters -->
+            <div class="card shadow-sm mb-4"><div class="card-body">
+                <form action="/client/cars" method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-2"><label class="form-label">Marque</label><select name="marque" class="form-select"><option value="">Toutes</option><% if(typeof brands!=='undefined' && brands){ brands.forEach(function(b){ %><option value="<%= b.marque %>" <%= typeof filters!=='undefined' && filters && filters.marque===b.marque?'selected':'' %>><%= b.marque %></option><% }); } %></select></div>
+                    <div class="col-md-2"><label class="form-label">Carburant</label><select name="carburant" class="form-select"><option value="">Tous</option><option value="Essence" <%= typeof filters!=='undefined' && filters && filters.carburant==='Essence'?'selected':'' %>>Essence</option><option value="Diesel" <%= typeof filters!=='undefined' && filters && filters.carburant==='Diesel'?'selected':'' %>>Diesel</option><option value="Hybride" <%= typeof filters!=='undefined' && filters && filters.carburant==='Hybride'?'selected':'' %>>Hybride</option><option value="Électrique" <%= typeof filters!=='undefined' && filters && filters.carburant==='Électrique'?'selected':'' %>>Électrique</option></select></div>
+                    <div class="col-md-2"><label class="form-label">Boîte</label><select name="boite_vitesse" class="form-select"><option value="">Toutes</option><option value="Manuelle" <%= typeof filters!=='undefined' && filters && filters.boite_vitesse==='Manuelle'?'selected':'' %>>Manuelle</option><option value="Automatique" <%= typeof filters!=='undefined' && filters && filters.boite_vitesse==='Automatique'?'selected':'' %>>Automatique</option></select></div>
+                    <div class="col-md-2"><label class="form-label">Prix Max</label><input type="number" name="prix_max" class="form-control" value="<%= typeof filters!=='undefined' && filters ? filters.prix_max||'' : '' %>" placeholder="MAD"></div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>Filtrer</button></div>
+                    <div class="col-md-2"><a href="/client/cars" class="btn btn-outline-secondary w-100">Réinitialiser</a></div>
+                </form>
+            </div></div>
+            <!-- Cars Grid -->
+            <% if(typeof cars!=='undefined' && cars && cars.length>0){ %>
+            <div class="row g-4">
+                <% cars.forEach(function(c){ %>
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100 border-0" style="overflow:hidden;transition:transform 0.3s;">
+                        <% if(c.image){ %><img src="<%= c.image %>" class="card-img-top" style="height:200px;object-fit:cover;" alt="<%= c.marque %> <%= c.modele %>"><% }else{ %><div style="height:200px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;"><i class="fas fa-car fa-4x text-white opacity-50"></i></div><% } %>
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-1"><%= c.marque %> <%= c.modele %></h5>
+                            <span class="badge bg-secondary mb-2"><%= c.annee %></span>
+                            <div class="d-flex gap-2 mb-3 flex-wrap">
+                                <small class="text-muted"><i class="fas fa-gas-pump me-1"></i><%= c.carburant %></small>
+                                <small class="text-muted"><i class="fas fa-cog me-1"></i><%= c.boite_vitesse %></small>
+                                <small class="text-muted"><i class="fas fa-tachometer-alt me-1"></i><%= c.kilometrage?c.kilometrage.toLocaleString('fr-FR'):'0' %> km</small>
+                            </div>
+                            <h4 class="fw-bold" style="color:var(--accent)"><%= c.prix?parseFloat(c.prix).toLocaleString('fr-FR'):'0' %> MAD</h4>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pb-3">
+                            <a href="/client/cars/<%= c.id_voiture %>" class="btn btn-primary w-100"><i class="fas fa-eye me-1"></i>Voir Détails</a>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+            <% }else{ %>
+            <div class="text-center py-5"><i class="fas fa-car fa-4x text-muted mb-3"></i><h4 class="text-muted">Aucune voiture disponible</h4><p class="text-muted">Revenez bientôt pour découvrir nos nouvelles offres.</p></div>
+            <% } %>
+        </div>
+    </main>
+</div>
+<%- include('../partials/flash') %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/main.js"></script>
+</body></html>

@@ -1,0 +1,215 @@
+<!-- Premium Navbar with Glassmorphism -->
+<nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar" style="
+  background: rgba(15, 15, 35, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.4s ease;
+  z-index: 1050;
+  padding: 0.8rem 0;
+">
+  <div class="container">
+    <!-- Logo -->
+    <a class="navbar-brand d-flex align-items-center" href="/" style="
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 1px;
+    ">
+      <div class="logo-icon me-2" style="
+        width: 42px;
+        height: 42px;
+        background: linear-gradient(135deg, #6c5ce7, #00cec9);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+      ">
+        <i class="fas fa-car-side" style="font-size: 1.1rem; color: #fff;"></i>
+      </div>
+      <span>ALFA <span style="background: linear-gradient(135deg, #6c5ce7, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CAR</span></span>
+    </a>
+
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation" style="color: #fff;">
+      <i class="fas fa-bars fa-lg" style="color: #fff;"></i>
+    </button>
+
+    <!-- Nav Content -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Main Links -->
+      <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+        <li class="nav-item mx-1">
+          <a class="nav-link px-3 py-2" href="/" style="
+            color: rgba(255,255,255,0.8);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            position: relative;
+          " onmouseover="this.style.color='#fff'; this.style.background='rgba(108,92,231,0.15)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'; this.style.background='transparent'">
+            <i class="fas fa-home me-1"></i> Accueil
+          </a>
+        </li>
+        <li class="nav-item mx-1">
+          <a class="nav-link px-3 py-2" href="/cars" style="
+            color: rgba(255,255,255,0.8);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+          " onmouseover="this.style.color='#fff'; this.style.background='rgba(108,92,231,0.15)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'; this.style.background='transparent'">
+            <i class="fas fa-car me-1"></i> Voitures
+          </a>
+        </li>
+        <li class="nav-item mx-1">
+          <a class="nav-link px-3 py-2" href="/about" style="
+            color: rgba(255,255,255,0.8);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+          " onmouseover="this.style.color='#fff'; this.style.background='rgba(108,92,231,0.15)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'; this.style.background='transparent'">
+            <i class="fas fa-info-circle me-1"></i> À Propos
+          </a>
+        </li>
+        <li class="nav-item mx-1">
+          <a class="nav-link px-3 py-2" href="/contact" style="
+            color: rgba(255,255,255,0.8);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+          " onmouseover="this.style.color='#fff'; this.style.background='rgba(108,92,231,0.15)'" onmouseout="this.style.color='rgba(255,255,255,0.8)'; this.style.background='transparent'">
+            <i class="fas fa-envelope me-1"></i> Contact
+          </a>
+        </li>
+      </ul>
+
+      <!-- Right Side -->
+      <div class="d-flex align-items-center gap-2">
+        <!-- Dark/Light Mode Toggle -->
+        <button class="btn btn-link p-2 text-decoration-none" id="themeToggle" title="Changer le thème" style="
+          color: rgba(255,255,255,0.7);
+          font-size: 1.1rem;
+          transition: all 0.3s ease;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        " onmouseover="this.style.color='#ffd43b'; this.style.background='rgba(255,212,59,0.1)'" onmouseout="this.style.color='rgba(255,255,255,0.7)'; this.style.background='transparent'">
+          <i class="fas fa-sun" id="themeIcon"></i>
+        </button>
+
+        <% if (typeof user !== 'undefined' && user) { %>
+          <!-- Logged In User -->
+          <div class="dropdown">
+            <button class="btn d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="
+              background: rgba(108, 92, 231, 0.15);
+              border: 1px solid rgba(108, 92, 231, 0.3);
+              color: #fff;
+              border-radius: 12px;
+              padding: 8px 16px;
+              font-family: 'Inter', sans-serif;
+              font-weight: 500;
+              font-size: 0.9rem;
+              transition: all 0.3s ease;
+            ">
+              <div style="
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #6c5ce7, #00cec9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 0.8rem;
+              ">
+                <%= user.nom ? user.nom.charAt(0).toUpperCase() : 'U' %>
+              </div>
+              <span class="d-none d-md-inline"><%= user.prenom || user.username %></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" style="
+              background: rgba(20, 20, 45, 0.95);
+              backdrop-filter: blur(20px);
+              border: 1px solid rgba(255,255,255,0.1);
+              border-radius: 12px;
+              padding: 8px;
+              margin-top: 8px;
+              min-width: 200px;
+            ">
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 rounded" href="/<%= user.role === 'admin' ? 'admin' : (user.role === 'vendeur' ? 'seller' : 'client') %>/dashboard" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.background='rgba(108,92,231,0.2)'; this.style.color='#fff'" onmouseout="this.style.background='transparent'; this.style.color='rgba(255,255,255,0.8)'">
+                  <i class="fas fa-tachometer-alt" style="width: 20px;"></i> Tableau de Bord
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 rounded" href="/<%= user.role === 'admin' ? 'admin' : (user.role === 'vendeur' ? 'seller' : 'client') %>/profile" style="color: rgba(255,255,255,0.8); transition: all 0.3s ease;" onmouseover="this.style.background='rgba(108,92,231,0.2)'; this.style.color='#fff'" onmouseout="this.style.background='transparent'; this.style.color='rgba(255,255,255,0.8)'">
+                  <i class="fas fa-user" style="width: 20px;"></i> Mon Profil
+                </a>
+              </li>
+              <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 rounded" href="/auth/logout" style="color: #ff6b6b; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,107,107,0.15)'" onmouseout="this.style.background='transparent'">
+                  <i class="fas fa-sign-out-alt" style="width: 20px;"></i> Déconnexion
+                </a>
+              </li>
+            </ul>
+          </div>
+        <% } else { %>
+          <!-- Not Logged In -->
+          <a href="/auth/login" class="btn px-4 py-2" style="
+            color: rgba(255,255,255,0.85);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+          " onmouseover="this.style.borderColor='rgba(108,92,231,0.6)'; this.style.color='#fff'; this.style.background='rgba(108,92,231,0.1)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.2)'; this.style.color='rgba(255,255,255,0.85)'; this.style.background='transparent'">
+            <i class="fas fa-sign-in-alt me-1"></i> Connexion
+          </a>
+          <a href="/auth/register" class="btn px-4 py-2" style="
+            background: linear-gradient(135deg, #6c5ce7, #a855f7);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+          " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(108,92,231,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(108,92,231,0.3)'">
+            <i class="fas fa-user-plus me-1"></i> Inscription
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Navbar Scroll Effect -->
+<script>
+window.addEventListener('scroll', function() {
+  const navbar = document.getElementById('mainNavbar');
+  if (window.scrollY > 50) {
+    navbar.style.background = 'rgba(10, 10, 30, 0.95)';
+    navbar.style.boxShadow = '0 4px 30px rgba(0,0,0,0.3)';
+    navbar.style.padding = '0.5rem 0';
+  } else {
+    navbar.style.background = 'rgba(15, 15, 35, 0.85)';
+    navbar.style.boxShadow = 'none';
+    navbar.style.padding = '0.8rem 0';
+  }
+});
+</script>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <%- include('../partials/head', {title: 'Gestion des Ventes', extraCss: ['/css/dashboard.css', 'https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css']}) %>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
+    .main-content { margin-left: 260px !important; min-height: 100vh; padding: 2rem; min-width: 0; width: calc(100vw - 260px); overflow-x: hidden; }
+    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .page-title-section { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+    .page-title-section h2 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin: 0; font-size: 1.5rem; }
+    .table-card { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 1.5rem; opacity: 1 !important; }
+    .table-card .table { color: #e2e8f0; font-size: 0.85rem; }
+    .table-card .table thead th { background: rgba(108,92,231,0.1); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.06); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .table-card .table td { border-color: rgba(255,255,255,0.04); vertical-align: middle; }
+    .table-card .table tbody tr:hover { background: rgba(108,92,231,0.05); }
+    .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; border-radius: 8px; }
+    .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: rgba(255,255,255,0.5); margin-top: 1rem; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button { color: rgba(255,255,255,0.6) !important; background: transparent !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px !important; margin: 0 2px; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: linear-gradient(135deg, #6c5ce7, #a855f7) !important; border-color: #6c5ce7 !important; color: #fff !important; }
+    .dataTables_wrapper .dataTables_filter label, .dataTables_wrapper .dataTables_length label { color: rgba(255,255,255,0.6); }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.4); }
+    .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto !important;
+        overflow-y: hidden;
+    }
+    
+    .dataTables_wrapper {
+        width: 100%;
+        overflow-x: auto !important;
+    }
+    
+    table.dataTable {
+        width: max-content !important;
+        min-width: 100%;
+    }
+    
+    @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    <main class="main-content">
+      <div class="content-header">
+        <button class="btn btn-link sidebar-toggle d-lg-none" onclick="toggleSidebar()" style="color:rgba(255,255,255,0.6);font-size:1.2rem;text-decoration:none;"><i class="fas fa-bars"></i></button>
+        <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/admin/dashboard'}, {name:'Ventes'}]}) %>
+      </div>
+      <div class="content-body">
+
+        <div class="page-title-section">
+          <h2><i class="fas fa-handshake me-2" style="color: #ef4444;"></i>Gestion des Ventes</h2>
+        </div>
+
+        <div class="action-bar mb-3">
+          <button class="btn btn-outline-light btn-sm" onclick="printTable('salesTable','Liste des Ventes')"><i class="fas fa-print me-1"></i>Imprimer</button>
+          <button class="btn btn-outline-danger btn-sm" onclick="exportTableToPDF('salesTable','ventes','Liste des Ventes')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+          <button class="btn btn-outline-success btn-sm" onclick="exportTableToExcel('salesTable','ventes')"><i class="fas fa-file-excel me-1"></i>Excel</button>
+        </div>
+
+        <div class="table-card">
+          <% if (typeof sales !== 'undefined' && sales && sales.length > 0) { %>
+          <div class="table-responsive">
+            <table id="salesTable" class="datatable table table-striped table-hover" style="width:100%">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+                  <th>ID</th>
+                  <th>N° Vente</th>
+                  <th>Client</th>
+                  <th>Téléphone</th>
+                  <th>Marque</th>
+                  <th>Modèle</th>
+                  <th>Année</th>
+                  <th>Prix Véhicule</th>
+                  <th>Vendeur</th>
+                  <th>Agence</th>
+                  <th>Paiement</th>
+                  <th>Statut</th>
+                  <th>Montant Total</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% sales.forEach(function(sale, index) { %>
+                <tr>
+                  <td><input type="checkbox" class="row-checkbox" value="<%= sale.id_vente %>"></td>
+                  <td><%= sale.id_vente %></td>
+                  <td><strong>VTE-<%= String(sale.id_vente).padStart(4, '0') %></strong></td>
+                  <td><strong><%= (sale.client_nom || '') + ' ' + (sale.client_prenom || '') %></strong></td>
+                  <td><%= sale.client_telephone ? String(sale.client_telephone).trim() : '-' %></td>
+                  <td><%= sale.marque || '-' %></td>
+                  <td><%= sale.modele || '-' %></td>
+                  <td><%= sale.annee || '-' %></td>
+                  <td><%= sale.prix ? Number(sale.prix).toLocaleString('fr-FR') + ' MAD' : '-' %></td>
+                  <td><%= (sale.vendeur_nom || '') + ' ' + (sale.vendeur_prenom || '') %></td>
+                  <td><%= sale.nom_agence || sale.agence || '-' %></td>
+                  <td>
+                    <% var pType = sale.type_paiement || 'comptant'; %>
+                    <span class="badge bg-<%= pType === 'comptant' || pType === 'cash' ? 'info' : 'primary' %>">
+                      <%= pType === 'comptant' || pType === 'cash' ? 'Comptant' : 'Crédit' %>
+                    </span>
+                  </td>
+                  <td>
+                    <% var saleStatus = sale.statut_vente || sale.statut || 'en_attente'; %>
+                    <span class="badge bg-<%= saleStatus === 'validee' || saleStatus === 'approuve' || saleStatus === 'approuvé' ? 'success' : (saleStatus === 'annulee' || saleStatus === 'refuse' || saleStatus === 'refusé' ? 'danger' : 'warning text-dark') %>">
+                      <%= saleStatus === 'validee' || saleStatus === 'approuve' || saleStatus === 'approuvé' ? 'Validée' : (saleStatus === 'annulee' || saleStatus === 'refuse' || saleStatus === 'refusé' ? 'Annulée' : 'En attente') %>
+                    </span>
+                  </td>
+                  <td><strong style="color: #10b981;"><%= sale.montant_total ? Number(sale.montant_total).toLocaleString('fr-FR') : '0' %> MAD</strong></td>
+                  <td><%= sale.date_vente ? new Date(sale.date_vente).toLocaleDateString('fr-FR') : '-' %></td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <% if (saleStatus === 'en_attente') { %>
+                        <form action="/admin/sales/approve/<%= sale.id_vente %>" method="POST" class="d-inline">
+                          <button type="submit" class="btn btn-sm btn-outline-success" style="border-radius: 8px; font-size: 0.75rem;" title="Approuver" onclick="return confirm('Approuver cette vente ?')">
+                            <i class="fas fa-check"></i>
+                          </button>
+                        </form>
+                        <form action="/admin/sales/reject/<%= sale.id_vente %>" method="POST" class="d-inline">
+                          <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;" title="Refuser" onclick="return confirm('Refuser cette vente ?')">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </form>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+          <div class="empty-state">
+            <i class="fas fa-handshake"></i>
+            <h5>Aucune vente trouvée</h5>
+            <p>Les ventes apparaîtront ici.</p>
+          </div>
+          <% } %>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <%- include('../partials/flash') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/print.js"></script>
+  <script src="/js/export.js"></script>
+  <script>
+    $(document).ready(function() {
+      if ($('#salesTable').length) {
+        if ($.fn.DataTable.isDataTable('#salesTable')) {
+          $('#salesTable').DataTable().destroy();
+        }
+        $('#salesTable').DataTable({ 
+          language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' }, 
+          scrollX: true,
+          autoWidth: false,
+          responsive: false, 
+          columnDefs: [{ orderable: false, targets: [0, 15] }], 
+          order: [[14, 'desc']] 
+        });
+      }
+    });
+    function toggleSelectAll(el) { document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = el.checked); }
+  </script>
+</body>
+</html>

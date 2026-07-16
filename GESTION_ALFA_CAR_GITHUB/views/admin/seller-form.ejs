@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <%- include('../partials/head', {title: (typeof seller !== 'undefined' && seller) ? 'Modifier Vendeur' : 'Ajouter Vendeur', extraCss: ['/css/dashboard.css']}) %>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
+    .main-content { margin-left: 280px; min-height: 100vh; padding: 2rem; }
+    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .form-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 2rem; }
+    .form-card .form-label { color: rgba(255,255,255,0.7); font-weight: 500; font-size: 0.85rem; margin-bottom: 0.4rem; }
+    .form-card .form-control, .form-card .form-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; border-radius: 10px; padding: 0.6rem 1rem; }
+    .form-card .form-control:focus, .form-card .form-select:focus { border-color: #6c5ce7; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); background: rgba(255,255,255,0.08); color: #fff; }
+    .form-card .form-control::placeholder { color: rgba(255,255,255,0.3); }
+    .form-card .form-select option { background: #1a1a2e; color: #e2e8f0; }
+    @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    <main class="main-content">
+      <div class="content-header">
+        <button class="btn btn-link sidebar-toggle d-lg-none" onclick="toggleSidebar()" style="color:rgba(255,255,255,0.6);font-size:1.2rem;text-decoration:none;"><i class="fas fa-bars"></i></button>
+        <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/admin/dashboard'}, {name:'Vendeurs', url:'/admin/sellers'}, {name: (typeof seller !== 'undefined' && seller) ? 'Modifier' : 'Ajouter'}]}) %>
+      </div>
+      <div class="content-body">
+
+        <h2 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; font-size: 1.5rem; margin-bottom: 1.5rem;">
+          <i class="fas fa-<%= (typeof seller !== 'undefined' && seller) ? 'edit' : 'user-plus' %> me-2" style="color: #8b5cf6;"></i>
+          <%= (typeof seller !== 'undefined' && seller) ? 'Modifier Vendeur' : 'Ajouter Vendeur' %>
+        </h2>
+
+        <div class="form-card">
+          <form action="<%= (typeof seller !== 'undefined' && seller) ? '/admin/sellers/edit/' + seller.id_vendeur : '/admin/sellers/add' %>" method="POST">
+
+            <% if (!(typeof seller !== 'undefined' && seller)) { %>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Nom d'utilisateur <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="username" required placeholder="Nom d'utilisateur unique">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Mot de passe <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" name="password" required placeholder="Mot de passe sécurisé" minlength="6">
+              </div>
+            </div>
+            <% } %>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Nom <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="nom" value="<%= (typeof seller !== 'undefined' && seller) ? seller.nom : '' %>" required placeholder="Nom de famille">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="prenom" value="<%= (typeof seller !== 'undefined' && seller) ? seller.prenom : '' %>" required placeholder="Prénom">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Téléphone</label>
+                <input type="tel" class="form-control" name="telephone" value="<%= (typeof seller !== 'undefined' && seller) ? seller.telephone || '' : '' %>" placeholder="06XXXXXXXX">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" value="<%= (typeof seller !== 'undefined' && seller) ? seller.email || '' : '' %>" placeholder="email@exemple.com">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Agence</label>
+                <select class="form-select" name="id_agence">
+                  <option value="">-- Choisir une agence --</option>
+                  <% if (typeof agencies !== 'undefined' && agencies) { %>
+                    <% agencies.forEach(function(agency) { %>
+                      <option value="<%= agency.id_agence %>" <%= (typeof seller !== 'undefined' && seller && seller.id_agence == agency.id_agence) ? 'selected' : '' %>><%= agency.nom_agence || agency.nom %></option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 pt-3" style="border-top: 1px solid rgba(255,255,255,0.06);">
+              <button type="submit" class="btn btn-primary px-4" style="background: linear-gradient(135deg, #6c5ce7, #a855f7); border: none; border-radius: 10px; font-weight: 600;">
+                <i class="fas fa-save me-2"></i><%= (typeof seller !== 'undefined' && seller) ? 'Mettre à jour' : 'Enregistrer' %>
+              </button>
+              <a href="/admin/sellers" class="btn btn-outline-light px-4" style="border-radius: 10px;">
+                <i class="fas fa-arrow-left me-2"></i>Annuler
+              </a>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <%- include('../partials/flash') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

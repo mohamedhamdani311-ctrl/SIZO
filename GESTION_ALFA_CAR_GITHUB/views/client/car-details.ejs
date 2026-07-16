@@ -1,0 +1,129 @@
+<%- include('../partials/head', {title: (typeof car!=='undefined' && car ? car.marque+' '+car.modele : 'Détails Voiture'), extraCss: '<link rel="stylesheet" href="/css/dashboard.css">'}) %>
+<body data-theme="light">
+<div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    <main class="main-content">
+        <div class="content-header">
+            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/client'}, {name:'Voitures', url:'/client/cars'}, {name:'Détails'}]}) %>
+        </div>
+        <div class="content-body">
+            <% if(typeof car!=='undefined' && car){ %>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 overflow-hidden">
+                        <% if(car.image){ %>
+                            <img src="<%= car.image %>" alt="<%= car.marque %> <%= car.modele %>" style="width:100%;height:400px;object-fit:cover;">
+                        <% }else{ %>
+                            <div style="height:400px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-car fa-5x text-white opacity-50"></i>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body p-4">
+                            <h2 class="fw-bold mb-1"><%= car.marque %> <%= car.modele %></h2>
+                            <span class="badge bg-secondary mb-3 fs-6"><%= car.annee %></span>
+                            <h3 class="fw-bold mb-4" style="color:var(--accent)"><%= car.prix ? parseFloat(car.prix).toLocaleString('fr-FR') : '0' %> MAD</h3>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6"><div class="p-3 rounded" style="background:var(--bg)"><i class="fas fa-gas-pump me-2 text-primary"></i><strong>Carburant:</strong><br><%= car.carburant %></div></div>
+                                <div class="col-6"><div class="p-3 rounded" style="background:var(--bg)"><i class="fas fa-cog me-2 text-primary"></i><strong>Boîte:</strong><br><%= car.boite_vitesse %></div></div>
+                                <div class="col-6"><div class="p-3 rounded" style="background:var(--bg)"><i class="fas fa-tachometer-alt me-2 text-primary"></i><strong>Kilométrage:</strong><br><%= car.kilometrage ? car.kilometrage.toLocaleString('fr-FR') : '0' %> km</div></div>
+                                <div class="col-6"><div class="p-3 rounded" style="background:var(--bg)"><i class="fas fa-palette me-2 text-primary"></i><strong>Couleur:</strong><br><%= car.couleur || 'N/A' %></div></div>
+                            </div>
+                            <% if(car.description){ %><p class="text-muted"><%= car.description %></p><% } %>
+                            <% if(car.statut==='disponible'){ %>
+                            <div class="d-flex gap-2 mt-3">
+                                <button class="btn btn-primary btn-lg flex-fill" data-bs-toggle="modal" data-bs-target="#reserveModal"><i class="fas fa-calendar-plus me-2"></i>Réserver</button>
+                                <button class="btn btn-success btn-lg flex-fill" data-bs-toggle="modal" data-bs-target="#purchaseModal"><i class="fas fa-shopping-cart me-2"></i>Acheter</button>
+                            </div>
+                            <% }else{ %>
+                            <div class="alert alert-warning mt-3"><i class="fas fa-info-circle me-2"></i>Cette voiture n'est plus disponible.</div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reserve Modal -->
+            <div class="modal fade" id="reserveModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-calendar-plus me-2"></i>Réserver cette voiture</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <form action="/client/reservations/create" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="id_voiture" value="<%= car.id_voiture %>">
+                        <div class="mb-3"><label class="form-label">Date d'expiration</label><input type="date" name="date_expiration" class="form-control" min="<%= new Date(Date.now()+86400000).toISOString().split('T')[0] %>" required></div>
+                        <div class="mb-3"><label class="form-label">Note (optionnel)</label><textarea name="note" class="form-control" rows="3" placeholder="Ajouter une note..."></textarea></div>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Confirmer la Réservation</button></div>
+                </form>
+            </div></div></div>
+
+            <!-- Purchase Modal -->
+            <div class="modal fade" id="purchaseModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-shopping-cart me-2"></i>Acheter cette voiture</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <form action="/client/purchases/create" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="id_voiture" value="<%= car.id_voiture %>">
+                        <input type="hidden" name="montant_total" value="<%= car.prix %>">
+                        <div class="alert alert-info"><strong>Voiture:</strong> <%= car.marque %> <%= car.modele %> — <strong>Prix:</strong> <%= car.prix ? parseFloat(car.prix).toLocaleString('fr-FR') : '0' %> MAD</div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Type de Paiement *</label>
+                            <select name="type_paiement" id="typePaiement" class="form-select" required>
+                                <option value="cash">Cash (Paiement intégral)</option>
+                                <option value="credit">Crédit (Paiement échelonné)</option>
+                            </select>
+                        </div>
+                        <div id="creditFields" style="display:none;">
+                            <div class="row g-3">
+                                <div class="col-md-4"><label class="form-label">Montant Avance (MAD)</label><input type="number" name="montant_avance" id="montantAvance" class="form-control" step="0.01" min="0"></div>
+                                <div class="col-md-4"><label class="form-label">Nombre de Mensualités</label><input type="number" name="nombre_mensualites" id="nombreMensualites" class="form-control" min="1" max="60" value="12"></div>
+                                <div class="col-md-4"><label class="form-label">Taux d'Intérêt (%)</label><input type="number" name="taux_interet" id="tauxInteret" class="form-control" step="0.01" min="0" value="5"></div>
+                            </div>
+                            <div class="alert alert-success mt-3" id="mensualiteResult" style="display:none;">
+                                <strong>Mensualité estimée:</strong> <span id="mensualiteValue">0</span> MAD/mois
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-success"><i class="fas fa-check me-1"></i>Confirmer l'Achat</button></div>
+                </form>
+            </div></div></div>
+            <% }else{ %>
+            <div class="text-center py-5"><i class="fas fa-car fa-4x text-muted mb-3"></i><h4 class="text-muted">Voiture non trouvée</h4><a href="/client/cars" class="btn btn-primary mt-2">Retour aux voitures</a></div>
+            <% } %>
+        </div>
+    </main>
+</div>
+<%- include('../partials/flash') %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const typeSelect = document.getElementById('typePaiement');
+    const creditFields = document.getElementById('creditFields');
+    const prix = parseFloat('<%= typeof car!=="undefined" && car ? car.prix : 0 %>') || 0;
+    if(typeSelect){
+        typeSelect.addEventListener('change', function(){
+            creditFields.style.display = this.value==='credit' ? 'block' : 'none';
+        });
+    }
+    function calcMensualite(){
+        const avance = parseFloat(document.getElementById('montantAvance').value) || 0;
+        const mois = parseInt(document.getElementById('nombreMensualites').value) || 12;
+        const taux = parseFloat(document.getElementById('tauxInteret').value) || 0;
+        if(mois > 0){
+            const reste = prix - avance;
+            const mensualite = (reste * (1 + taux/100)) / mois;
+            document.getElementById('mensualiteValue').textContent = mensualite.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+            document.getElementById('mensualiteResult').style.display = 'block';
+        }
+    }
+    ['montantAvance','nombreMensualites','tauxInteret'].forEach(function(id){
+        const el = document.getElementById(id);
+        if(el) el.addEventListener('input', calcMensualite);
+    });
+});
+</script>
+</body></html>

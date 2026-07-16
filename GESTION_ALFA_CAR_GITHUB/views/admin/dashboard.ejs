@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <%- include('../partials/head', {title: 'Tableau de Bord Admin', extraCss: ['/css/dashboard.css', 'https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css']}) %>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
+    .main-content { margin-left: 280px; min-height: 100vh; padding: 2rem; }
+    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-toggle { color: rgba(255,255,255,0.6); font-size: 1.2rem; text-decoration: none; }
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .stat-card:hover { transform: translateY(-4px); border-color: rgba(108,92,231,0.3); box-shadow: 0 8px 30px rgba(0,0,0,0.3); color: inherit; }
+    .stat-icon {
+      width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: #fff; margin-bottom: 1rem;
+    }
+    .stat-number { font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1; }
+    .stat-label { font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-top: 0.3rem; font-weight: 500; }
+    .chart-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .chart-card h5 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin-bottom: 1rem; font-size: 1rem; }
+    .table-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .table-card h5 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin-bottom: 1rem; font-size: 1rem; }
+    .table-card .table { color: #e2e8f0; font-size: 0.85rem; }
+    .table-card .table thead th { background: rgba(108,92,231,0.1); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.06); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .table-card .table td { border-color: rgba(255,255,255,0.04); vertical-align: middle; }
+    .table-card .table tbody tr:hover { background: rgba(108,92,231,0.05); }
+    @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    <main class="main-content">
+      <div class="content-header">
+        <button class="btn btn-link sidebar-toggle d-lg-none" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Tableau de Bord'}]}) %>
+      </div>
+      <div class="content-body">
+
+        <!-- Stat Cards Row -->
+        <div class="row g-3 mb-4">
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <a href="/admin/cars" class="stat-card">
+              <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                <i class="fas fa-car"></i>
+              </div>
+              <div class="stat-number"><%= typeof stats !== 'undefined' && stats ? stats.totalCars || 0 : 0 %></div>
+              <div class="stat-label">Total Voitures</div>
+            </a>
+          </div>
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <a href="/admin/customers" class="stat-card">
+              <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="stat-number"><%= typeof stats !== 'undefined' && stats ? stats.totalClients || 0 : 0 %></div>
+              <div class="stat-label">Total Clients</div>
+            </a>
+          </div>
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <a href="/admin/sellers" class="stat-card">
+              <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                <i class="fas fa-user-tie"></i>
+              </div>
+              <div class="stat-number"><%= typeof stats !== 'undefined' && stats ? stats.totalSellers || 0 : 0 %></div>
+              <div class="stat-label">Total Vendeurs</div>
+            </a>
+          </div>
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <a href="/admin/sales" class="stat-card">
+              <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+              <div class="stat-number"><%= typeof stats !== 'undefined' && stats ? stats.totalSales || 0 : 0 %></div>
+              <div class="stat-label">Total Ventes</div>
+            </a>
+          </div>
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <a href="/admin/reservations" class="stat-card">
+              <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <div class="stat-number"><%= typeof stats !== 'undefined' && stats ? stats.totalReservations || 0 : 0 %></div>
+              <div class="stat-label">Réservations</div>
+            </a>
+          </div>
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <a href="/admin/payments" class="stat-card">
+              <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="stat-number"><%= typeof stats !== 'undefined' && stats ? stats.totalPayments || 0 : 0 %></div>
+              <div class="stat-label">Paiements</div>
+            </a>
+          </div>
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <a href="/admin/sales" class="stat-card">
+              <div class="stat-icon" style="background: linear-gradient(135deg, #eab308, #ca8a04);">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <div class="stat-number"><%= typeof stats !== 'undefined' && stats && stats.revenue ? Number(stats.revenue).toLocaleString('fr-FR') : '0' %> <span style="font-size:0.9rem;font-weight:600;">MAD</span></div>
+              <div class="stat-label">Revenus Total</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-3 mb-4">
+          <div class="col-lg-8">
+            <div class="chart-card">
+              <h5><i class="fas fa-chart-line me-2" style="color: #6c5ce7;"></i>Ventes par Mois</h5>
+              <canvas id="salesChart" height="300"></canvas>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="chart-card">
+              <h5><i class="fas fa-chart-pie me-2" style="color: #00cec9;"></i>Ventes par Marque</h5>
+              <canvas id="brandsChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Tables Row -->
+        <div class="row g-3">
+          <div class="col-lg-7">
+            <div class="table-card">
+              <h5><i class="fas fa-handshake me-2" style="color: #10b981;"></i>Ventes Récentes</h5>
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Client</th>
+                      <th>Voiture</th>
+                      <th>Montant</th>
+                      <th>Date</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (typeof recentSales !== 'undefined' && recentSales && recentSales.length > 0) { %>
+                      <% recentSales.forEach(function(sale, index) { %>
+                        <tr>
+                          <td><%= index + 1 %></td>
+                          <td><%= sale.client_nom || '' %> <%= sale.client_prenom || '' %></td>
+                          <td><%= sale.marque || '' %> <%= sale.modele || '' %></td>
+                          <td><strong><%= sale.montant ? Number(sale.montant).toLocaleString('fr-FR') : '0' %> MAD</strong></td>
+                          <td><%= sale.date_vente ? new Date(sale.date_vente).toLocaleDateString('fr-FR') : '-' %></td>
+                          <td>
+                            <% var saleStatus = sale.statut || 'en_attente'; %>
+                            <span class="badge bg-<%= saleStatus === 'approuve' || saleStatus === 'approuvé' ? 'success' : (saleStatus === 'refuse' || saleStatus === 'refusé' ? 'danger' : 'warning') %>">
+                              <%= saleStatus === 'approuve' || saleStatus === 'approuvé' ? 'Approuvée' : (saleStatus === 'refuse' || saleStatus === 'refusé' ? 'Refusée' : 'En attente') %>
+                            </span>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr><td colspan="6" class="text-center py-4" style="color: rgba(255,255,255,0.4);"><i class="fas fa-inbox me-2"></i>Aucune vente récente</td></tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="table-card">
+              <h5><i class="fas fa-calendar-check me-2" style="color: #f59e0b;"></i>Réservations Récentes</h5>
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Client</th>
+                      <th>Voiture</th>
+                      <th>Date</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (typeof recentReservations !== 'undefined' && recentReservations && recentReservations.length > 0) { %>
+                      <% recentReservations.forEach(function(res, index) { %>
+                        <tr>
+                          <td><%= index + 1 %></td>
+                          <td><%= res.client_nom || '' %> <%= res.client_prenom || '' %></td>
+                          <td><%= res.marque || '' %> <%= res.modele || '' %></td>
+                          <td><%= res.date_reservation ? new Date(res.date_reservation).toLocaleDateString('fr-FR') : '-' %></td>
+                          <td>
+                            <% var resStatus = res.statut || 'en_attente'; %>
+                            <span class="badge bg-<%= resStatus === 'approuve' || resStatus === 'approuvé' ? 'success' : (resStatus === 'refuse' || resStatus === 'refusé' ? 'danger' : (resStatus === 'expire' || resStatus === 'expiré' ? 'secondary' : 'warning')) %>">
+                              <%= resStatus === 'approuve' || resStatus === 'approuvé' ? 'Approuvée' : (resStatus === 'refuse' || resStatus === 'refusé' ? 'Refusée' : (resStatus === 'expire' || resStatus === 'expiré' ? 'Expirée' : 'En attente')) %>
+                            </span>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr><td colspan="5" class="text-center py-4" style="color: rgba(255,255,255,0.4);"><i class="fas fa-inbox me-2"></i>Aucune réservation récente</td></tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <%- include('../partials/flash') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Sales by Month Chart
+      const salesCtx = document.getElementById('salesChart');
+      if (salesCtx) {
+        const salesData = <%= typeof chartData !== 'undefined' && chartData && chartData.salesByMonth ? JSON.stringify(chartData.salesByMonth) : '[]' %>;
+        const salesLabels = salesData.map(item => item.month || item.mois || '');
+        const salesValues = salesData.map(item => item.total || item.count || 0);
+        new Chart(salesCtx, {
+          type: 'line',
+          data: {
+            labels: salesLabels.length > 0 ? salesLabels : ['Jan','Fév','Mar','Avr','Mai','Juin','Jul','Aoû','Sep','Oct','Nov','Déc'],
+            datasets: [{
+              label: 'Ventes',
+              data: salesValues.length > 0 ? salesValues : [0,0,0,0,0,0,0,0,0,0,0,0],
+              borderColor: '#6c5ce7',
+              backgroundColor: 'rgba(108,92,231,0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#6c5ce7',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: 'rgba(255,255,255,0.7)', font: { family: 'Inter' } } } },
+            scales: {
+              x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+              y: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+            }
+          }
+        });
+      }
+
+      // Brands Chart
+      const brandsCtx = document.getElementById('brandsChart');
+      if (brandsCtx) {
+        const brandsData = <%= typeof chartData !== 'undefined' && chartData && chartData.salesByBrand ? JSON.stringify(chartData.salesByBrand) : '[]' %>;
+        const brandsLabels = brandsData.map(item => item.marque || item.brand || '');
+        const brandsValues = brandsData.map(item => item.total || item.count || 0);
+        const brandColors = ['#6c5ce7','#00cec9','#fd79a8','#fdcb6e','#00b894','#e17055','#0984e3','#a855f7','#f97316','#14b8a6'];
+        new Chart(brandsCtx, {
+          type: 'doughnut',
+          data: {
+            labels: brandsLabels.length > 0 ? brandsLabels : ['Aucune donnée'],
+            datasets: [{
+              data: brandsValues.length > 0 ? brandsValues : [1],
+              backgroundColor: brandColors,
+              borderColor: '#0f0f23',
+              borderWidth: 3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.7)', font: { family: 'Inter', size: 11 }, padding: 15, usePointStyle: true } } }
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

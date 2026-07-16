@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <%- include('../partials/head', { title: 'Inscription', extraCss: ['/css/auth.css'] }) %>
+  <style>
+    body { margin: 0; padding: 0; min-height: 100vh; font-family: 'Inter', sans-serif; background: #0a0a1a; }
+    .auth-container { display: flex; min-height: 100vh; }
+    .auth-left { flex: 1; display: none; background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a1a3e 100%); position: relative; overflow: hidden; padding: 3rem; flex-direction: column; justify-content: center; align-items: center; }
+    @media (min-width: 992px) { .auth-left { display: flex; } }
+    .auth-left::before { content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(108,92,231,0.15), transparent 60%); }
+    .auth-right { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; background: #0a0a1a; overflow-y: auto; }
+    .auth-card { width: 100%; max-width: 520px; background: rgba(20, 20, 50, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(108,92,231,0.15); border-radius: 24px; padding: 2.5rem; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+    .auth-card .form-control { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; transition: all 0.3s ease; }
+    .auth-card .form-control:focus { border-color: rgba(108,92,231,0.5); box-shadow: 0 0 0 3px rgba(108,92,231,0.1); background: rgba(255,255,255,0.08); }
+    .auth-card .form-control::placeholder { color: rgba(255,255,255,0.3); }
+    .auth-card label { color: rgba(255,255,255,0.7); font-weight: 500; font-size: 0.85rem; margin-bottom: 0.4rem; }
+    .auth-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #6c5ce7, #a855f7); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.4s ease; box-shadow: 0 4px 15px rgba(108,92,231,0.3); }
+    .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(108,92,231,0.5); }
+    .is-invalid { border-color: #ff6b6b !important; }
+    .invalid-feedback { color: #ff6b6b; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <%- include('../partials/flash') %>
+
+  <div class="auth-container">
+    <!-- Left Side -->
+    <div class="auth-left">
+      <div style="position: relative; z-index: 2; text-align: center; max-width: 500px;">
+        <div style="width: 120px; height: 120px; background: linear-gradient(135deg, rgba(108,92,231,0.2), rgba(0,206,201,0.15)); border-radius: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; border: 1px solid rgba(108,92,231,0.2);">
+          <i class="fas fa-user-plus" style="font-size: 3rem; color: #6c5ce7;"></i>
+        </div>
+        <h2 style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 2rem; color: #fff; margin-bottom: 1rem;">
+          Rejoignez <span style="background: linear-gradient(135deg, #6c5ce7, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ALFA CAR</span>
+        </h2>
+        <p style="color: rgba(255,255,255,0.5); font-size: 1rem; line-height: 1.8;">
+          Créez votre compte pour réserver et acheter des voitures, suivre vos commandes et profiter d'offres exclusives.
+        </p>
+        <div style="margin-top: 2.5rem; text-align: left; max-width: 350px; margin-left: auto; margin-right: auto;">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="width: 40px; height: 40px; background: rgba(0,212,170,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i class="fas fa-check" style="color: #00d4aa;"></i>
+            </div>
+            <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Inscription rapide et gratuite</span>
+          </div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="width: 40px; height: 40px; background: rgba(0,212,170,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i class="fas fa-check" style="color: #00d4aa;"></i>
+            </div>
+            <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Accès à tout notre catalogue</span>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 40px; height: 40px; background: rgba(0,212,170,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i class="fas fa-check" style="color: #00d4aa;"></i>
+            </div>
+            <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Facilités de paiement flexibles</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Register Form -->
+    <div class="auth-right">
+      <div class="auth-card">
+        <div class="text-center mb-4">
+          <a href="/" class="d-inline-flex align-items-center text-decoration-none mb-3">
+            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #6c5ce7, #00cec9); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 10px; box-shadow: 0 4px 15px rgba(108,92,231,0.3);">
+              <i class="fas fa-car-side text-white" style="font-size: 1.1rem;"></i>
+            </div>
+            <span style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.3rem; color: #fff;">ALFA <span style="background: linear-gradient(135deg, #6c5ce7, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CAR</span></span>
+          </a>
+          <h3 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin-bottom: 0.3rem;">Créer un Compte</h3>
+          <p style="color: rgba(255,255,255,0.4); font-size: 0.9rem;">Remplissez le formulaire ci-dessous</p>
+        </div>
+
+        <form action="/auth/register" method="POST" id="registerForm" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-user me-1"></i>Nom</label>
+              <input type="text" class="form-control" name="nom" placeholder="Votre nom" required>
+              <div class="invalid-feedback">Le nom est requis</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-user me-1"></i>Prénom</label>
+              <input type="text" class="form-control" name="prenom" placeholder="Votre prénom" required>
+              <div class="invalid-feedback">Le prénom est requis</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label"><i class="fas fa-at me-1"></i>Nom d'utilisateur</label>
+              <input type="text" class="form-control" name="username" placeholder="Choisissez un nom d'utilisateur" required minlength="3">
+              <div class="invalid-feedback">Minimum 3 caractères</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-lock me-1"></i>Mot de passe</label>
+              <input type="password" class="form-control" name="password" id="password" placeholder="Minimum 6 caractères" required minlength="6">
+              <div class="invalid-feedback">Minimum 6 caractères</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-lock me-1"></i>Confirmer</label>
+              <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Confirmez le mot de passe" required>
+              <div class="invalid-feedback">Les mots de passe ne correspondent pas</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-phone me-1"></i>Téléphone</label>
+              <input type="tel" class="form-control" name="telephone" placeholder="Ex: 0600000000" required>
+              <div class="invalid-feedback">Le téléphone est requis</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-envelope me-1"></i>Email</label>
+              <input type="email" class="form-control" name="email" placeholder="votre@email.com" required>
+              <div class="invalid-feedback">Email invalide</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label"><i class="fas fa-map-marker-alt me-1"></i>Adresse</label>
+              <input type="text" class="form-control" name="adresse" placeholder="Votre adresse complète">
+            </div>
+            <div class="col-12 mt-4">
+              <button type="submit" class="auth-btn">
+                <i class="fas fa-user-plus me-2"></i>Créer Mon Compte
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div class="text-center mt-4">
+          <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">
+            Déjà un compte ?
+            <a href="/auth/login" style="color: #6c5ce7; text-decoration: none; font-weight: 600;">Se Connecter</a>
+          </p>
+        </div>
+
+        <div class="text-center mt-2">
+          <a href="/" style="color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem;">
+            <i class="fas fa-arrow-left me-1"></i>Retour à l'accueil
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/scripts', { extraScripts: [] }) %>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      var form = this;
+      var isValid = true;
+      form.querySelectorAll('[required]').forEach(function(input) {
+        input.classList.remove('is-invalid');
+        if (!input.value.trim()) { input.classList.add('is-invalid'); isValid = false; }
+      });
+      var pwd = document.getElementById('password');
+      var cpwd = document.getElementById('confirmPassword');
+      if (pwd.value.length < 6) { pwd.classList.add('is-invalid'); isValid = false; }
+      if (pwd.value !== cpwd.value) { cpwd.classList.add('is-invalid'); isValid = false; }
+      if (!isValid) { e.preventDefault(); }
+    });
+  </script>
+</body>
+</html>

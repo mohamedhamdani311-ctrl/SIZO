@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <%- include('./partials/head', { title: 'Accueil', extraCss: ['/css/home.css', 'https://unpkg.com/aos@2.3.1/dist/aos.css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css'] }) %>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0a0a1a; color: #fff; overflow-x: hidden; }
+
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a1a;
+      z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    .loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loading-logo { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 2.5rem; margin-bottom: 2rem; }
+    .loading-spinner {
+      width: 50px; height: 50px; border: 3px solid rgba(108,92,231,0.2);
+      border-top: 3px solid #6c5ce7; border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Hero Section */
+    .hero-section {
+      min-height: 100vh; position: relative; display: flex; align-items: center;
+      background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 30%, #0a1a3e 60%, #0a0a2e 100%);
+      overflow: hidden;
+    }
+    .hero-section::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(108,92,231,0.15), transparent 60%),
+                  radial-gradient(ellipse at 70% 50%, rgba(0,206,201,0.1), transparent 60%);
+    }
+    #heroCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-title {
+      font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 3.5rem;
+      line-height: 1.15; margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #fff 0%, #e0e0ff 50%, #c0c0ff 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle { font-size: 1.15rem; color: rgba(255,255,255,0.6); line-height: 1.8; margin-bottom: 2.5rem; max-width: 500px; }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px;
+      background: linear-gradient(135deg, #6c5ce7, #a855f7); color: #fff; border: none;
+      border-radius: 14px; font-weight: 700; font-size: 1.05rem; text-decoration: none;
+      transition: all 0.4s ease; box-shadow: 0 8px 30px rgba(108,92,231,0.4);
+    }
+    .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(108,92,231,0.6); color: #fff; }
+
+    /* Particles */
+    .particle {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      animation: floatParticle 8s ease-in-out infinite;
+    }
+    @keyframes floatParticle {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+      50% { transform: translateY(-30px) translateX(15px); opacity: 0.8; }
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      background: rgba(15, 15, 40, 0.8); backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(108,92,231,0.1); border-bottom: 1px solid rgba(108,92,231,0.1);
+      padding: 3rem 0; position: relative; z-index: 5;
+    }
+    .stat-item { text-align: center; }
+    .stat-number { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 2.5rem; color: #6c5ce7; }
+    .stat-label { font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-top: 0.5rem; font-weight: 500; }
+
+    /* Section Styles */
+    .section-title {
+      font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 2.2rem;
+      text-align: center; margin-bottom: 0.75rem;
+    }
+    .section-subtitle { text-align: center; color: rgba(255,255,255,0.5); font-size: 1rem; margin-bottom: 3rem; }
+
+    /* Search Section */
+    .search-section { padding: 5rem 0; background: #0a0a1a; }
+    .search-card {
+      background: rgba(20, 20, 50, 0.6); backdrop-filter: blur(20px);
+      border: 1px solid rgba(108,92,231,0.15); border-radius: 20px;
+      padding: 2.5rem; box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    }
+    .search-card .form-control, .search-card .form-select {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem;
+    }
+    .search-card .form-control:focus, .search-card .form-select:focus {
+      border-color: rgba(108,92,231,0.5); box-shadow: 0 0 0 3px rgba(108,92,231,0.1); background: rgba(255,255,255,0.08);
+    }
+    .search-card .form-select option { background: #1a1a3e; color: #fff; }
+    .search-card label { color: rgba(255,255,255,0.6); font-weight: 500; font-size: 0.85rem; margin-bottom: 0.5rem; }
+
+    /* Car Cards */
+    .car-card {
+      background: rgba(20, 20, 50, 0.5); border: 1px solid rgba(108,92,231,0.1);
+      border-radius: 16px; overflow: hidden; transition: all 0.4s ease;
+    }
+    .car-card:hover { transform: translateY(-8px); border-color: rgba(108,92,231,0.3); box-shadow: 0 15px 40px rgba(108,92,231,0.15); }
+    .car-card-img {
+      width: 100%; height: 220px; object-fit: cover;
+      background: linear-gradient(135deg, rgba(108,92,231,0.2), rgba(0,206,201,0.2));
+      display: flex; align-items: center; justify-content: center;
+    }
+    .car-card-img i { font-size: 3rem; color: rgba(255,255,255,0.3); }
+    .car-card-body { padding: 1.5rem; }
+    .car-card-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .car-card-price { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.3rem; color: #6c5ce7; }
+    .car-badge {
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+      background: rgba(108,92,231,0.1); border-radius: 8px; font-size: 0.75rem;
+      color: rgba(255,255,255,0.7); margin-right: 4px; margin-bottom: 4px;
+    }
+
+    /* Brands Section */
+    .brands-section { padding: 4rem 0; background: rgba(15,15,35,0.5); }
+    .brand-item {
+      text-align: center; padding: 1.5rem; border-radius: 16px;
+      background: rgba(20,20,50,0.4); border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s ease;
+    }
+    .brand-item:hover { border-color: rgba(108,92,231,0.3); background: rgba(108,92,231,0.05); transform: translateY(-3px); }
+
+    /* Testimonials */
+    .testimonial-card {
+      background: rgba(20, 20, 50, 0.5); border: 1px solid rgba(108,92,231,0.1);
+      border-radius: 16px; padding: 2rem; text-align: center;
+    }
+    .testimonial-text { font-style: italic; color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .testimonial-avatar {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, #6c5ce7, #00cec9);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem; font-weight: 700; font-size: 1.2rem;
+    }
+
+    /* About Section */
+    .about-section { padding: 5rem 0; }
+    .about-img-placeholder {
+      width: 100%; height: 400px; border-radius: 20px;
+      background: linear-gradient(135deg, rgba(108,92,231,0.2), rgba(0,206,201,0.15));
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(108,92,231,0.15);
+    }
+
+    /* Contact Section */
+    .contact-section { padding: 5rem 0; background: rgba(15,15,35,0.5); }
+    .contact-card {
+      background: rgba(20,20,50,0.5); border: 1px solid rgba(108,92,231,0.1);
+      border-radius: 20px; padding: 2.5rem;
+    }
+    .contact-card .form-control {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; border-radius: 12px; padding: 12px 16px;
+    }
+    .contact-card .form-control:focus {
+      border-color: rgba(108,92,231,0.5); box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
+    }
+
+    .swiper { width: 100%; padding-bottom: 3rem; }
+    .swiper-pagination-bullet { background: #6c5ce7; }
+    .swiper-pagination-bullet-active { background: #6c5ce7; }
+
+    @media (max-width: 768px) {
+      .hero-title { font-size: 2.2rem; }
+      .stat-number { font-size: 1.8rem; }
+      .section-title { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-logo">
+      ALFA <span style="background: linear-gradient(135deg, #6c5ce7, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CAR</span>
+    </div>
+    <div class="loading-spinner"></div>
+    <p style="color: rgba(255,255,255,0.4); margin-top: 1.5rem; font-size: 0.9rem;">Chargement en cours...</p>
+  </div>
+
+  <%- include('./partials/navbar') %>
+  <%- include('./partials/flash') %>
+
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <canvas id="heroCanvas"></canvas>
+
+    <!-- Floating Particles -->
+    <% for(var i = 0; i < 15; i++) { %>
+    <div class="particle" style="
+      width: <%= Math.random() * 6 + 2 %>px;
+      height: <%= Math.random() * 6 + 2 %>px;
+      background: <%= ['#6c5ce7','#00cec9','#a855f7','#fdcb6e'][Math.floor(Math.random()*4)] %>;
+      left: <%= Math.random() * 100 %>%;
+      top: <%= Math.random() * 100 %>%;
+      animation-delay: <%= Math.random() * 5 %>s;
+      animation-duration: <%= Math.random() * 5 + 5 %>s;
+    "></div>
+    <% } %>
+
+    <div class="container hero-content">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <div data-aos="fade-up" data-aos-duration="1000">
+            <span style="
+              display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+              background: rgba(108,92,231,0.15); border: 1px solid rgba(108,92,231,0.3);
+              border-radius: 30px; font-size: 0.85rem; color: #a78bfa; margin-bottom: 1.5rem;
+              font-weight: 500;
+            ">
+              <i class="fas fa-star" style="font-size: 0.7rem;"></i> N°1 de la vente automobile
+            </span>
+          </div>
+          <h1 class="hero-title" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100">
+            Découvrez Votre <br>Voiture de <span style="background: linear-gradient(135deg, #6c5ce7, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Rêve</span>
+          </h1>
+          <p class="hero-subtitle" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+            Explorez notre collection exclusive de véhicules soigneusement sélectionnés. Qualité, confiance et service premium vous attendent chez ALFA CAR.
+          </p>
+          <div data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300">
+            <a href="/cars" class="hero-cta">
+              <i class="fas fa-search"></i> Explorer Nos Voitures
+            </a>
+            <a href="/about" style="
+              display: inline-flex; align-items: center; gap: 8px; padding: 16px 28px;
+              color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15);
+              border-radius: 14px; font-weight: 600; font-size: 1rem; text-decoration: none;
+              margin-left: 12px; transition: all 0.3s ease;
+            " onmouseover="this.style.borderColor='rgba(108,92,231,0.5)'; this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='rgba(255,255,255,0.7)'">
+              <i class="fas fa-play-circle"></i> En Savoir Plus
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-6 d-none d-lg-block" data-aos="fade-left" data-aos-duration="1200" data-aos-delay="400">
+          <div style="
+            width: 100%; height: 450px; border-radius: 24px;
+            background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(0,206,201,0.05));
+            border: 1px solid rgba(108,92,231,0.1);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+          ">
+            <i class="fas fa-car-side" style="font-size: 8rem; color: rgba(108,92,231,0.2);"></i>
+            <div style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: rgba(108,92,231,0.2); border-radius: 12px; font-size: 0.8rem; color: #a78bfa;">
+              <i class="fas fa-shield-alt me-1"></i> Certifié ALFA CAR
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
+          <div class="stat-item">
+            <div class="d-flex align-items-center justify-content-center gap-3">
+              <div style="width: 56px; height: 56px; background: rgba(108,92,231,0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-car" style="font-size: 1.3rem; color: #6c5ce7;"></i>
+              </div>
+              <div>
+                <div class="stat-number counter" data-target="<%= typeof totalCars !== 'undefined' ? totalCars : 150 %>">0</div>
+                <div class="stat-label">Voitures Disponibles</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="stat-item">
+            <div class="d-flex align-items-center justify-content-center gap-3">
+              <div style="width: 56px; height: 56px; background: rgba(0,206,201,0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-handshake" style="font-size: 1.3rem; color: #00cec9;"></i>
+              </div>
+              <div>
+                <div class="stat-number counter" data-target="<%= typeof totalSales !== 'undefined' ? totalSales : 500 %>" style="color: #00cec9;">0</div>
+                <div class="stat-label">Ventes Réalisées</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="stat-item">
+            <div class="d-flex align-items-center justify-content-center gap-3">
+              <div style="width: 56px; height: 56px; background: rgba(253,203,110,0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-users" style="font-size: 1.3rem; color: #fdcb6e;"></i>
+              </div>
+              <div>
+                <div class="stat-number counter" data-target="<%= typeof totalClients !== 'undefined' ? totalClients : 350 %>" style="color: #fdcb6e;">0</div>
+                <div class="stat-label">Clients Satisfaits</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH SECTION -->
+  <section class="search-section" id="searchSection">
+    <div class="container">
+      <h2 class="section-title" data-aos="fade-up">
+        <i class="fas fa-search me-2" style="color: #6c5ce7;"></i>Recherche Avancée
+      </h2>
+      <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Trouvez la voiture idéale selon vos critères</p>
+
+      <div class="search-card" data-aos="fade-up" data-aos-delay="200">
+        <form action="/cars" method="GET">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label"><i class="fas fa-tag me-1"></i>Marque</label>
+              <select class="form-select" name="marque">
+                <option value="">Toutes les marques</option>
+                <% if (typeof brands !== 'undefined' && brands.length > 0) { %>
+                  <% brands.forEach(function(brand) { %>
+                    <option value="<%= brand %>"><%= brand %></option>
+                  <% }); %>
+                <% } else { %>
+                  <option value="Toyota">Toyota</option>
+                  <option value="BMW">BMW</option>
+                  <option value="Mercedes">Mercedes</option>
+                  <option value="Audi">Audi</option>
+                  <option value="Renault">Renault</option>
+                  <option value="Peugeot">Peugeot</option>
+                  <option value="Volkswagen">Volkswagen</option>
+                  <option value="Hyundai">Hyundai</option>
+                  <option value="Dacia">Dacia</option>
+                <% } %>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label"><i class="fas fa-car me-1"></i>Modèle</label>
+              <input type="text" class="form-control" name="modele" placeholder="Ex: Golf, Clio, Serie 3...">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label"><i class="fas fa-calendar me-1"></i>Année</label>
+              <input type="number" class="form-control" name="annee" placeholder="Ex: 2023" min="1990" max="<%= new Date().getFullYear() %>">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label"><i class="fas fa-money-bill me-1"></i>Prix Min (MAD)</label>
+              <input type="number" class="form-control" name="prix_min" placeholder="0">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label"><i class="fas fa-money-bill me-1"></i>Prix Max (MAD)</label>
+              <input type="number" class="form-control" name="prix_max" placeholder="1 000 000">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label"><i class="fas fa-gas-pump me-1"></i>Carburant</label>
+              <select class="form-select" name="carburant">
+                <option value="">Tous</option>
+                <option value="Essence">Essence</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Hybride">Hybride</option>
+                <option value="Électrique">Électrique</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label"><i class="fas fa-cogs me-1"></i>Boîte de Vitesse</label>
+              <select class="form-select" name="boite_vitesse">
+                <option value="">Toutes</option>
+                <option value="Manuelle">Manuelle</option>
+                <option value="Automatique">Automatique</option>
+              </select>
+            </div>
+            <div class="col-12 text-center mt-4">
+              <button type="submit" class="hero-cta" style="border: none; cursor: pointer;">
+                <i class="fas fa-search"></i> Rechercher
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED CARS -->
+  <section style="padding: 5rem 0; background: #0a0a1a;">
+    <div class="container">
+      <h2 class="section-title" data-aos="fade-up">
+        <i class="fas fa-star me-2" style="color: #fdcb6e;"></i>Voitures à la Une
+      </h2>
+      <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Nos meilleures sélections du moment</p>
+
+      <% if (typeof featuredCars !== 'undefined' && featuredCars.length > 0) { %>
+      <div class="swiper featuredSwiper" data-aos="fade-up" data-aos-delay="200">
+        <div class="swiper-wrapper">
+          <% featuredCars.forEach(function(car) { %>
+          <div class="swiper-slide">
+            <div class="car-card h-100">
+              <% if (car.image) { %>
+                <img src="/uploads/<%= car.image %>" alt="<%= car.marque %> <%= car.modele %>" class="car-card-img" style="object-fit: cover;">
+              <% } else { %>
+                <div class="car-card-img">
+                  <i class="fas fa-car-side"></i>
+                </div>
+              <% } %>
+              <div class="car-card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="car-card-title mb-0"><%= car.marque %> <%= car.modele %></h5>
+                  <span style="color: rgba(255,255,255,0.4); font-size: 0.85rem;"><%= car.annee %></span>
+                </div>
+                <div class="car-card-price mb-3"><%= car.prix ? car.prix.toLocaleString('fr-FR') : '0' %> MAD</div>
+                <div class="mb-3">
+                  <span class="car-badge"><i class="fas fa-gas-pump"></i> <%= car.carburant %></span>
+                  <span class="car-badge"><i class="fas fa-cogs"></i> <%= car.boite_vitesse %></span>
+                  <span class="car-badge"><i class="fas fa-tachometer-alt"></i> <%= car.kilometrage ? car.kilometrage.toLocaleString('fr-FR') : '0' %> km</span>
+                </div>
+                <a href="/cars/<%= car.id %>" class="btn w-100" style="
+                  background: linear-gradient(135deg, rgba(108,92,231,0.2), rgba(168,85,247,0.15));
+                  border: 1px solid rgba(108,92,231,0.3); color: #fff; border-radius: 12px;
+                  font-weight: 600; padding: 10px; transition: all 0.3s ease;
+                " onmouseover="this.style.background='linear-gradient(135deg, #6c5ce7, #a855f7)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(108,92,231,0.2), rgba(168,85,247,0.15))'">
+                  <i class="fas fa-eye me-1"></i> Voir Détails
+                </a>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+        </div>
+        <div class="swiper-pagination"></div>
+      </div>
+      <% } else { %>
+      <div class="text-center py-5" data-aos="fade-up">
+        <i class="fas fa-car-side" style="font-size: 4rem; color: rgba(108,92,231,0.2); margin-bottom: 1rem;"></i>
+        <p style="color: rgba(255,255,255,0.4);">Aucune voiture disponible pour le moment.</p>
+      </div>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- LATEST CARS -->
+  <section style="padding: 5rem 0; background: rgba(15,15,35,0.5);">
+    <div class="container">
+      <h2 class="section-title" data-aos="fade-up">
+        <i class="fas fa-clock me-2" style="color: #00cec9;"></i>Dernières Arrivées
+      </h2>
+      <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Les véhicules récemment ajoutés à notre catalogue</p>
+
+      <div class="row g-4">
+        <% if (typeof latestCars !== 'undefined' && latestCars.length > 0) { %>
+          <% latestCars.forEach(function(car, index) { %>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="<%= index * 100 %>">
+            <div class="car-card h-100">
+              <% if (car.image) { %>
+                <img src="/uploads/<%= car.image %>" alt="<%= car.marque %> <%= car.modele %>" class="car-card-img" style="object-fit: cover;">
+              <% } else { %>
+                <div class="car-card-img">
+                  <i class="fas fa-car-side"></i>
+                </div>
+              <% } %>
+              <div class="car-card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="car-card-title mb-0"><%= car.marque %> <%= car.modele %></h5>
+                  <span style="color: rgba(255,255,255,0.4); font-size: 0.85rem;"><%= car.annee %></span>
+                </div>
+                <div class="car-card-price mb-3"><%= car.prix ? car.prix.toLocaleString('fr-FR') : '0' %> MAD</div>
+                <div class="mb-3">
+                  <span class="car-badge"><i class="fas fa-gas-pump"></i> <%= car.carburant %></span>
+                  <span class="car-badge"><i class="fas fa-cogs"></i> <%= car.boite_vitesse %></span>
+                  <span class="car-badge"><i class="fas fa-tachometer-alt"></i> <%= car.kilometrage ? car.kilometrage.toLocaleString('fr-FR') : '0' %> km</span>
+                </div>
+                <a href="/cars/<%= car.id %>" class="btn w-100" style="
+                  background: linear-gradient(135deg, rgba(108,92,231,0.2), rgba(168,85,247,0.15));
+                  border: 1px solid rgba(108,92,231,0.3); color: #fff; border-radius: 12px;
+                  font-weight: 600; padding: 10px; transition: all 0.3s ease;
+                " onmouseover="this.style.background='linear-gradient(135deg, #6c5ce7, #a855f7)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(108,92,231,0.2), rgba(168,85,247,0.15))'">
+                  <i class="fas fa-eye me-1"></i> Voir Détails
+                </a>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+        <% } else { %>
+          <div class="col-12 text-center py-5">
+            <i class="fas fa-inbox" style="font-size: 3rem; color: rgba(108,92,231,0.2); margin-bottom: 1rem;"></i>
+            <p style="color: rgba(255,255,255,0.4);">Aucune voiture récente disponible.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRANDS -->
+  <section class="brands-section">
+    <div class="container">
+      <h2 class="section-title" data-aos="fade-up">
+        <i class="fas fa-award me-2" style="color: #a855f7;"></i>Nos Marques
+      </h2>
+      <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Les marques de confiance que nous proposons</p>
+
+      <div class="row g-3 justify-content-center">
+        <%
+          var displayBrands = typeof brands !== 'undefined' && brands.length > 0 ? brands : ['Toyota','BMW','Mercedes','Audi','Renault','Peugeot','Volkswagen','Hyundai','Dacia','Fiat'];
+          displayBrands.forEach(function(brand, i) {
+        %>
+        <div class="col-6 col-md-3 col-lg-2" data-aos="zoom-in" data-aos-delay="<%= i * 50 %>">
+          <div class="brand-item">
+            <i class="fas fa-car" style="font-size: 1.5rem; color: #6c5ce7; margin-bottom: 0.5rem;"></i>
+            <div style="font-weight: 600; font-size: 0.85rem; color: rgba(255,255,255,0.8);"><%= brand %></div>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section style="padding: 5rem 0; background: #0a0a1a;">
+    <div class="container">
+      <h2 class="section-title" data-aos="fade-up">
+        <i class="fas fa-comments me-2" style="color: #00cec9;"></i>Témoignages
+      </h2>
+      <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Ce que nos clients disent de nous</p>
+
+      <div class="swiper testimonialsSwiper" data-aos="fade-up" data-aos-delay="200">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div class="testimonial-card">
+              <div style="color: #fdcb6e; margin-bottom: 1rem;">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              </div>
+              <p class="testimonial-text">"Service exceptionnel ! J'ai trouvé la voiture parfaite en moins d'une semaine. L'équipe d'ALFA CAR est professionnelle et très à l'écoute. Je recommande vivement !"</p>
+              <div class="testimonial-avatar">M</div>
+              <div style="font-weight: 600; color: #fff;">Mohammed A.</div>
+              <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4);">Casablanca</div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="testimonial-card">
+              <div style="color: #fdcb6e; margin-bottom: 1rem;">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              </div>
+              <p class="testimonial-text">"Excellent rapport qualité-prix. Les voitures sont en parfait état et le processus d'achat est simple et transparent. Merci ALFA CAR pour cette belle expérience !"</p>
+              <div class="testimonial-avatar">S</div>
+              <div style="font-weight: 600; color: #fff;">Sara B.</div>
+              <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4);">Rabat</div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="testimonial-card">
+              <div style="color: #fdcb6e; margin-bottom: 1rem;">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+              </div>
+              <p class="testimonial-text">"J'ai acheté ma BMW via ALFA CAR et je suis très satisfait. Le suivi après-vente est impeccable et les facilités de paiement sont très avantageuses."</p>
+              <div class="testimonial-avatar">K</div>
+              <div style="font-weight: 600; color: #fff;">Karim E.</div>
+              <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4);">Marrakech</div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION -->
+  <section class="about-section">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6" data-aos="fade-right">
+          <div class="about-img-placeholder">
+            <i class="fas fa-building" style="font-size: 5rem; color: rgba(108,92,231,0.3);"></i>
+          </div>
+        </div>
+        <div class="col-lg-6" data-aos="fade-left">
+          <span style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(108,92,231,0.1); border: 1px solid rgba(108,92,231,0.2); border-radius: 20px; font-size: 0.8rem; color: #a78bfa; margin-bottom: 1rem; font-weight: 500;">
+            <i class="fas fa-info-circle"></i> À Propos de Nous
+          </span>
+          <h2 style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 1.5rem;">
+            Votre Partenaire de <span style="background: linear-gradient(135deg, #6c5ce7, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Confiance</span>
+          </h2>
+          <p style="color: rgba(255,255,255,0.6); line-height: 1.9; margin-bottom: 2rem;">
+            ALFA CAR est une entreprise leader dans la vente de véhicules neufs et d'occasion au Maroc. Avec plus de 10 ans d'expérience, nous proposons une large gamme de voitures de qualité à des prix compétitifs. Notre engagement : transparence, qualité et satisfaction client.
+          </p>
+          <div class="row g-3 mb-4">
+            <div class="col-6">
+              <div style="padding: 1.5rem; background: rgba(108,92,231,0.1); border-radius: 16px; border: 1px solid rgba(108,92,231,0.15); text-align: center;">
+                <div style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: #6c5ce7;">10+</div>
+                <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5);">Années d'Expérience</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div style="padding: 1.5rem; background: rgba(0,206,201,0.1); border-radius: 16px; border: 1px solid rgba(0,206,201,0.15); text-align: center;">
+                <div style="font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: #00cec9;">5</div>
+                <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5);">Agences au Maroc</div>
+              </div>
+            </div>
+          </div>
+          <a href="/about" style="
+            display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px;
+            background: linear-gradient(135deg, #6c5ce7, #a855f7); color: #fff; border-radius: 12px;
+            text-decoration: none; font-weight: 600; transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+          " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <i class="fas fa-arrow-right"></i> Découvrir Plus
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT SECTION -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      <h2 class="section-title" data-aos="fade-up">
+        <i class="fas fa-envelope me-2" style="color: #fdcb6e;"></i>Contactez-Nous
+      </h2>
+      <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Nous sommes là pour répondre à toutes vos questions</p>
+
+      <div class="row g-5">
+        <div class="col-lg-6" data-aos="fade-right">
+          <div class="contact-card h-100">
+            <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; margin-bottom: 1.5rem;">
+              <i class="fas fa-paper-plane me-2" style="color: #6c5ce7;"></i>Envoyez un Message
+            </h4>
+            <form onsubmit="event.preventDefault(); Swal.fire({icon:'success',title:'Message Envoyé !',text:'Nous vous répondrons dans les plus brefs délais.',background:'#1a1a2e',color:'#fff',confirmButtonColor:'#6c5ce7'});">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <input type="text" class="form-control" placeholder="Votre Nom" required>
+                </div>
+                <div class="col-md-6">
+                  <input type="email" class="form-control" placeholder="Votre Email" required>
+                </div>
+                <div class="col-12">
+                  <input type="text" class="form-control" placeholder="Sujet">
+                </div>
+                <div class="col-12">
+                  <textarea class="form-control" rows="5" placeholder="Votre Message..." required></textarea>
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn w-100" style="
+                    background: linear-gradient(135deg, #6c5ce7, #a855f7); color: #fff;
+                    border: none; border-radius: 12px; padding: 14px; font-weight: 600;
+                    font-size: 1rem; transition: all 0.3s ease;
+                    box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+                  " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <i class="fas fa-paper-plane me-2"></i>Envoyer le Message
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="col-lg-6" data-aos="fade-left">
+          <div class="contact-card h-100">
+            <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; margin-bottom: 1.5rem;">
+              <i class="fas fa-map-marked-alt me-2" style="color: #00cec9;"></i>Notre Localisation
+            </h4>
+            <div style="
+              width: 100%; height: 280px; border-radius: 16px;
+              background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(0,206,201,0.1));
+              border: 1px solid rgba(108,92,231,0.1); display: flex;
+              align-items: center; justify-content: center; margin-bottom: 1.5rem;
+            ">
+              <div class="text-center">
+                <i class="fas fa-map-marker-alt" style="font-size: 3rem; color: rgba(108,92,231,0.4); margin-bottom: 1rem;"></i>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.9rem;">Carte interactive</p>
+              </div>
+            </div>
+            <div class="d-flex flex-column gap-3">
+              <div class="d-flex align-items-center gap-3">
+                <div style="width: 40px; height: 40px; background: rgba(108,92,231,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="fas fa-map-marker-alt" style="color: #6c5ce7;"></i>
+                </div>
+                <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">123 Boulevard Mohammed V, Casablanca</span>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <div style="width: 40px; height: 40px; background: rgba(0,206,201,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="fas fa-phone" style="color: #00cec9;"></i>
+                </div>
+                <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">+212 5 22 00 00 00</span>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <div style="width: 40px; height: 40px; background: rgba(253,203,110,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="fas fa-envelope" style="color: #fdcb6e;"></i>
+                </div>
+                <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">contact@alfacar.ma</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%- include('./partials/footer') %>
+
+  <%- include('./partials/scripts', { extraScripts: ['https://unpkg.com/aos@2.3.1/dist/aos.js', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'] }) %>
+
+  <script>
+    // Loading Screen
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.getElementById('loadingScreen').classList.add('hidden');
+      }, 1500);
+    });
+
+    // AOS Init
+    AOS.init({ duration: 800, once: true, offset: 100 });
+
+    // Featured Cars Swiper
+    new Swiper('.featuredSwiper', {
+      slidesPerView: 1,
+      spaceBetween: 24,
+      loop: true,
+      autoplay: { delay: 4000, disableOnInteraction: false },
+      pagination: { el: '.featuredSwiper .swiper-pagination', clickable: true },
+      breakpoints: {
+        640: { slidesPerView: 2 },
+        1024: { slidesPerView: 3 }
+      }
+    });
+
+    // Testimonials Swiper
+    new Swiper('.testimonialsSwiper', {
+      slidesPerView: 1,
+      spaceBetween: 24,
+      loop: true,
+      autoplay: { delay: 5000, disableOnInteraction: false },
+      pagination: { el: '.testimonialsSwiper .swiper-pagination', clickable: true },
+      breakpoints: {
+        768: { slidesPerView: 2 },
+        1024: { slidesPerView: 3 }
+      }
+    });
+
+    // Counter Animation
+    function animateCounters() {
+      document.querySelectorAll('.counter').forEach(function(counter) {
+        var target = parseInt(counter.getAttribute('data-target'));
+        var count = 0;
+        var increment = target / 100;
+        var timer = setInterval(function() {
+          count += increment;
+          if (count >= target) {
+            counter.textContent = target.toLocaleString('fr-FR');
+            clearInterval(timer);
+          } else {
+            counter.textContent = Math.ceil(count).toLocaleString('fr-FR');
+          }
+        }, 20);
+      });
+    }
+
+    // Intersection Observer for counters
+    var statsObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          animateCounters();
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    var statsSection = document.querySelector('.stats-bar');
+    if (statsSection) statsObserver.observe(statsSection);
+
+    // Three.js Hero Scene
+    try {
+      var canvas = document.getElementById('heroCanvas');
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Create particles
+      var particlesGeometry = new THREE.BufferGeometry();
+      var particlesCount = 1500;
+      var posArray = new Float32Array(particlesCount * 3);
+      for (var i = 0; i < particlesCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 10;
+      }
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      var particlesMaterial = new THREE.PointsMaterial({
+        size: 0.015,
+        color: 0x6c5ce7,
+        transparent: true,
+        opacity: 0.6
+      });
+      var particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+      scene.add(particlesMesh);
+
+      // Wireframe sphere
+      var torusGeometry = new THREE.TorusKnotGeometry(1.5, 0.4, 100, 16);
+      var torusMaterial = new THREE.MeshBasicMaterial({ color: 0x6c5ce7, wireframe: true, transparent: true, opacity: 0.15 });
+      var torus = new THREE.Mesh(torusGeometry, torusMaterial);
+      torus.position.set(3, 0, -2);
+      scene.add(torus);
+
+      camera.position.z = 5;
+
+      var mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', function(e) {
+        mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+      });
+
+      function animateScene() {
+        requestAnimationFrame(animateScene);
+        particlesMesh.rotation.y += 0.001;
+        particlesMesh.rotation.x += 0.0005;
+        torus.rotation.x += 0.005;
+        torus.rotation.y += 0.008;
+        camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+        camera.position.y += (mouseY * 0.3 - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+        renderer.render(scene, camera);
+      }
+      animateScene();
+
+      window.addEventListener('resize', function() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    } catch(e) {
+      console.log('Three.js not available:', e);
+    }
+
+    // GSAP Animations
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+      gsap.from('.hero-title', { opacity: 0, y: 50, duration: 1, delay: 1.8 });
+      gsap.from('.hero-subtitle', { opacity: 0, y: 30, duration: 1, delay: 2 });
+      gsap.from('.hero-cta', { opacity: 0, y: 20, duration: 0.8, delay: 2.2 });
+    }
+  </script>
+</body>
+</html>

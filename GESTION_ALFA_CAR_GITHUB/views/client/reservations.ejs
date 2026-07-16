@@ -1,0 +1,50 @@
+<%- include('../partials/head', {title: 'Mes Réservations', extraCss: '<link rel="stylesheet" href="/css/dashboard.css"><link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">'}) %>
+<body data-theme="light">
+<div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    <main class="main-content">
+        <div class="content-header">
+            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/client'}, {name:'Réservations'}]}) %>
+        </div>
+        <div class="content-body">
+            <h2 class="fw-bold mb-4"><i class="fas fa-calendar-alt me-2"></i>Mes Réservations</h2>
+            <div class="card shadow-sm"><div class="card-body">
+                <% if(typeof reservations!=='undefined' && reservations && reservations.length>0){ %>
+                <div class="table-responsive"><table id="reservationsTable" class="table table-striped table-hover datatable">
+                    <thead class="table-dark"><tr><th>#</th><th>Voiture</th><th>Date Réservation</th><th>Date Expiration</th><th>Statut</th><th>Actions</th></tr></thead>
+                    <tbody><% reservations.forEach(function(r){ %>
+                    <tr>
+                        <td><%= r.id_reservation %></td>
+                        <td><%= r.marque||'' %> <%= r.modele||'' %></td>
+                        <td><%= r.date_reservation ? new Date(r.date_reservation).toLocaleDateString('fr-FR') : 'N/A' %></td>
+                        <td><%= r.date_expiration ? new Date(r.date_expiration).toLocaleDateString('fr-FR') : 'N/A' %></td>
+                        <td>
+                            <% if(r.statut==='en_attente'){ %><span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>En attente</span>
+                            <% }else if(r.statut==='confirmee'){ %><span class="badge bg-success"><i class="fas fa-check me-1"></i>Confirmée</span>
+                            <% }else{ %><span class="badge bg-danger"><i class="fas fa-times me-1"></i>Annulée</span><% } %>
+                        </td>
+                        <td>
+                            <% if(r.statut==='en_attente'){ %>
+                            <form action="/client/reservations/cancel/<%= r.id_reservation %>" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault();Swal.fire({title:'Annuler cette réservation?',text:'Cette action est irréversible.',icon:'warning',showCancelButton:true,confirmButtonColor:'#e94560',cancelButtonText:'Non',confirmButtonText:'Oui, annuler'}).then(r=>{if(r.isConfirmed)this.closest('form').submit()})"><i class="fas fa-times me-1"></i>Annuler</button>
+                            </form>
+                            <% }else{ %><span class="text-muted">-</span><% } %>
+                        </td>
+                    </tr><% }); %></tbody>
+                </table></div>
+                <% }else{ %>
+                <div class="text-center py-5"><i class="fas fa-calendar-alt fa-4x text-muted mb-3"></i><h4 class="text-muted">Aucune réservation</h4><p class="text-muted">Parcourez nos voitures pour faire une réservation.</p><a href="/client/cars" class="btn btn-primary mt-2"><i class="fas fa-car me-1"></i>Voir les Voitures</a></div>
+                <% } %>
+            </div></div>
+        </div>
+    </main>
+</div>
+<%- include('../partials/flash') %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/main.js"></script><script src="/js/dashboard.js"></script>
+</body></html>

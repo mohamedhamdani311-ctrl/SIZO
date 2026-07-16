@@ -1,0 +1,80 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  <% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+    Swal.fire({
+      icon: 'success',
+      title: 'Succès',
+      text: '<%= success_msg %>',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: '#1a1a2e',
+      color: '#fff',
+      iconColor: '#00d4aa',
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+  <% } %>
+  <% if (typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0) { %>
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: '<%= error_msg %>',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 4000,
+      timerProgressBar: true,
+      background: '#1a1a2e',
+      color: '#fff',
+      iconColor: '#ff6b6b',
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+  <% } %>
+  <% if (typeof warning_msg !== 'undefined' && warning_msg && warning_msg.length > 0) { %>
+    Swal.fire({
+      icon: 'warning',
+      title: 'Attention',
+      text: '<%= warning_msg %>',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 4000,
+      timerProgressBar: true,
+      background: '#1a1a2e',
+      color: '#fff',
+      iconColor: '#ffc107',
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+  <% } %>
+  <% if (typeof info_msg !== 'undefined' && info_msg && info_msg.length > 0) { %>
+    Swal.fire({
+      icon: 'info',
+      title: 'Information',
+      text: '<%= info_msg %>',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: '#1a1a2e',
+      color: '#fff',
+      iconColor: '#17a2b8',
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+  <% } %>
+});
+</script>
