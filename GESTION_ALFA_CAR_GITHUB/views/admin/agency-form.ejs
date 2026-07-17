@@ -3,15 +3,15 @@
 <head>
   <%- include('../partials/head', {title: (typeof agency !== 'undefined' && agency) ? 'Modifier Agence' : 'Ajouter Agence', extraCss: ['/css/dashboard.css']}) %>
   <style>
-    body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: #212529; margin: 0; }
     .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; }
-    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6; }
     .form-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 2rem; }
     .form-card .form-label { color: rgba(255,255,255,0.8) !important; font-weight: 500; font-size: 0.85rem; margin-bottom: 0.4rem; }
     .form-card .form-control, .form-card .form-select {
       background: rgba(30,30,70,0.9) !important;
       border: 1px solid rgba(255,255,255,0.15) !important;
-      color: #e2e8f0 !important;
+      color: #212529 !important;
       border-radius: 10px;
       padding: 0.6rem 1rem;
     }
@@ -22,12 +22,12 @@
       color: #fff !important;
     }
     .form-card .form-control::placeholder { color: rgba(255,255,255,0.35) !important; }
-    .form-card .form-select option { background: #1a1a2e !important; color: #e2e8f0 !important; }
+    .form-card .form-select option { background: #ffffff !important; color: #212529 !important; }
     input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus {
-      -webkit-text-fill-color: #e2e8f0 !important;
+      -webkit-text-fill-color: #212529 !important;
       -webkit-box-shadow: 0 0 0 1000px #1a1a2e inset !important;
     }
-    .btn-outline-light { color: #e2e8f0 !important; border-color: rgba(255,255,255,0.3) !important; }
+    .btn-outline-light { color: #212529 !important; border-color: rgba(255,255,255,0.3) !important; }
     .btn-outline-light:hover { background: rgba(255,255,255,0.1) !important; }
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>

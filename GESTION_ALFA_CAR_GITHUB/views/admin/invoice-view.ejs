@@ -1,7 +1,7 @@
 <%- include('../partials/head', {title: 'Facture ' + (typeof invoice !== 'undefined' && invoice ? invoice.numero_facture : ''), extraCss: '<link rel="stylesheet" href="/css/dashboard.css"><link rel="stylesheet" href="/css/print.css">'}) %>
 <body data-theme="dark">
   <style>
-    body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: #212529; margin: 0; }
     .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; }
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
     .invoice-print-area { background: #fff; color: #1a1a2e; border-radius: 16px; padding: 2.5rem; max-width: 860px; margin: 0 auto; }

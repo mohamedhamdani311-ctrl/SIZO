@@ -664,9 +664,17 @@
 }
 
 /* ============================================================
-   Global: force table cell text white on dark theme
+   Global: table card — white background, black text
    ============================================================ */
+.table-card { background: #ffffff !important; border: 1px solid #dee2e6 !important; }
 .table-card .table td,
 .table-card .table td *,
-.table-card .table tbody tr td { color: #ffffff !important; }
-.table-card .table thead th { color: rgba(255,255,255,0.85) !important; }
+.table-card .table tbody tr td { color: #212529 !important; }
+.table-card .table thead th { background: #f0f0f5 !important; color: #212529 !important; border-color: #dee2e6 !important; }
+.table-card .dataTables_wrapper .dataTables_filter input,
+.table-card .dataTables_wrapper .dataTables_length select { background: #ffffff !important; border: 1px solid #ced4da !important; color: #212529 !important; }
+.table-card .dataTables_wrapper .dataTables_info,
+.table-card .dataTables_wrapper .dataTables_length label,
+.table-card .dataTables_wrapper .dataTables_filter label,
+.table-card .dataTables_wrapper .dataTables_paginate { color: #495057 !important; }
+.table-card .dataTables_wrapper .dataTables_paginate .paginate_button { color: #495057 !important; background: #ffffff !important; border: 1px solid #dee2e6 !important; }

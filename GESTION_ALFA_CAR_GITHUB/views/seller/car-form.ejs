@@ -1,13 +1,13 @@
 <%- include('../partials/head', {title: (typeof car!=='undefined' && car ? 'Modifier' : 'Ajouter') + ' Voiture - Vendeur', extraCss: '<link rel="stylesheet" href="/css/dashboard.css">'}) %>
 <style>
-  body { background: #0f0f23 !important; color: #e2e8f0 !important; }
-  .card, .card-body { background: #1a1a2e !important; border-color: rgba(255,255,255,0.08) !important; color: #e2e8f0 !important; }
+  body { background: #f8f9fa !important; color: #212529 !important; }
+  .card, .card-body { background: #ffffff !important; border-color: rgba(255,255,255,0.08) !important; color: #212529 !important; }
   .form-label { color: rgba(255,255,255,0.8) !important; font-weight: 500; }
   
     /* ===== DARK THEME FORCE ===== */
     .form-control, .form-select, textarea.form-control {
       background: rgba(30,30,70,0.85) !important;
-      color: #e2e8f0 !important;
+      color: #212529 !important;
       border-color: rgba(255,255,255,0.18) !important;
     }
     .form-control:focus, .form-select:focus {
@@ -17,17 +17,17 @@
       box-shadow: 0 0 0 3px rgba(108,92,231,0.2) !important;
     }
     .form-control::placeholder { color: rgba(255,255,255,0.3) !important; }
-    .form-select option { background: #1a1a2e !important; color: #e2e8f0 !important; }
+    .form-select option { background: #ffffff !important; color: #212529 !important; }
     input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus,
     textarea:-webkit-autofill, select:-webkit-autofill {
-      -webkit-text-fill-color: #e2e8f0 !important;
+      -webkit-text-fill-color: #212529 !important;
       -webkit-box-shadow: 0 0 0 1000px #1a1a2e inset !important;
       transition: background-color 5000s ease-in-out 0s;
     }
   h1,h2,h3,h4,h5 { color: #fff !important; }
   .text-muted { color: rgba(255,255,255,0.5) !important; }
   .btn-primary { background: linear-gradient(135deg,#6c5ce7,#a855f7) !important; border:none !important; color:#fff !important; }
-  .btn-secondary { background: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.2) !important; color: #e2e8f0 !important; }
+  .btn-secondary { background: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.2) !important; color: #212529 !important; }
 </style>
 <body data-theme="dark">
 <div class="dashboard-layout">

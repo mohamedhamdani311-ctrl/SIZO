@@ -3,21 +3,21 @@
 <head>
   <%- include('../partials/head', {title: 'Rapports - Admin', extraCss: ['/css/dashboard.css', 'https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css']}) %>
   <style>
-    body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: #212529; margin: 0; }
     .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; }
-    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6; }
     .page-title-section { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
-    .page-title-section h2 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin: 0; font-size: 1.5rem; }
-    .table-card { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 1.5rem; opacity: 1 !important; }
+    .page-title-section h2 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #212529; margin: 0; font-size: 1.5rem; }
+    .table-card { background: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; padding: 1.5rem; opacity: 1 !important; }
     .table-card label, .table-card h5 { color: #ffffff !important; }
     /* Report select/input */
     .table-card .form-select, .table-card .form-control {
       background: rgba(30,30,70,0.9) !important;
       border: 1px solid rgba(255,255,255,0.15) !important;
-      color: #e2e8f0 !important;
+      color: #212529 !important;
       border-radius: 10px;
     }
-    .table-card .form-select option { background: #1a1a2e !important; color: #e2e8f0 !important; }
+    .table-card .form-select option { background: #ffffff !important; color: #212529 !important; }
     .table-card .form-select:focus { border-color: #6c5ce7 !important; box-shadow: 0 0 0 3px rgba(108,92,231,0.2) !important; }
     /* Report table — fully responsive with horizontal scroll */
     .report-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; max-width: 100%; }
@@ -30,7 +30,7 @@
     /* Summary cards */
     .summary-card { background: #161625; border: 1px solid rgba(108,92,231,0.2); border-radius: 12px; padding: 1.2rem; text-align: center; }
     .summary-card h3 { color: #a78bfa; font-weight: 700; font-size: 1.5rem; margin-bottom: 0.3rem; }
-    .summary-card p { color: rgba(255,255,255,0.6); font-size: 0.8rem; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+    .summary-card p { color: #6c757d; font-size: 0.8rem; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
     /* Report action buttons */
     .report-action-btn { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.82rem; font-weight: 500; cursor: pointer; border: 1px solid; text-decoration: none; }
     .btn-report-print { background: rgba(255,255,255,0.08); color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
