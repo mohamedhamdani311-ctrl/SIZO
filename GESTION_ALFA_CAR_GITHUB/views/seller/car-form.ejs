@@ -1,69 +1,105 @@
-<%- include('../partials/head', {title: (typeof car!=='undefined' && car ? 'Modifier' : 'Ajouter') + ' Voiture - Vendeur', extraCss: '<link rel="stylesheet" href="/css/dashboard.css">'}) %>
-<style>
-  body { background: #f8f9fa !important; color: #212529 !important; }
-  .card, .card-body { background: #ffffff !important; border-color: rgba(255,255,255,0.08) !important; color: #212529 !important; }
-  .form-label { color: rgba(255,255,255,0.8) !important; font-weight: 500; }
-  
-    /* ===== DARK THEME FORCE ===== */
-    .form-control, .form-select, textarea.form-control {
-      background: rgba(30,30,70,0.85) !important;
-      color: #212529 !important;
-      border-color: rgba(255,255,255,0.18) !important;
-    }
-    .form-control:focus, .form-select:focus {
-      background: rgba(40,40,90,0.95) !important;
-      color: #fff !important;
-      border-color: #6c5ce7 !important;
-      box-shadow: 0 0 0 3px rgba(108,92,231,0.2) !important;
-    }
-    .form-control::placeholder { color: rgba(255,255,255,0.3) !important; }
-    .form-select option { background: #ffffff !important; color: #212529 !important; }
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <%- include('../partials/head', {title: (typeof car !== 'undefined' && car ? 'Modifier' : 'Ajouter') + ' Voiture - Vendeur', extraCss: ['/css/dashboard.css']}) %>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: #212529; margin: 0; }
+    .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; max-width: calc(100vw - 175px); box-sizing: border-box; overflow-x: hidden; }
+    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6; }
+    .page-title { font-family: 'Poppins', sans-serif; font-weight: 700; color: #212529; margin: 0 0 1.5rem; font-size: 1.5rem; }
+    .form-card { background: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; padding: 2rem; }
+    .form-label { color: #495057; font-weight: 500; font-size: 0.85rem; }
+    .form-control, .form-select { background: #ffffff; border: 1px solid #ced4da; color: #212529; border-radius: 10px; }
+    .form-control:focus, .form-select:focus { border-color: #6c5ce7; box-shadow: 0 0 0 3px rgba(108,92,231,0.2); background: #ffffff; color: #212529; }
+    .form-control::placeholder { color: #adb5bd; }
     input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus,
     textarea:-webkit-autofill, select:-webkit-autofill {
       -webkit-text-fill-color: #212529 !important;
-      -webkit-box-shadow: 0 0 0 1000px #1a1a2e inset !important;
-      transition: background-color 5000s ease-in-out 0s;
+      -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
     }
-  h1,h2,h3,h4,h5 { color: #fff !important; }
-  .text-muted { color: rgba(255,255,255,0.5) !important; }
-  .btn-primary { background: linear-gradient(135deg,#6c5ce7,#a855f7) !important; border:none !important; color:#fff !important; }
-  .btn-secondary { background: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.2) !important; color: #212529 !important; }
-</style>
-<body data-theme="dark">
-<div class="dashboard-layout">
+    @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
-        <div class="content-header">
-            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/seller'}, {name:'Voitures', url:'/seller/cars'}, {name: typeof car!=='undefined' && car ? 'Modifier' : 'Ajouter'}]}) %>
+      <div class="content-header">
+        <button class="btn btn-link sidebar-toggle" id="sidebarToggle" style="color:#495057;font-size:1.2rem;text-decoration:none;"><i class="fas fa-bars"></i></button>
+        <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/seller/dashboard'}, {name:'Voitures', url:'/seller/cars'}, {name: typeof car !== 'undefined' && car ? 'Modifier' : 'Ajouter'}]}) %>
+      </div>
+      <div class="content-body">
+        <h2 class="page-title">
+          <i class="fas fa-<%= typeof car !== 'undefined' && car ? 'edit' : 'plus' %> me-2" style="color:#6c5ce7;"></i>
+          <%= typeof car !== 'undefined' && car ? 'Modifier la Voiture' : 'Ajouter une Voiture' %>
+        </h2>
+        <div class="form-card">
+          <form action="<%= typeof car !== 'undefined' && car ? '/seller/cars/edit/' + car.id_voiture : '/seller/cars/add' %>" method="POST" enctype="multipart/form-data">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Marque *</label>
+                <input type="text" name="marque" class="form-control" value="<%= typeof car !== 'undefined' && car ? car.marque : '' %>" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Modèle *</label>
+                <input type="text" name="modele" class="form-control" value="<%= typeof car !== 'undefined' && car ? car.modele : '' %>" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Année *</label>
+                <input type="number" name="annee" class="form-control" min="2000" max="2030" value="<%= typeof car !== 'undefined' && car ? car.annee : '2024' %>" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Prix (MAD) *</label>
+                <input type="number" name="prix" class="form-control" step="0.01" value="<%= typeof car !== 'undefined' && car ? car.prix : '' %>" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Kilométrage</label>
+                <input type="number" name="kilometrage" class="form-control" value="<%= typeof car !== 'undefined' && car ? car.kilometrage : '0' %>">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Carburant *</label>
+                <select name="carburant" class="form-select" required>
+                  <option value="Essence" <%= typeof car !== 'undefined' && car && car.carburant === 'Essence' ? 'selected' : '' %>>Essence</option>
+                  <option value="Diesel" <%= typeof car !== 'undefined' && car && car.carburant === 'Diesel' ? 'selected' : '' %>>Diesel</option>
+                  <option value="Hybride" <%= typeof car !== 'undefined' && car && car.carburant === 'Hybride' ? 'selected' : '' %>>Hybride</option>
+                  <option value="Électrique" <%= typeof car !== 'undefined' && car && car.carburant === 'Électrique' ? 'selected' : '' %>>Électrique</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Boîte de Vitesse *</label>
+                <select name="boite_vitesse" class="form-select" required>
+                  <option value="Manuelle" <%= typeof car !== 'undefined' && car && car.boite_vitesse === 'Manuelle' ? 'selected' : '' %>>Manuelle</option>
+                  <option value="Automatique" <%= typeof car !== 'undefined' && car && car.boite_vitesse === 'Automatique' ? 'selected' : '' %>>Automatique</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Couleur</label>
+                <input type="text" name="couleur" class="form-control" value="<%= typeof car !== 'undefined' && car ? car.couleur || '' : '' %>" placeholder="Ex: Blanc, Noir…">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Image</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="4" placeholder="Description de la voiture…"><%= typeof car !== 'undefined' && car ? car.description || '' : '' %></textarea>
+              </div>
+              <div class="col-12 d-flex gap-2 mt-2">
+                <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg,#6c5ce7,#a855f7);border:none;border-radius:10px;font-weight:600;padding:0.5rem 1.5rem;">
+                  <i class="fas fa-save me-1"></i>Enregistrer
+                </button>
+                <a href="/seller/cars" class="btn btn-outline-secondary" style="border-radius:10px;">Annuler</a>
+              </div>
+            </div>
+          </form>
         </div>
-        <div class="content-body">
-            <h2 class="fw-bold mb-4"><i class="fas fa-<%= typeof car!=='undefined' && car ? 'edit' : 'plus' %> me-2"></i><%= typeof car!=='undefined' && car ? 'Modifier la Voiture' : 'Ajouter une Voiture' %></h2>
-            <div class="card shadow-sm"><div class="card-body p-4">
-                <form action="<%= typeof car!=='undefined' && car ? '/seller/cars/edit/'+car.id_voiture : '/seller/cars/add' %>" method="POST" enctype="multipart/form-data">
-                    <div class="row g-3">
-                        <div class="col-md-4"><label class="form-label">Marque *</label><input type="text" name="marque" class="form-control" value="<%= typeof car!=='undefined' && car ? car.marque : '' %>" required></div>
-                        <div class="col-md-4"><label class="form-label">Modèle *</label><input type="text" name="modele" class="form-control" value="<%= typeof car!=='undefined' && car ? car.modele : '' %>" required></div>
-                        <div class="col-md-4"><label class="form-label">Année *</label><input type="number" name="annee" class="form-control" min="2000" max="2030" value="<%= typeof car!=='undefined' && car ? car.annee : '2024' %>" required></div>
-                        <div class="col-md-4"><label class="form-label">Prix (MAD) *</label><input type="number" name="prix" class="form-control" step="0.01" value="<%= typeof car!=='undefined' && car ? car.prix : '' %>" required></div>
-                        <div class="col-md-4"><label class="form-label">Kilométrage</label><input type="number" name="kilometrage" class="form-control" value="<%= typeof car!=='undefined' && car ? car.kilometrage : '0' %>"></div>
-                        <div class="col-md-4"><label class="form-label">Carburant *</label><select name="carburant" class="form-select" required><option value="Essence" <%= typeof car!=='undefined' && car && car.carburant==='Essence'?'selected':'' %>>Essence</option><option value="Diesel" <%= typeof car!=='undefined' && car && car.carburant==='Diesel'?'selected':'' %>>Diesel</option><option value="Hybride" <%= typeof car!=='undefined' && car && car.carburant==='Hybride'?'selected':'' %>>Hybride</option><option value="Électrique" <%= typeof car!=='undefined' && car && car.carburant==='Électrique'?'selected':'' %>>Électrique</option></select></div>
-                        <div class="col-md-4"><label class="form-label">Boîte de Vitesse *</label><select name="boite_vitesse" class="form-select" required><option value="Manuelle" <%= typeof car!=='undefined' && car && car.boite_vitesse==='Manuelle'?'selected':'' %>>Manuelle</option><option value="Automatique" <%= typeof car!=='undefined' && car && car.boite_vitesse==='Automatique'?'selected':'' %>>Automatique</option></select></div>
-                        <div class="col-md-4"><label class="form-label">Couleur</label><input type="text" name="couleur" class="form-control" value="<%= typeof car!=='undefined' && car ? car.couleur||'' : '' %>"></div>
-                        <div class="col-md-4"><label class="form-label">Image</label><input type="file" name="image" class="form-control" accept="image/*"></div>
-                        <div class="col-12"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="4"><%= typeof car!=='undefined' && car ? car.description||'' : '' %></textarea></div>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Enregistrer</button>
-                            <a href="/seller/cars" class="btn btn-secondary ms-2">Annuler</a>
-                        </div>
-                    </div>
-                </form>
-            </div></div>
-        </div>
+      </div>
     </main>
-</div>
-<%- include('../partials/flash') %>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/js/main.js"></script>
-</body></html>
+  </div>
+  <%- include('../partials/flash') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
