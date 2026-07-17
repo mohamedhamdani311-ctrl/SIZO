@@ -72,20 +72,16 @@
                   </td>
                   <td>
                     <div class="d-flex gap-1 flex-wrap">
-                      <% if (resStatus === 'en_attente') { %>
-                        <form action="/admin/reservations/approve/<%= res.id_reservation %>" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;font-size:0.75rem;font-weight:600;" title="Valider" onclick="return confirmAction(event, 'Valider cette réservation ?')">
-                            <i class="fas fa-check me-1"></i>Valider
-                          </button>
-                        </form>
-                        <form action="/admin/reservations/reject/<%= res.id_reservation %>" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;font-size:0.75rem;font-weight:600;" title="Refuser" onclick="return confirmAction(event, 'Refuser cette réservation ?')">
-                            <i class="fas fa-times me-1"></i>Refuser
-                          </button>
-                        </form>
-                      <% } else { %>
-                        <span style="color:#adb5bd;font-size:0.8rem;">—</span>
-                      <% } %>
+                      <form action="/admin/reservations/approve/<%= res.id_reservation %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;font-size:0.75rem;font-weight:600;" title="Valider" onclick="return confirmAction(event, 'Valider cette réservation ?')">
+                          <i class="fas fa-check me-1"></i>Valider
+                        </button>
+                      </form>
+                      <form action="/admin/reservations/reject/<%= res.id_reservation %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;font-size:0.75rem;font-weight:600;" title="Refuser" onclick="return confirmAction(event, 'Refuser cette réservation ?')">
+                          <i class="fas fa-times me-1"></i>Refuser
+                        </button>
+                      </form>
                     </div>
                   </td>
                 </tr>
