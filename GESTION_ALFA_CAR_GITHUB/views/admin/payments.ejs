@@ -119,27 +119,9 @@
                       </form>
                     </div>
                     <% } else { %>
-                    <div class="dropdown">
-                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" style="border-radius:8px;font-size:0.75rem;font-weight:600;" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-edit me-1"></i>Modifier Statut
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li>
-                          <form action="/admin/payments/approve/<%= p.id_paiement %>" method="POST">
-                            <button type="submit" class="dropdown-item text-success" onclick="return confirmAction(event,'Confirmer ce paiement ?')">
-                              <i class="fas fa-check me-2"></i>Valider
-                            </button>
-                          </form>
-                        </li>
-                        <li>
-                          <form action="/admin/payments/reject/<%= p.id_paiement %>" method="POST">
-                            <button type="submit" class="dropdown-item text-danger" onclick="return confirmAction(event,'Refuser ce paiement ?')">
-                              <i class="fas fa-times me-2"></i>Refuser
-                            </button>
-                          </form>
-                        </li>
-                      </ul>
-                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:0.75rem;font-weight:600;" type="button" onclick="modifierStatut('/admin/payments/approve/<%= p.id_paiement %>', '/admin/payments/reject/<%= p.id_paiement %>', 'Valider', 'Refuser')">
+                      <i class="fas fa-edit me-1"></i>Modifier Statut
+                    </button>
                     <% } %>
                   </td>
                 </tr>
@@ -180,6 +162,26 @@
         });
       }
     });
+    function modifierStatut(approveUrl, rejectUrl, confirmLabel, denyLabel) {
+      Swal.fire({
+        title: 'Modifier le statut',
+        icon: 'question',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: confirmLabel,
+        denyButtonText: denyLabel,
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#22c55e',
+        denyButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280'
+      }).then(function(result) {
+        if (result.isConfirmed) {
+          var f = document.createElement('form'); f.method = 'POST'; f.action = approveUrl; document.body.appendChild(f); f.submit();
+        } else if (result.isDenied) {
+          var f = document.createElement('form'); f.method = 'POST'; f.action = rejectUrl; document.body.appendChild(f); f.submit();
+        }
+      });
+    }
     function confirmAction(e, msg) {
       e.preventDefault();
       var form = e.target.closest('form');

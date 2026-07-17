@@ -94,27 +94,9 @@
                       </form>
                     </div>
                     <% } else { %>
-                    <div class="dropdown">
-                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" style="border-radius:6px;font-size:0.75rem;" type="button" data-bs-toggle="dropdown" title="Modifier Statut">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li>
-                          <form action="/seller/payments/approve/<%= p.id_paiement %>" method="POST">
-                            <button type="submit" class="dropdown-item text-success" onclick="return confirmApprove(event)">
-                              <i class="fas fa-check me-2"></i>Confirmer
-                            </button>
-                          </form>
-                        </li>
-                        <li>
-                          <form action="/seller/payments/reject/<%= p.id_paiement %>" method="POST">
-                            <button type="submit" class="dropdown-item text-danger" onclick="return confirmReject(event)">
-                              <i class="fas fa-times me-2"></i>Refuser
-                            </button>
-                          </form>
-                        </li>
-                      </ul>
-                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" style="border-radius:6px;font-size:0.75rem;" type="button" title="Modifier Statut" onclick="modifierStatut('/seller/payments/approve/<%= p.id_paiement %>', '/seller/payments/reject/<%= p.id_paiement %>', 'Confirmer', 'Refuser')">
+                      <i class="fas fa-edit"></i>
+                    </button>
                     <% } %>
                   </td>
                 </tr>
@@ -153,6 +135,26 @@
         });
       }
     });
+    function modifierStatut(approveUrl, rejectUrl, confirmLabel, denyLabel) {
+      Swal.fire({
+        title: 'Modifier le statut',
+        icon: 'question',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: confirmLabel,
+        denyButtonText: denyLabel,
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#22c55e',
+        denyButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280'
+      }).then(function(result) {
+        if (result.isConfirmed) {
+          var f = document.createElement('form'); f.method = 'POST'; f.action = approveUrl; document.body.appendChild(f); f.submit();
+        } else if (result.isDenied) {
+          var f = document.createElement('form'); f.method = 'POST'; f.action = rejectUrl; document.body.appendChild(f); f.submit();
+        }
+      });
+    }
     function confirmApprove(e) {
       e.preventDefault(); var form = e.target.closest('form');
       Swal.fire({ title: 'Confirmer ce paiement ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#22c55e', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, confirmer', cancelButtonText: 'Annuler' }).then(function(r) { if (r.isConfirmed) form.submit(); });
