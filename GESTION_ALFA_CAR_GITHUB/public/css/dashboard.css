@@ -662,3 +662,11 @@
     width: 300px;
   }
 }
+
+/* ============================================================
+   Global: force table cell text white on dark theme
+   ============================================================ */
+.table-card .table td,
+.table-card .table td *,
+.table-card .table tbody tr td { color: #ffffff !important; }
+.table-card .table thead th { color: rgba(255,255,255,0.85) !important; }
