@@ -8,9 +8,9 @@
     .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .page-title-section { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
     .page-title-section h2 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin: 0; font-size: 1.5rem; }
-    .table-card { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 1.5rem; opacity: 1 !important; }.table-card .table { color: #e2e8f0; font-size: 0.85rem; }
+    .table-card { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 1.5rem; opacity: 1 !important; }.table-card .table { color: #e2e8f0 !important; font-size: 0.85rem; }
     .table-card .table thead th { background: rgba(108,92,231,0.1); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.06); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-    .table-card .table td { border-color: rgba(255,255,255,0.04); vertical-align: middle; }
+    .table-card .table td { border-color: rgba(255,255,255,0.04); vertical-align: middle; color: #e2e8f0 !important; }
     .table-card .table tbody tr:hover { background: rgba(108,92,231,0.05); }
     .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; border-radius: 8px; }
     .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: rgba(255,255,255,0.5); margin-top: 1rem; }
@@ -22,7 +22,7 @@
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
   <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
@@ -39,6 +39,11 @@
           </a>
         </div>
 
+        <div class="action-bar mb-3" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:10px;" onclick="printTable('agenciesTable','Liste des Agences')"><i class="fas fa-print me-1"></i>Imprimer</button>
+          <button class="btn btn-sm" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:10px;" onclick="exportTableToPDF('agenciesTable','agences','Liste des Agences')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+          <button class="btn btn-sm" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:10px;" onclick="exportTableToExcel('agenciesTable','agences')"><i class="fas fa-file-excel me-1"></i>Excel</button>
+        </div>
         <div class="table-card">
           <% if (typeof agencies !== 'undefined' && agencies && agencies.length > 0) { %>
           <div class="table-responsive">
@@ -102,10 +107,14 @@
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <script src="/js/main.js"></script>
+  <script src="/js/print.js"></script>
+  <script src="/js/export.js"></script>
   <script src="/js/dashboard.js"></script>
   <script>
     $(document).ready(function() {
       if ($('#agenciesTable').length) {
+        
+        if ($.fn.DataTable.isDataTable('#agenciesTable')) { $('#agenciesTable').DataTable().destroy(); }
         $('#agenciesTable').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' }, responsive: true, columnDefs: [{ orderable: false, targets: [6] }], order: [[0, 'asc']] });
       }
     });
