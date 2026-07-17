@@ -1,4 +1,16 @@
 <%- include('../partials/head', {title: 'Ventes - Vendeur', extraCss: '<link rel="stylesheet" href="/css/dashboard.css"><link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">'}) %>
+<style>
+  .main-content { max-width: calc(100vw - 175px); box-sizing: border-box; overflow-x: hidden; }
+  .dataTables_wrapper .dataTables_filter input,
+  .dataTables_wrapper .dataTables_length select { background:#fff; border:1px solid #ced4da; color:#212529; border-radius:8px; padding:0.4rem 0.8rem; }
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate { color:#6c757d; margin-top:1rem; }
+  .dataTables_wrapper .dataTables_paginate .paginate_button { color:#495057!important; background:#fff!important; border:1px solid #dee2e6!important; border-radius:6px!important; margin:0 2px; }
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current { background:linear-gradient(135deg,#6c5ce7,#a855f7)!important; border-color:#6c5ce7!important; color:#fff!important; }
+  .dataTables_wrapper .dataTables_filter label,
+  .dataTables_wrapper .dataTables_length label { color:#6c757d; }
+  @media (max-width:991.98px) { .main-content { margin-left:0; max-width:100%; } }
+</style>
 <body data-theme="light">
 <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
@@ -47,4 +59,18 @@
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/js/main.js"></script><script src="/js/dashboard.js"></script><script src="/js/print.js"></script><script src="/js/export.js"></script>
+<script>
+  $(document).ready(function() {
+    if ($('#salesTable').length && !$.fn.DataTable.isDataTable('#salesTable')) {
+      $('#salesTable').DataTable({
+        language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' },
+        scrollX: true,
+        scrollCollapse: true,
+        autoWidth: true,
+        responsive: false,
+        order: [[6, 'desc']]
+      });
+    }
+  });
+</script>
 </body></html>

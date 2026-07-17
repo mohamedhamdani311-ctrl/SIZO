@@ -4,7 +4,7 @@
   <%- include('../partials/head', {title: 'Gestion des Ventes', extraCss: ['/css/dashboard.css', 'https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css']}) %>
   <style>
     body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: #212529; margin: 0; }
-    .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; }
+    .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; max-width: calc(100vw - 175px); box-sizing: border-box; overflow-x: hidden; }
     .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6; }
     .page-title-section { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
     .page-title-section h2 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #212529; margin: 0; font-size: 1.5rem; }
@@ -19,7 +19,7 @@
     .table-card .badge.bg-info { color: #fff !important; }
     .table-card .badge.bg-primary { color: #fff !important; }
     /* Montant total color */
-    .montant-total { color: #4ade80 !important; font-weight: 700; }
+    .montant-total { color: #198754 !important; font-weight: 700; }
     .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { background: #ffffff; border: 1px solid #ced4da; color: #212529; border-radius: 8px; padding: 0.4rem 0.8rem; }
     .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #6c757d; margin-top: 1rem; }
     .dataTables_wrapper .dataTables_paginate .paginate_button { color: #495057 !important; background: #ffffff !important; border: 1px solid #dee2e6 !important; border-radius: 6px !important; margin: 0 2px; }
@@ -35,12 +35,12 @@
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
-<body data-theme="dark">
+<body>
   <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
       <div class="content-header">
-        <button class="btn btn-link sidebar-toggle d-lg-none" onclick="toggleSidebar()" style="color:rgba(255,255,255,0.6);font-size:1.2rem;text-decoration:none;"><i class="fas fa-bars"></i></button>
+        <button class="btn btn-link sidebar-toggle d-lg-none" onclick="toggleSidebar()" style="color:#495057;font-size:1.2rem;text-decoration:none;"><i class="fas fa-bars"></i></button>
         <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/admin/dashboard'}, {name:'Ventes'}]}) %>
       </div>
       <div class="content-body">
@@ -50,9 +50,9 @@
         </div>
 
         <div class="action-bar mb-3">
-          <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:10px;" onclick="printTable('salesTable','Liste des Ventes')"><i class="fas fa-print me-1"></i>Imprimer</button>
-          <button class="btn btn-sm" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:10px;" onclick="exportTableToPDF('salesTable','ventes','Liste des Ventes')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
-          <button class="btn btn-sm" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:10px;" onclick="exportTableToExcel('salesTable','ventes')"><i class="fas fa-file-excel me-1"></i>Excel</button>
+          <button class="btn btn-sm" style="background:#f8f9fa;color:#495057;border:1px solid #ced4da;border-radius:10px;" onclick="printTable('salesTable','Liste des Ventes')"><i class="fas fa-print me-1"></i>Imprimer</button>
+          <button class="btn btn-sm" style="background:#fff0f0;color:#dc3545;border:1px solid #f5c6cb;border-radius:10px;" onclick="exportTableToPDF('salesTable','ventes','Liste des Ventes')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+          <button class="btn btn-sm" style="background:#f0fff4;color:#198754;border:1px solid #b7dfc9;border-radius:10px;" onclick="exportTableToExcel('salesTable','ventes')"><i class="fas fa-file-excel me-1"></i>Excel</button>
         </div>
 
         <div class="table-card">
@@ -95,7 +95,7 @@
                   <td><%= sale.nom_agence || sale.agence || '-' %></td>
                   <td>
                     <% var pType = sale.type_paiement || 'comptant'; %>
-                    <span class="badge" style="background:rgba(6,182,212,0.2);color:#22d3ee;border:1px solid rgba(6,182,212,0.3);">
+                    <span class="badge" style="background:#e0f7fa;color:#0077a8;border:1px solid #b2ebf2;">
                       <%= pType === 'comptant' || pType === 'cash' ? 'Comptant' : 'Crédit' %>
                     </span>
                   </td>
@@ -121,7 +121,7 @@
                           </button>
                         </form>
                       <% } else { %>
-                        <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">—</span>
+                        <span style="color:#adb5bd;font-size:0.8rem;">—</span>
                       <% } %>
                     </div>
                   </td>
@@ -177,7 +177,7 @@
         confirmButtonColor: isApprove ? '#22c55e' : '#ef4444',
         cancelButtonColor: '#6b7280',
         confirmButtonText: isApprove ? 'Oui, valider' : 'Oui, annuler',
-        cancelButtonText: 'Retour', background: '#1a1a2e', color: '#fff'
+        cancelButtonText: 'Retour'
       }).then(function(r) { if (r.isConfirmed) form.submit(); });
       return false;
     }
