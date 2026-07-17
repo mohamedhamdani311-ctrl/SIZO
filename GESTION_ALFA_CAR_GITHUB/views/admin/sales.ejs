@@ -27,9 +27,11 @@
     .dataTables_wrapper .dataTables_filter label, .dataTables_wrapper .dataTables_length label { color: rgba(255,255,255,0.6); }
     .empty-state { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.4); }
     .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
-    .table-responsive { width: 100%; overflow-x: auto !important; }
-    .dataTables_wrapper { width: 100%; overflow-x: auto !important; }
-    table.dataTable { width: max-content !important; min-width: 100%; }
+    /* Sales table scroll — let DataTables scrollX handle it natively */
+    .dataTables_scroll { overflow: visible; }
+    .dataTables_scrollHead { overflow: hidden !important; }
+    .dataTables_scrollBody { overflow-x: auto !important; overflow-y: visible !important; }
+    div.dataTables_wrapper div.dataTables_scroll { overflow-x: auto; }
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
@@ -156,7 +158,10 @@
         if ($.fn.DataTable.isDataTable('#salesTable')) { $('#salesTable').DataTable().destroy(); }
         $('#salesTable').DataTable({
           language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' },
-          scrollX: true, autoWidth: false, responsive: false,
+          scrollX: true,
+          scrollCollapse: true,
+          autoWidth: true,
+          responsive: false,
           columnDefs: [{ orderable: false, targets: [0, 15] }],
           order: [[14, 'desc']]
         });
