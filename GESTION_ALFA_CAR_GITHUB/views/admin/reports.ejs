@@ -4,29 +4,43 @@
   <%- include('../partials/head', {title: 'Rapports - Admin', extraCss: ['/css/dashboard.css', 'https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css']}) %>
   <style>
     body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
-    .main-content { min-height: 100vh; padding: 2rem; }
+    .main-content { margin-left: 280px; min-height: 100vh; padding: 2rem; }
     .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .page-title-section { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
     .page-title-section h2 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin: 0; font-size: 1.5rem; }
     .table-card { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 1.5rem; opacity: 1 !important; }
-    .table-card label, .table-card h5 { color: #ffffff; }
-    .table-card .table { color: #e2e8f0; font-size: 0.85rem; }
-    .table-card .table thead th { background: rgba(108,92,231,0.1); color: #ffffff; border-color: rgba(255,255,255,0.06); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; opacity: 1; }
-    .table-card .table td { border-color: rgba(255,255,255,0.04); vertical-align: middle; color: #ffffff; }
-    .table-card .table tbody tr:hover { background: rgba(108,92,231,0.15); }
-    .summary-card { background: #161625; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; text-align: center; }
-    .summary-card h3 { color: #a855f7; font-weight: bold; }
-    .summary-card p { color: #e2e8f0; margin-bottom: 0; }
-    @media (max-width: 991.98px) { .main-content { padding: 1rem; padding-top: 4rem; } }
-      /* Report horizontal scroll */
+    .table-card label, .table-card h5 { color: #ffffff !important; }
+    /* Report select/input */
+    .table-card .form-select, .table-card .form-control {
+      background: rgba(30,30,70,0.9) !important;
+      border: 1px solid rgba(255,255,255,0.15) !important;
+      color: #e2e8f0 !important;
+      border-radius: 10px;
+    }
+    .table-card .form-select option { background: #1a1a2e !important; color: #e2e8f0 !important; }
+    .table-card .form-select:focus { border-color: #6c5ce7 !important; box-shadow: 0 0 0 3px rgba(108,92,231,0.2) !important; }
+    /* Report table */
     .report-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; }
-    #reportTable { min-width: 800px; width: 100%; border-collapse: collapse; }
-    #reportTable th { background: rgba(108,92,231,0.2) !important; color: #e2e8f0 !important; padding: 10px 14px; font-size: 0.78rem; text-transform: uppercase; white-space: nowrap; border: 1px solid rgba(255,255,255,0.08); }
+    #reportTable { min-width: 700px; width: 100%; border-collapse: collapse; }
+    #reportTable th { background: rgba(108,92,231,0.2) !important; color: #e2e8f0 !important; padding: 10px 14px; font-size: 0.78rem; text-transform: uppercase; white-space: nowrap; border: 1px solid rgba(255,255,255,0.08); font-weight: 600; }
     #reportTable td { color: #e2e8f0 !important; padding: 9px 14px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.85rem; white-space: nowrap; }
     #reportTable tbody tr:hover { background: rgba(108,92,231,0.1); }
-    .summary-card { background: #1a1a2e; border: 1px solid rgba(108,92,231,0.2); border-radius: 12px; padding: 1.2rem; text-align: center; }
+    #reportTable tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    /* Summary cards */
+    .summary-card { background: #161625; border: 1px solid rgba(108,92,231,0.2); border-radius: 12px; padding: 1.2rem; text-align: center; }
     .summary-card h3 { color: #a78bfa; font-weight: 700; font-size: 1.5rem; margin-bottom: 0.3rem; }
     .summary-card p { color: rgba(255,255,255,0.6); font-size: 0.8rem; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+    /* Report action buttons */
+    .report-action-btn { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.82rem; font-weight: 500; cursor: pointer; border: 1px solid; text-decoration: none; }
+    .btn-report-print { background: rgba(255,255,255,0.08); color: #e2e8f0; border-color: rgba(255,255,255,0.2); }
+    .btn-report-print:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .btn-report-pdf { background: rgba(239,68,68,0.15); color: #f87171; border-color: rgba(239,68,68,0.3); }
+    .btn-report-pdf:hover { background: rgba(239,68,68,0.25); color: #fca5a5; }
+    .btn-report-excel { background: rgba(34,197,94,0.15); color: #4ade80; border-color: rgba(34,197,94,0.3); }
+    .btn-report-excel:hover { background: rgba(34,197,94,0.25); color: #86efac; }
+    /* Loading spinner */
+    #reportLoading .text-muted { color: rgba(255,255,255,0.5) !important; }
+    @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
 <body data-theme="dark">
@@ -41,133 +55,137 @@
         <div class="page-title-section">
           <h2><i class="fas fa-chart-bar me-2" style="color: #6c5ce7;"></i>Rapports</h2>
         </div>
+
         <!-- Report Controls -->
         <div class="table-card mb-4">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Type de Rapport</label>
-                            <select id="reportType" class="form-select">
-                                <option value="cars">Voitures</option>
-                                <option value="customers">Clients</option>
-                                <option value="sellers">Vendeurs</option>
-                                <option value="sales">Ventes</option>
-                                <option value="reservations">Réservations</option>
-                                <option value="payments">Paiements</option>
-                                <option value="invoices">Factures</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Période</label>
-                            <select id="reportPeriod" class="form-select">
-                                <option value="daily">Quotidien</option>
-                                <option value="monthly" selected>Mensuel</option>
-                                <option value="yearly">Annuel</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <button id="generateReport" class="btn btn-primary w-100"><i class="fas fa-sync me-2"></i>Générer le Rapport</button>
-                        </div>
-                    </div>
-                </div>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Type de Rapport</label>
+              <select id="reportType" class="form-select">
+                <option value="cars">Voitures</option>
+                <option value="customers">Clients</option>
+                <option value="sellers">Vendeurs</option>
+                <option value="sales">Ventes</option>
+                <option value="reservations">Réservations</option>
+                <option value="payments">Paiements</option>
+                <option value="invoices">Factures</option>
+              </select>
             </div>
-            <!-- Report Summary -->
-            <div id="reportSummary" class="row g-3 mb-4" style="display:none;"></div>
-            <!-- Report Results -->
-            <div class="table-card" id="reportResults" style="display:none;">
-                    <h5 class="mb-0" id="reportTitle">Résultats</h5>
-                    <div>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="printElement('reportTableContainer')"><i class="fas fa-print me-1"></i>Imprimer</button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="exportTableToPDF('reportTable','rapport','Rapport')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
-                        <button class="btn btn-sm btn-outline-success" onclick="exportTableToExcel('reportTable','rapport')"><i class="fas fa-file-excel me-1"></i>Excel</button>
-                    </div>
-                </div>
-                <div class="card-body" id="reportTableContainer">
-                    <div class="table-responsive">
-                        <table id="reportTable" class="table table-striped table-hover">
-                            <thead class="table-dark" id="reportTableHead"></thead>
-                            <tbody id="reportTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Période</label>
+              <select id="reportPeriod" class="form-select">
+                <option value="daily">Quotidien</option>
+                <option value="monthly" selected>Mensuel</option>
+                <option value="yearly">Annuel</option>
+              </select>
             </div>
-            <!-- Loading -->
-            <div id="reportLoading" class="text-center py-5" style="display:none;">
-                <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem;"></div>
-                <p class="mt-3 text-muted">Génération du rapport en cours...</p>
+            <div class="col-md-4">
+              <button id="generateReport" class="btn btn-primary w-100" style="background:linear-gradient(135deg,#6c5ce7,#a855f7);border:none;border-radius:10px;font-weight:600;padding:0.6rem 1rem;">
+                <i class="fas fa-sync me-2"></i>Générer le Rapport
+              </button>
             </div>
+          </div>
         </div>
+
+        <!-- Report Summary -->
+        <div id="reportSummary" class="row g-3 mb-4" style="display:none;"></div>
+
+        <!-- Report Results -->
+        <div class="table-card" id="reportResults" style="display:none;">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <h5 class="mb-0" id="reportTitle">Résultats</h5>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="report-action-btn btn-report-print" onclick="printElement('reportTableContainer')"><i class="fas fa-print"></i>Imprimer</button>
+              <button class="report-action-btn btn-report-pdf" onclick="exportTableToPDF('reportTable','rapport','Rapport')"><i class="fas fa-file-pdf"></i>PDF</button>
+              <button class="report-action-btn btn-report-excel" onclick="exportTableToExcel('reportTable','rapport')"><i class="fas fa-file-excel"></i>Excel</button>
+            </div>
+          </div>
+          <div id="reportTableContainer">
+            <div class="report-table-wrap">
+              <table id="reportTable" class="table table-striped table-hover">
+                <thead id="reportTableHead"></thead>
+                <tbody id="reportTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="reportLoading" class="text-center py-5" style="display:none;">
+          <div class="spinner-border" style="color:#6c5ce7;width:3rem;height:3rem;" role="status"></div>
+          <p class="mt-3" style="color:rgba(255,255,255,0.5);">Génération du rapport en cours...</p>
+        </div>
+
+      </div>
     </main>
-</div>
-<%- include('../partials/flash') %>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/js/main.js"></script>
-<script src="/js/print.js"></script>
-<script src="/js/export.js"></script>
-<script>
-document.getElementById('generateReport').addEventListener('click', function() {
-    const type = document.getElementById('reportType').value;
-    const period = document.getElementById('reportPeriod').value;
-    const loading = document.getElementById('reportLoading');
-    const results = document.getElementById('reportResults');
-    const summary = document.getElementById('reportSummary');
+  </div>
+  <%- include('../partials/flash') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/print.js"></script>
+  <script src="/js/export.js"></script>
+  <script>
+  document.getElementById('generateReport').addEventListener('click', function() {
+    var type = document.getElementById('reportType').value;
+    var period = document.getElementById('reportPeriod').value;
+    var loading = document.getElementById('reportLoading');
+    var results = document.getElementById('reportResults');
+    var summary = document.getElementById('reportSummary');
     loading.style.display = 'block';
     results.style.display = 'none';
     summary.style.display = 'none';
     fetch('/api/reports/' + type + '?period=' + period)
-        .then(r => r.json())
-        .then(data => {
-            loading.style.display = 'none';
-            if (data.success) {
-                // Summary cards
-                let summaryHtml = '';
-                if (data.summary) {
-                    Object.entries(data.summary).forEach(([key, val]) => {
-                        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        summaryHtml += '<div class="col-md-3"><div class="summary-card"><h3>' + (typeof val === 'number' ? val.toLocaleString('fr-FR') : val) + '</h3><p>' + label + '</p></div></div>';
-                    });
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        loading.style.display = 'none';
+        if (data.success) {
+          // Summary cards
+          var summaryHtml = '';
+          if (data.summary) {
+            Object.entries(data.summary).forEach(function(kv) {
+              var key = kv[0], val = kv[1];
+              var label = key.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+              summaryHtml += '<div class="col-md-3"><div class="summary-card"><h3>' + (typeof val === 'number' ? val.toLocaleString('fr-FR') : val) + '</h3><p>' + label + '</p></div></div>';
+            });
+          }
+          summary.innerHTML = summaryHtml;
+          summary.style.display = 'flex';
+          // Table
+          if (data.data && data.data.length > 0) {
+            var keys = Object.keys(data.data[0]);
+            var headHtml = '<tr>';
+            keys.forEach(function(k) { headHtml += '<th>' + k.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); }) + '</th>'; });
+            headHtml += '</tr>';
+            document.getElementById('reportTableHead').innerHTML = headHtml;
+            var bodyHtml = '';
+            data.data.forEach(function(row) {
+              bodyHtml += '<tr>';
+              keys.forEach(function(k) {
+                var v = (row[k] !== null && row[k] !== undefined) ? row[k] : '-';
+                if (typeof v === 'number' && (k.includes('montant') || k.includes('prix') || k.includes('revenue'))) {
+                  v = parseFloat(v).toLocaleString('fr-FR') + ' MAD';
                 }
-                summary.innerHTML = summaryHtml;
-                summary.style.display = 'flex';
-                // Table
-                if (data.data && data.data.length > 0) {
-                    const keys = Object.keys(data.data[0]);
-                    let headHtml = '<tr>';
-                    keys.forEach(k => { headHtml += '<th>' + k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + '</th>'; });
-                    headHtml += '</tr>';
-                    document.getElementById('reportTableHead').innerHTML = headHtml;
-                    // Add horizontal scroll wrapper
-                    var reportTbl = document.getElementById('reportTable');
-                    if (reportTbl && !reportTbl.parentElement.classList.contains('report-table-wrap')) {
-                      var wrap = document.createElement('div'); wrap.className = 'report-table-wrap'; reportTbl.parentNode.insertBefore(wrap, reportTbl); wrap.appendChild(reportTbl);
-                    }
-                    let bodyHtml = '';
-                    data.data.forEach(row => {
-                        bodyHtml += '<tr>';
-                        keys.forEach(k => {
-                            let v = row[k] !== null && row[k] !== undefined ? row[k] : '-';
-                            if (typeof v === 'number' && (k.includes('montant') || k.includes('prix') || k.includes('revenue'))) {
-                                v = parseFloat(v).toLocaleString('fr-FR') + ' MAD';
-                            }
-                            bodyHtml += '<td>' + v + '</td>';
-                        });
-                        bodyHtml += '</tr>';
-                    });
-                    document.getElementById('reportTableBody').innerHTML = bodyHtml;
-                    document.getElementById('reportTitle').textContent = 'Rapport ' + document.getElementById('reportType').selectedOptions[0].text + ' — ' + document.getElementById('reportPeriod').selectedOptions[0].text;
-                    results.style.display = 'block';
-                } else {
-                    results.style.display = 'none';
-                    Swal.fire({icon:'info', title:'Aucune donnée', text:'Aucune donnée trouvée pour cette période.', toast:true, position:'top-end', timer:3000, showConfirmButton:false});
-                }
-            } else {
-                Swal.fire('Erreur', data.message || 'Erreur lors de la génération', 'error');
-            }
-        })
-        .catch(e => {
-            loading.style.display = 'none';
-            Swal.fire('Erreur', 'Impossible de générer le rapport', 'error');
-        });
-});
-</script>
-</body></html>
+                bodyHtml += '<td>' + v + '</td>';
+              });
+              bodyHtml += '</tr>';
+            });
+            document.getElementById('reportTableBody').innerHTML = bodyHtml;
+            document.getElementById('reportTitle').textContent = 'Rapport ' + document.getElementById('reportType').selectedOptions[0].text + ' — ' + document.getElementById('reportPeriod').selectedOptions[0].text;
+            results.style.display = 'block';
+          } else {
+            results.style.display = 'none';
+            Swal.fire({ icon: 'info', title: 'Aucune donnée', text: 'Aucune donnée trouvée pour cette période.', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+          }
+        } else {
+          Swal.fire('Erreur', data.message || 'Erreur lors de la génération', 'error');
+        }
+      })
+      .catch(function() {
+        loading.style.display = 'none';
+        Swal.fire('Erreur', 'Impossible de générer le rapport', 'error');
+      });
+  });
+  </script>
+</body>
+</html>
