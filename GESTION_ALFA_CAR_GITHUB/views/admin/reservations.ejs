@@ -11,7 +11,7 @@
     .table-card { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 1.5rem; opacity: 1 !important; }
     .table-card .table { color: #e2e8f0; font-size: 0.85rem; }
     .table-card .table thead th { background: rgba(108,92,231,0.1); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.06); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-    .table-card .table td { border-color: rgba(255,255,255,0.04); vertical-align: middle; }
+    .table-card .table td { border-color: rgba(255,255,255,0.04); vertical-align: middle; color: #e2e8f0 !important; }
     .table-card .table tbody tr:hover { background: rgba(108,92,231,0.05); }
     .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; border-radius: 8px; }
     .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: rgba(255,255,255,0.5); margin-top: 1rem; }
@@ -71,18 +71,20 @@
                     </span>
                   </td>
                   <td>
-                    <div class="d-flex gap-1">
+                    <div class="d-flex gap-1 flex-wrap">
                       <% if (resStatus === 'en_attente') { %>
                         <form action="/admin/reservations/approve/<%= res.id_reservation %>" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-outline-success" style="border-radius: 8px; font-size: 0.75rem;" title="Approuver" onclick="return confirm('Approuver cette réservation ?')">
-                            <i class="fas fa-check"></i>
+                          <button type="submit" class="btn btn-sm btn-outline-success" style="border-radius: 8px; font-size: 0.75rem;" title="Valider" onclick="return confirmAction(event, 'Valider cette réservation ?')">
+                            <i class="fas fa-check me-1"></i>Valider
                           </button>
                         </form>
                         <form action="/admin/reservations/reject/<%= res.id_reservation %>" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;" title="Refuser" onclick="return confirm('Refuser cette réservation ?')">
-                            <i class="fas fa-times"></i>
+                          <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;" title="Annuler" onclick="return confirmAction(event, 'Annuler cette réservation ?')">
+                            <i class="fas fa-times me-1"></i>Annuler
                           </button>
                         </form>
+                      <% } else { %>
+                        <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">—</span>
                       <% } %>
                     </div>
                   </td>
@@ -114,12 +116,28 @@
   <script>
     $(document).ready(function() {
       if ($('#reservationsTable').length) {
-        
         if ($.fn.DataTable.isDataTable('#reservationsTable')) { $('#reservationsTable').DataTable().destroy(); }
         $('#reservationsTable').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' }, responsive: true, columnDefs: [{ orderable: false, targets: [0, 8] }], order: [[5, 'desc']] });
       }
     });
     function toggleSelectAll(el) { document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = el.checked); }
+    function confirmAction(e, msg) {
+      e.preventDefault();
+      var form = e.target.closest('form');
+      var isApprove = form.action.includes('approve');
+      Swal.fire({
+        title: msg,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: isApprove ? '#22c55e' : '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: isApprove ? 'Oui, valider' : 'Oui, annuler',
+        cancelButtonText: 'Retour',
+        background: '#1a1a2e',
+        color: '#fff'
+      }).then(function(result) { if (result.isConfirmed) form.submit(); });
+      return false;
+    }
   </script>
 </body>
 </html>
