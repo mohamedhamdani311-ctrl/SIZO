@@ -1,5 +1,20 @@
 <%- include('../partials/head', {title: 'Facture ' + (typeof invoice !== 'undefined' && invoice ? invoice.numero_facture : ''), extraCss: '<link rel="stylesheet" href="/css/dashboard.css"><link rel="stylesheet" href="/css/print.css">'}) %>
-<body data-theme="light">
+<body data-theme="dark">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
+    .main-content { margin-left: 280px; min-height: 100vh; padding: 2rem; }
+    @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
+    .invoice-print-area { background: #fff; color: #1a1a2e; border-radius: 16px; padding: 2.5rem; max-width: 860px; margin: 0 auto; }
+    .invoice-print-area * { color: inherit; }
+    @media print {
+      body { background: #fff !important; }
+      .sidebar, .content-header, nav, .action-buttons-top, button, a.btn { display: none !important; }
+      .main-content { margin-left: 0 !important; padding: 0 !important; }
+      .invoice-print-area { box-shadow: none !important; border: none !important; padding: 10mm !important; max-width: 100% !important; }
+      @page { margin: 10mm; size: A4; }
+    }
+  </style>
+
 <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
@@ -8,6 +23,18 @@
             <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/admin'}, {name:'Factures', url:'/admin/invoices'}, {name: typeof invoice !== 'undefined' && invoice ? invoice.numero_facture : 'Facture'}]}) %>
         </div>
         <div class="content-body">
+        <div class="d-flex justify-content-end gap-2 mb-3" style="flex-wrap:wrap;">
+          <a href="javascript:history.back()" class="btn" style="background:rgba(255,255,255,0.08);color:#e2e8f0;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0.5rem 1.2rem;font-weight:500;">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+          </a>
+          <button onclick="printInvoiceNow()" class="btn" style="background:rgba(255,255,255,0.1);color:#e2e8f0;border:1px solid rgba(255,255,255,0.25);border-radius:10px;padding:0.5rem 1.4rem;font-weight:600;">
+            <i class="fas fa-print me-2"></i>Imprimer
+          </button>
+          <button onclick="exportInvoicePDF()" class="btn" style="background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.35);border-radius:10px;padding:0.5rem 1.4rem;font-weight:600;">
+            <i class="fas fa-file-pdf me-2"></i>Export PDF
+          </button>
+        </div>
+
             <div class="d-flex justify-content-end mb-3 no-print">
                 <button class="btn btn-primary me-2" onclick="window.print()"><i class="fas fa-print me-1"></i>Imprimer</button>
                 <button class="btn btn-danger" onclick="exportInvoiceToPDF(invoiceData)"><i class="fas fa-file-pdf me-1"></i>Exporter PDF</button>
@@ -141,4 +168,17 @@ const invoiceData = {
 };
 </script>
 <% } %>
+
+<script>
+function printInvoiceNow() {
+  window.print();
+}
+function exportInvoicePDF() {
+  window.print();
+}
+// Auto-print if ?print=1 in query string
+if (new URLSearchParams(window.location.search).get('print') === '1') {
+  window.addEventListener('load', function() { setTimeout(function() { window.print(); }, 600); });
+}
+</script>
 </body></html>
