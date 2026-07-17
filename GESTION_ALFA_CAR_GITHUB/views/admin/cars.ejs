@@ -27,7 +27,7 @@
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
   <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
@@ -45,9 +45,9 @@
         </div>
 
         <div class="action-bar">
-          <button class="btn btn-outline-light btn-sm" onclick="printTable()"><i class="fas fa-print me-1"></i>Imprimer</button>
-          <button class="btn btn-outline-danger btn-sm" onclick="exportPDF()"><i class="fas fa-file-pdf me-1"></i>Export PDF</button>
-          <button class="btn btn-outline-success btn-sm" onclick="exportExcel()"><i class="fas fa-file-excel me-1"></i>Export Excel</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:10px;" onclick="printTable()"><i class="fas fa-print me-1"></i>Imprimer</button>
+          <button class="btn btn-sm" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:10px;" onclick="exportPDF()"><i class="fas fa-file-pdf me-1"></i>Export PDF</button>
+          <button class="btn btn-sm" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:10px;" onclick="exportExcel()"><i class="fas fa-file-excel me-1"></i>Export Excel</button>
         </div>
 
         <div class="table-card">
@@ -130,7 +130,6 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/dashboard.js"></script>
@@ -138,6 +137,8 @@
   <script>
     $(document).ready(function() {
       if ($('#carsTable').length) {
+        
+        if ($.fn.DataTable.isDataTable('#carsTable')) { $('#carsTable').DataTable().destroy(); }
         $('#carsTable').DataTable({
           language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' },
           responsive: true,
