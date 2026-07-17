@@ -300,13 +300,20 @@ const adminController = {
     },
 
     async createSeller(req, res) {
+        const conn = await db.getConnection();
         try {
             const { username, password, nom, prenom, telephone, email, id_agence } = req.body;
+
+            // Validation: agence obligatoire
+            if (!id_agence) {
+                req.flash('error', 'Veuillez sélectionner une agence avant de créer un vendeur.');
+                return res.redirect('/admin/sellers/add');
+            }
 
             // Vérifier si le nom d'utilisateur existe
             const existingUser = await User.findByUsername(username);
             if (existingUser) {
-                req.flash('error', 'Ce nom d\'utilisateur est déjà utilisé.');
+                req.flash('error', 'Ce nom d\'utilisateur est déjà utilisé. Choisissez un autre nom d\'utilisateur.');
                 return res.redirect('/admin/sellers/add');
             }
 
@@ -314,30 +321,32 @@ const adminController = {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            // Créer l'utilisateur
-            const userId = await User.create({
-                username,
-                password: hashedPassword,
-                role: 'vendeur',
-                statut_compte: 'actif'
-            });
+            // Transaction: créer utilisateur + vendeur ensemble
+            // Si l'une des deux échoue, tout est annulé automatiquement
+            await conn.beginTransaction();
 
-            // Créer le vendeur
-            await Seller.create({
-                id_utilisateur: userId,
-                id_agence,
-                nom,
-                prenom,
-                telephone,
-                email
-            });
+            const [userResult] = await conn.execute(
+                'INSERT INTO utilisateur (username, password, role, statut_compte) VALUES (?, ?, ?, ?)',
+                [username, hashedPassword, 'vendeur', 'actif']
+            );
+            const userId = userResult.insertId;
+
+            await conn.execute(
+                'INSERT INTO vendeur (id_utilisateur, id_agence, nom, prenom, telephone, email) VALUES (?, ?, ?, ?, ?, ?)',
+                [userId, id_agence, nom, prenom, telephone || null, email || null]
+            );
+
+            await conn.commit();
 
             req.flash('success', 'Vendeur créé avec succès.');
             return res.redirect('/admin/sellers');
         } catch (error) {
+            await conn.rollback();
             console.error('Erreur création vendeur:', error);
             req.flash('error', 'Erreur lors de la création du vendeur.');
             return res.redirect('/admin/sellers/add');
+        } finally {
+            conn.release();
         }
     },
 
