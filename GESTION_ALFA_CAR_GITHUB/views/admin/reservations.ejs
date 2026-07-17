@@ -74,13 +74,13 @@
                     <div class="d-flex gap-1 flex-wrap">
                       <% if (resStatus === 'en_attente') { %>
                         <form action="/admin/reservations/approve/<%= res.id_reservation %>" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-outline-success" style="border-radius: 8px; font-size: 0.75rem;" title="Valider" onclick="return confirmAction(event, 'Valider cette réservation ?')">
-                            <i class="fas fa-check me-1"></i>Valider
+                          <button type="submit" class="btn btn-sm" style="background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid rgba(34,197,94,0.4);border-radius:8px;font-size:0.75rem;font-weight:600;" title="Accepter" onclick="return confirmAction(event, 'Accepter cette réservation ?')">
+                            <i class="fas fa-check me-1"></i>Accepter
                           </button>
                         </form>
                         <form action="/admin/reservations/reject/<%= res.id_reservation %>" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;" title="Annuler" onclick="return confirmAction(event, 'Annuler cette réservation ?')">
-                            <i class="fas fa-times me-1"></i>Annuler
+                          <button type="submit" class="btn btn-sm" style="background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4);border-radius:8px;font-size:0.75rem;font-weight:600;" title="Refuser" onclick="return confirmAction(event, 'Refuser cette réservation ?')">
+                            <i class="fas fa-times me-1"></i>Refuser
                           </button>
                         </form>
                       <% } else { %>
