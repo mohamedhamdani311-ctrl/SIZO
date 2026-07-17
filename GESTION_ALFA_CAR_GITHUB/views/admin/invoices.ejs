@@ -38,6 +38,11 @@
       <div class="content-body">
         <div class="page-title-section">
           <h2><i class="fas fa-file-invoice me-2" style="color: #6c5ce7;"></i>Gestion des Factures</h2>
+          <% if (typeof invoices !== 'undefined' && invoices && invoices.length > 0) { %>
+          <button onclick="printAllInvoices()" class="btn btn-sm" style="background:linear-gradient(135deg,#6c5ce7,#a855f7);color:#fff;border:none;border-radius:10px;padding:0.45rem 1.1rem;font-weight:600;font-size:0.82rem;box-shadow:0 2px 8px rgba(108,92,231,0.35);">
+            <i class="fas fa-print me-1"></i>Imprimer Tout (<%= invoices.length %>)
+          </button>
+          <% } %>
         </div>
 
         <div class="table-card">
@@ -116,12 +121,126 @@
         $('#invoicesTable').DataTable({
           language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' },
           responsive: true,
-          columnDefs: [{ orderable: false, targets: [0, 8] }],
+          columnDefs: [{ orderable: false, targets: [0, 9] }],
           order: [[1, 'desc']]
         });
       }
     });
 
+    // ── All invoices data embedded for print-all ──
+    const allInvoicesData = <%- JSON.stringify((typeof invoices !== 'undefined' && invoices) ? invoices : []) %>;
+
+    function printAllInvoices() {
+      if (!allInvoicesData.length) return;
+
+      var css = [
+        '* { box-sizing: border-box; margin: 0; padding: 0; }',
+        'body { font-family: Arial, sans-serif; background: #fff; color: #212529; font-size: 11pt; }',
+        '.invoice-page { width: 100%; padding: 14mm 14mm 10mm; page-break-after: always; }',
+        '.invoice-page:last-child { page-break-after: avoid; }',
+        '.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10mm; }',
+        '.brand { font-size: 18pt; font-weight: 900; color: #6c5ce7; }',
+        '.brand-sub { font-size: 9pt; color: #666; margin-top: 2pt; }',
+        '.inv-meta { text-align: right; }',
+        '.inv-meta h2 { font-size: 16pt; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #212529; }',
+        '.inv-meta p { font-size: 10pt; color: #444; margin-top: 3pt; }',
+        '.inv-num { color: #6c5ce7; font-weight: 700; }',
+        'hr { border: none; border-top: 2px solid #dee2e6; margin: 6mm 0; }',
+        '.info-row { display: flex; gap: 6mm; margin-bottom: 8mm; }',
+        '.info-box { flex: 1; border: 1px solid #dee2e6; border-radius: 8px; padding: 5mm; }',
+        '.info-box h4 { font-size: 10pt; font-weight: 700; color: #6c5ce7; margin-bottom: 4pt; border-bottom: 1px solid #eee; padding-bottom: 3pt; }',
+        '.info-box p { font-size: 9.5pt; color: #444; margin-bottom: 2pt; }',
+        'table { width: 100%; border-collapse: collapse; margin-bottom: 6mm; }',
+        'thead tr { background: #6c5ce7; color: #fff; }',
+        'th { padding: 5pt 8pt; font-size: 9.5pt; text-align: left; }',
+        'td { padding: 6pt 8pt; font-size: 9.5pt; border-bottom: 1px solid #dee2e6; }',
+        '.text-end { text-align: right; }',
+        '.total-row { background: linear-gradient(135deg,#6c5ce7,#a855f7); color: #fff; border-radius: 6px; padding: 5mm 6mm; text-align: right; font-size: 13pt; font-weight: 900; margin-top: 4mm; }',
+        '.credit-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 4mm; margin-bottom: 6mm; font-size: 9pt; }',
+        '.credit-box h4 { font-size: 9.5pt; font-weight: 700; margin-bottom: 3pt; }',
+        '.credit-cols { display: flex; gap: 8mm; }',
+        '.footer { text-align: center; font-size: 8.5pt; color: #888; margin-top: 8mm; border-top: 1px solid #dee2e6; padding-top: 4mm; }',
+        '@page { margin: 0; size: A4; }',
+        '@media print { body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }'
+      ].join('\n');
+
+      function fmtDate(d) {
+        if (!d) return 'N/A';
+        var o = new Date(d);
+        return isNaN(o) ? d : o.toLocaleDateString('fr-FR', {year:'numeric',month:'long',day:'numeric'});
+      }
+      function fmtNum(n) {
+        return n ? parseFloat(n).toLocaleString('fr-FR') : '0';
+      }
+      function esc(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      var pages = allInvoicesData.map(function(inv) {
+        var creditBlock = '';
+        if ((inv.type_paiement || '').toLowerCase() === 'credit') {
+          creditBlock = '<div class="credit-box">' +
+            '<h4>&#9432; Détails du Crédit</h4>' +
+            '<div class="credit-cols">' +
+            '<div><strong>Avance:</strong> ' + fmtNum(inv.montant_avance) + ' MAD</div>' +
+            '<div><strong>Mensualités:</strong> ' + (inv.nombre_mensualites || 0) + ' mois</div>' +
+            '<div><strong>Mensualité:</strong> ' + fmtNum(inv.mensualite) + ' MAD</div>' +
+            '<div><strong>Taux:</strong> ' + (inv.taux_interet || 0) + '%</div>' +
+            '</div></div>';
+        }
+        var typeLabel = (inv.type_paiement || '').toLowerCase() === 'cash' ? 'Cash' : 'Crédit';
+
+        return '<div class="invoice-page">' +
+          '<div class="header">' +
+            '<div>' +
+              '<div class="brand">&#9632; ALFA CAR</div>' +
+              '<div class="brand-sub">Système de Gestion de Vente de Voitures</div>' +
+              (inv.agence_nom ? '<div class="brand-sub">' + esc(inv.agence_nom) + '</div>' : '') +
+              (inv.agence_adresse ? '<div class="brand-sub">' + esc(inv.agence_adresse) + '</div>' : '') +
+            '</div>' +
+            '<div class="inv-meta">' +
+              '<h2>FACTURE</h2>' +
+              '<p>N° : <span class="inv-num">' + esc(inv.numero_facture) + '</span></p>' +
+              '<p>Date : ' + fmtDate(inv.date_facture) + '</p>' +
+            '</div>' +
+          '</div>' +
+          '<hr>' +
+          '<div class="info-row">' +
+            '<div class="info-box">' +
+              '<h4>&#128100; Client</h4>' +
+              '<p><strong>Nom :</strong> ' + esc((inv.client_nom || '') + ' ' + (inv.client_prenom || '')) + '</p>' +
+              (inv.client_email ? '<p><strong>Email :</strong> ' + esc(inv.client_email) + '</p>' : '') +
+              (inv.client_telephone ? '<p><strong>Tél :</strong> ' + esc(inv.client_telephone) + '</p>' : '') +
+              (inv.client_adresse ? '<p><strong>Adresse :</strong> ' + esc(inv.client_adresse) + '</p>' : '') +
+            '</div>' +
+            '<div class="info-box">' +
+              '<h4>&#128663; Véhicule</h4>' +
+              '<p><strong>Marque :</strong> ' + esc(inv.marque || '') + '</p>' +
+              '<p><strong>Modèle :</strong> ' + esc(inv.modele || '') + '</p>' +
+              (inv.annee ? '<p><strong>Année :</strong> ' + esc(inv.annee) + '</p>' : '') +
+              (inv.couleur ? '<p><strong>Couleur :</strong> ' + esc(inv.couleur) + '</p>' : '') +
+            '</div>' +
+          '</div>' +
+          '<table>' +
+            '<thead><tr><th>Description</th><th>Type de Paiement</th><th class="text-end">Montant</th></tr></thead>' +
+            '<tbody><tr>' +
+              '<td>' + esc((inv.marque || '') + ' ' + (inv.modele || '') + (inv.annee ? ' (' + inv.annee + ')' : '')) + '</td>' +
+              '<td>' + typeLabel + '</td>' +
+              '<td class="text-end"><strong>' + fmtNum(inv.montant_total) + ' MAD</strong></td>' +
+            '</tr></tbody>' +
+          '</table>' +
+          creditBlock +
+          '<div class="total-row">TOTAL : ' + fmtNum(inv.montant_total) + ' MAD</div>' +
+          '<div class="footer">Merci pour votre confiance — ALFA CAR, votre partenaire automobile</div>' +
+        '</div>';
+      });
+
+      var win = window.open('', '_blank', 'width=900,height=700');
+      if (!win) { Swal.fire('Bloqué', 'Veuillez autoriser les popups pour imprimer.', 'warning'); return; }
+      win.document.write('<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Toutes les Factures</title><style>' + css + '</style></head><body>' + pages.join('') + '</body></html>');
+      win.document.close();
+      win.onload = function() { win.focus(); win.print(); };
+    }
   </script>
 </body>
 </html>
