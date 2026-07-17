@@ -23,7 +23,7 @@
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
   <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
@@ -114,6 +114,8 @@
   <script>
     $(document).ready(function() {
       if ($('#reservationsTable').length) {
+        
+        if ($.fn.DataTable.isDataTable('#reservationsTable')) { $('#reservationsTable').DataTable().destroy(); }
         $('#reservationsTable').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' }, responsive: true, columnDefs: [{ orderable: false, targets: [0, 8] }], order: [[5, 'desc']] });
       }
     });
