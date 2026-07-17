@@ -3,8 +3,8 @@
 <head>
   <%- include('../partials/head', {title: 'Tableau de Bord Admin', extraCss: ['/css/dashboard.css', 'https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css']}) %>
   <style>
-    body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; margin: 0; }
-    .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; }
+    body { font-family: 'Inter', sans-serif; background: #000; color: #e2e8f0; margin: 0; }
+    .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; background: #000; }
     .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .sidebar-toggle { color: rgba(255,255,255,0.6); font-size: 1.2rem; text-decoration: none; }
     .stat-card {
@@ -41,14 +41,14 @@
       padding: 1.5rem;
     }
     .table-card h5 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #fff; margin-bottom: 1rem; font-size: 1rem; }
-    .table-card .table { color: #e2e8f0; font-size: 0.85rem; }
-    .table-card .table thead th { background: rgba(108,92,231,0.1); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.06); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .table-card .table td { border-color: rgba(255,255,255,0.04); vertical-align: middle; }
-    .table-card .table tbody tr:hover { background: rgba(108,92,231,0.05); }
+    .table-card .table { color: #fff; font-size: 0.85rem; }
+    .table-card .table thead th { background: rgba(108,92,231,0.15); color: #fff; border-color: rgba(255,255,255,0.06); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .table-card .table td { border-color: rgba(255,255,255,0.06); vertical-align: middle; color: #fff !important; }
+    .table-card .table tbody tr:hover { background: rgba(108,92,231,0.08); }
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
   <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
