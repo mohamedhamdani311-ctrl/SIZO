@@ -1,59 +1,157 @@
-<%- include('../partials/head', {title: 'Facture ' + (typeof invoice!=='undefined' && invoice ? invoice.numero_facture : ''), extraCss: '<link rel="stylesheet" href="/css/dashboard.css"><link rel="stylesheet" href="/css/print.css">'}) %>
-<body data-theme="light">
-<div class="dashboard-layout">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <%- include('../partials/head', {title: 'Facture ' + (typeof invoice !== 'undefined' && invoice ? invoice.numero_facture : ''), extraCss: ['/css/dashboard.css', '/css/print.css']}) %>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: #212529; margin: 0; }
+    .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; max-width: calc(100vw - 175px); box-sizing: border-box; overflow-x: hidden; }
+    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6; }
+    .invoice-card { background: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; }
+    .invoice-card .card-body { padding: 2.5rem; }
+    .invoice-title { color: #6c5ce7; font-weight: 800; }
+    .info-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 12px; padding: 1.25rem; }
+    .info-box h5 { color: #212529; font-weight: 700; margin-bottom: 1rem; }
+    .info-box p { color: #495057; margin-bottom: 0.4rem; }
+    .total-box { background: linear-gradient(135deg,#6c5ce7,#a855f7); color: #fff; border-radius: 12px; padding: 1.25rem; text-align: right; }
+    .total-box h4 { color: #fff; margin: 0; font-weight: 800; }
+    .credit-info { background: #fff8e1; border: 1px solid #ffe082; border-radius: 12px; padding: 1rem; }
+    .credit-info h6 { color: #212529; font-weight: 700; }
+    @media print {
+      .no-print { display: none !important; }
+      .main-content { margin-left: 0; max-width: 100%; }
+      .sidebar { display: none !important; }
+    }
+    @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
-        <div class="content-header no-print">
-            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/client'}, {name:'Factures', url:'/client/invoices'}, {name: typeof invoice!=='undefined' && invoice ? invoice.numero_facture : 'Facture'}]}) %>
+      <div class="content-header no-print">
+        <button class="btn btn-link sidebar-toggle" id="sidebarToggle" style="color:#495057;font-size:1.2rem;text-decoration:none;"><i class="fas fa-bars"></i></button>
+        <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/client/dashboard'}, {name:'Factures', url:'/client/invoices'}, {name: typeof invoice !== 'undefined' && invoice ? invoice.numero_facture : 'Facture'}]}) %>
+      </div>
+      <div class="content-body">
+        <div class="d-flex justify-content-end gap-2 mb-3 no-print">
+          <button class="btn btn-outline-primary" style="border-radius:10px;" onclick="window.print()">
+            <i class="fas fa-print me-1"></i>Imprimer
+          </button>
+          <button class="btn btn-outline-danger" style="border-radius:10px;" onclick="exportInvoiceToPDF(invoiceData)">
+            <i class="fas fa-file-pdf me-1"></i>Exporter PDF
+          </button>
         </div>
-        <div class="content-body">
-            <div class="d-flex justify-content-end mb-3 no-print">
-                <button class="btn btn-primary me-2" onclick="window.print()"><i class="fas fa-print me-1"></i>Imprimer</button>
-                <button class="btn btn-danger" onclick="exportInvoiceToPDF(invoiceData)"><i class="fas fa-file-pdf me-1"></i>Exporter PDF</button>
+
+        <% if (typeof invoice !== 'undefined' && invoice) { %>
+        <div class="invoice-card" id="invoiceContent">
+          <div class="card-body">
+            <div class="row mb-4">
+              <div class="col-6">
+                <h2 class="invoice-title"><i class="fas fa-car me-2"></i>ALFA CAR</h2>
+                <p class="text-muted mb-0">Système de Gestion de Vente de Voitures</p>
+                <p class="text-muted mb-0"><%= invoice.agence_nom || 'ALFA CAR' %></p>
+                <p class="text-muted mb-0"><%= invoice.agence_adresse || '' %></p>
+              </div>
+              <div class="col-6 text-end">
+                <h3 class="fw-bold text-uppercase" style="color:#212529;">FACTURE</h3>
+                <p class="mb-1"><strong>N°:</strong> <span style="color:#6c5ce7;font-weight:700;"><%= invoice.numero_facture %></span></p>
+                <p class="mb-1"><strong>Date:</strong> <%= invoice.date_facture ? new Date(invoice.date_facture).toLocaleDateString('fr-FR', {year:'numeric',month:'long',day:'numeric'}) : 'N/A' %></p>
+              </div>
             </div>
-            <% if(typeof invoice!=='undefined' && invoice){ %>
-            <div class="card shadow-sm printable-invoice" id="invoiceContent">
-                <div class="card-body p-5">
-                    <div class="row mb-4">
-                        <div class="col-6">
-                            <h2 class="fw-bold" style="color:var(--accent)"><i class="fas fa-car me-2"></i>ALFA CAR</h2>
-                            <p class="text-muted mb-0">Système de Gestion de Vente de Voitures</p>
-                            <p class="text-muted mb-0"><%= invoice.agence_nom || 'ALFA CAR' %></p>
-                            <p class="text-muted mb-0"><%= invoice.agence_adresse || '' %></p>
-                        </div>
-                        <div class="col-6 text-end">
-                            <h3 class="fw-bold text-uppercase">FACTURE</h3>
-                            <p class="mb-1"><strong>N°:</strong> <span class="text-primary fw-bold"><%= invoice.numero_facture %></span></p>
-                            <p class="mb-1"><strong>Date:</strong> <%= invoice.date_facture ? new Date(invoice.date_facture).toLocaleDateString('fr-FR',{year:'numeric',month:'long',day:'numeric'}) : 'N/A' %></p>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row mb-4">
-                        <div class="col-md-6"><div class="p-3 rounded" style="background:var(--bg)"><h5 class="fw-bold mb-3"><i class="fas fa-user me-2"></i>Client</h5><p class="mb-1"><strong>Nom:</strong> <%= invoice.client_nom||'' %> <%= invoice.client_prenom||'' %></p><p class="mb-1"><strong>Email:</strong> <%= invoice.client_email||'N/A' %></p><p class="mb-0"><strong>Tél:</strong> <%= invoice.client_telephone||'N/A' %></p></div></div>
-                        <div class="col-md-6"><div class="p-3 rounded" style="background:var(--bg)"><h5 class="fw-bold mb-3"><i class="fas fa-car me-2"></i>Véhicule</h5><p class="mb-1"><strong>Marque:</strong> <%= invoice.marque||'' %></p><p class="mb-1"><strong>Modèle:</strong> <%= invoice.modele||'' %></p><p class="mb-0"><strong>Année:</strong> <%= invoice.annee||'' %> | <strong>Couleur:</strong> <%= invoice.couleur||'N/A' %></p></div></div>
-                    </div>
-                    <div class="table-responsive mb-4"><table class="table table-bordered"><thead style="background:var(--primary);color:white;"><tr><th>Description</th><th>Type</th><th class="text-end">Montant</th></tr></thead><tbody><tr><td><%= invoice.marque||'' %> <%= invoice.modele||'' %> (<%= invoice.annee||'' %>)</td><td><%= invoice.type_paiement==='cash'?'Cash':'Crédit' %></td><td class="text-end fw-bold"><%= invoice.montant_total?parseFloat(invoice.montant_total).toLocaleString('fr-FR'):'0' %> MAD</td></tr></tbody></table></div>
-                    <% if(invoice.type_paiement==='credit'){ %>
-                    <div class="p-3 rounded mb-4" style="background:#fff3cd;"><h6 class="fw-bold"><i class="fas fa-info-circle me-2"></i>Détails Crédit</h6><div class="row"><div class="col-md-3">Avance: <%= invoice.montant_avance?parseFloat(invoice.montant_avance).toLocaleString('fr-FR'):'0' %> MAD</div><div class="col-md-3"><%= invoice.nombre_mensualites||0 %> mois</div><div class="col-md-3">Mensualité: <%= invoice.mensualite?parseFloat(invoice.mensualite).toLocaleString('fr-FR'):'0' %> MAD</div><div class="col-md-3">Taux: <%= invoice.taux_interet||0 %>%</div></div></div>
-                    <% } %>
-                    <div class="row"><div class="col-md-6 offset-md-6"><div class="p-3 rounded text-end" style="background:var(--primary);color:white;"><h4 class="mb-0">TOTAL: <strong><%= invoice.montant_total?parseFloat(invoice.montant_total).toLocaleString('fr-FR'):'0' %> MAD</strong></h4></div></div></div>
-                    <div class="text-center mt-5 text-muted"><hr><p class="mb-0"><small>Merci pour votre confiance — ALFA CAR</small></p></div>
+            <hr style="border-color:#dee2e6;">
+            <div class="row mb-4 g-3">
+              <div class="col-md-6">
+                <div class="info-box">
+                  <h5><i class="fas fa-user me-2" style="color:#6c5ce7;"></i>Client</h5>
+                  <p><strong>Nom:</strong> <%= invoice.client_nom || '' %> <%= invoice.client_prenom || '' %></p>
+                  <p><strong>Email:</strong> <%= invoice.client_email || 'N/A' %></p>
+                  <p><strong>Tél:</strong> <%= invoice.client_telephone || 'N/A' %></p>
                 </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-box">
+                  <h5><i class="fas fa-car me-2" style="color:#6c5ce7;"></i>Véhicule</h5>
+                  <p><strong>Marque:</strong> <%= invoice.marque || '' %></p>
+                  <p><strong>Modèle:</strong> <%= invoice.modele || '' %></p>
+                  <p><strong>Année:</strong> <%= invoice.annee || '' %> | <strong>Couleur:</strong> <%= invoice.couleur || 'N/A' %></p>
+                </div>
+              </div>
             </div>
-            <% }else{ %>
-            <div class="text-center py-5"><i class="fas fa-file-invoice fa-4x text-muted mb-3"></i><h4 class="text-muted">Facture non trouvée</h4></div>
+            <div class="table-responsive mb-4">
+              <table class="table table-bordered" style="color:#212529;">
+                <thead style="background:#6c5ce7;color:#fff;">
+                  <tr><th>Description</th><th>Type</th><th class="text-end">Montant</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><%= invoice.marque || '' %> <%= invoice.modele || '' %> (<%= invoice.annee || '' %>)</td>
+                    <td><%= invoice.type_paiement === 'cash' ? 'Cash' : 'Crédit' %></td>
+                    <td class="text-end fw-bold"><%= invoice.montant_total ? parseFloat(invoice.montant_total).toLocaleString('fr-FR') : '0' %> MAD</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <% if (invoice.type_paiement === 'credit') { %>
+            <div class="credit-info mb-4">
+              <h6><i class="fas fa-info-circle me-2"></i>Détails Crédit</h6>
+              <div class="row">
+                <div class="col-md-3">Avance: <%= invoice.montant_avance ? parseFloat(invoice.montant_avance).toLocaleString('fr-FR') : '0' %> MAD</div>
+                <div class="col-md-3"><%= invoice.nombre_mensualites || 0 %> mois</div>
+                <div class="col-md-3">Mensualité: <%= invoice.mensualite ? parseFloat(invoice.mensualite).toLocaleString('fr-FR') : '0' %> MAD</div>
+                <div class="col-md-3">Taux: <%= invoice.taux_interet || 0 %>%</div>
+              </div>
+            </div>
             <% } %>
+            <div class="row">
+              <div class="col-md-6 offset-md-6">
+                <div class="total-box">
+                  <h4>TOTAL: <%= invoice.montant_total ? parseFloat(invoice.montant_total).toLocaleString('fr-FR') : '0' %> MAD</h4>
+                </div>
+              </div>
+            </div>
+            <div class="text-center mt-5 text-muted">
+              <hr style="border-color:#dee2e6;">
+              <small>Merci pour votre confiance — ALFA CAR</small>
+            </div>
+          </div>
         </div>
+        <% } else { %>
+        <div class="text-center py-5">
+          <i class="fas fa-file-invoice fa-4x text-muted mb-3"></i>
+          <h4 class="text-muted">Facture non trouvée</h4>
+        </div>
+        <% } %>
+      </div>
     </main>
-</div>
-<%- include('../partials/flash') %>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/js/main.js"></script><script src="/js/export.js"></script>
-<% if(typeof invoice!=='undefined' && invoice){ %>
-<script>
-const invoiceData = {numero_facture:'<%= invoice.numero_facture %>',date_facture:'<%= invoice.date_facture?new Date(invoice.date_facture).toLocaleDateString("fr-FR"):"" %>',client_nom:'<%= invoice.client_nom||"" %>',client_prenom:'<%= invoice.client_prenom||"" %>',client_email:'<%= invoice.client_email||"" %>',client_telephone:'<%= invoice.client_telephone||"" %>',client_adresse:'<%= invoice.client_adresse||"" %>',marque:'<%= invoice.marque||"" %>',modele:'<%= invoice.modele||"" %>',annee:'<%= invoice.annee||"" %>',couleur:'<%= invoice.couleur||"" %>',montant_total:'<%= invoice.montant_total||0 %>',type_paiement:'<%= invoice.type_paiement||"cash" %>',montant_avance:'<%= invoice.montant_avance||0 %>',nombre_mensualites:'<%= invoice.nombre_mensualites||0 %>',mensualite:'<%= invoice.mensualite||0 %>',taux_interet:'<%= invoice.taux_interet||0 %>'};
-</script>
-<% } %>
-</body></html>
+  </div>
+  <%- include('../partials/flash') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/export.js"></script>
+  <% if (typeof invoice !== 'undefined' && invoice) { %>
+  <script>
+    const invoiceData = {
+      numero_facture: '<%= invoice.numero_facture %>',
+      date_facture: '<%= invoice.date_facture ? new Date(invoice.date_facture).toLocaleDateString("fr-FR") : "" %>',
+      client_nom: '<%= invoice.client_nom || "" %>',
+      client_prenom: '<%= invoice.client_prenom || "" %>',
+      client_email: '<%= invoice.client_email || "" %>',
+      client_telephone: '<%= invoice.client_telephone || "" %>',
+      client_adresse: '<%= invoice.client_adresse || "" %>',
+      marque: '<%= invoice.marque || "" %>',
+      modele: '<%= invoice.modele || "" %>',
+      annee: '<%= invoice.annee || "" %>',
+      couleur: '<%= invoice.couleur || "" %>',
+      montant_total: '<%= invoice.montant_total || 0 %>',
+      type_paiement: '<%= invoice.type_paiement || "cash" %>',
+      montant_avance: '<%= invoice.montant_avance || 0 %>',
+      nombre_mensualites: '<%= invoice.nombre_mensualites || 0 %>',
+      mensualite: '<%= invoice.mensualite || 0 %>',
+      taux_interet: '<%= invoice.taux_interet || 0 %>'
+    };
+  </script>
+  <% } %>
+</body>
+</html>
