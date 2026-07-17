@@ -40,12 +40,6 @@
           <h2><i class="fas fa-file-invoice me-2" style="color: #6c5ce7;"></i>Gestion des Factures</h2>
         </div>
 
-        <div class="action-bar mb-3">
-          <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:10px;" onclick="printTable('invoicesTable','Liste des Factures')"><i class="fas fa-print me-1"></i>Imprimer</button>
-          <button class="btn btn-sm" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:10px;" onclick="exportTableToPDF('invoicesTable','factures','Liste des Factures')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
-          <button class="btn btn-sm" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:10px;" onclick="exportTableToExcel('invoicesTable','factures')"><i class="fas fa-file-excel me-1"></i>Excel</button>
-        </div>
-
         <div class="table-card">
           <% if (typeof invoices !== 'undefined' && invoices && invoices.length > 0) { %>
           <div class="table-responsive">
@@ -85,9 +79,9 @@
                       <a href="/admin/invoices/<%= inv.id_facture %>" class="btn btn-sm" style="background:rgba(6,182,212,0.15);color:#22d3ee;border:1px solid rgba(6,182,212,0.3);border-radius:8px;font-size:0.75rem;" title="Voir la facture">
                         <i class="fas fa-eye me-1"></i>Voir
                       </a>
-                      <button class="btn btn-sm" style="background:rgba(255,255,255,0.08);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:0.75rem;" onclick="printInvoiceById(<%= inv.id_facture %>)" title="Imprimer">
+                      <a href="/admin/invoices/<%= inv.id_facture %>?print=1" target="_blank" class="btn btn-sm" style="background:rgba(255,255,255,0.08);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:0.75rem;" title="Imprimer">
                         <i class="fas fa-print me-1"></i>Imprimer
-                      </button>
+                      </a>
                     </div>
                   </td>
                 </tr>
@@ -114,7 +108,6 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/dashboard.js"></script>
-  <script src="/js/print.js"></script>
   <script src="/js/export.js"></script>
   <script>
     $(document).ready(function() {
@@ -128,12 +121,7 @@
         });
       }
     });
-    function printInvoiceById(id) {
-      fetch('/api/invoice/' + id)
-        .then(r => r.json())
-        .then(data => { if (data.success) printInvoice(data.data); })
-        .catch(e => Swal.fire('Erreur', 'Impossible de charger la facture', 'error'));
-    }
+
   </script>
 </body>
 </html>
