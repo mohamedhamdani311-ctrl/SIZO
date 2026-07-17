@@ -23,7 +23,7 @@
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
-<body data-theme="dark">
+<body>
   <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
@@ -113,12 +113,14 @@
     });
     function confirmApprove(e) {
       e.preventDefault();
-      Swal.fire({ title: 'Approuver ce compte ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#22c55e', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, approuver', cancelButtonText: 'Annuler', background: '#1a1a2e', color: '#fff' }).then(function(r) { if (r.isConfirmed) e.target.submit(); });
+      var form = e.target.closest('form');
+      Swal.fire({ title: 'Approuver ce compte ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#22c55e', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, approuver', cancelButtonText: 'Annuler' }).then(function(r) { if (r.isConfirmed) form.submit(); });
       return false;
     }
     function confirmReject(e) {
       e.preventDefault();
-      Swal.fire({ title: 'Refuser ce compte ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, refuser', cancelButtonText: 'Annuler', background: '#1a1a2e', color: '#fff' }).then(function(r) { if (r.isConfirmed) e.target.submit(); });
+      var form = e.target.closest('form');
+      Swal.fire({ title: 'Refuser ce compte ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, refuser', cancelButtonText: 'Annuler' }).then(function(r) { if (r.isConfirmed) form.submit(); });
       return false;
     }
   </script>

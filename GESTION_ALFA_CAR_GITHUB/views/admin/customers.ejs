@@ -25,7 +25,7 @@
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
-<body data-theme="dark">
+<body>
   <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
@@ -39,10 +39,10 @@
           <h2><i class="fas fa-users me-2" style="color: #10b981;"></i>Gestion des Clients</h2>
         </div>
 
-        <div class="action-bar">
-          <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:10px;" onclick="printTable('customersTable','Liste des Clients')"><i class="fas fa-print me-1"></i>Imprimer</button>
-          <button class="btn btn-sm" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:10px;" onclick="exportTableToPDF('customersTable','clients','Liste des Clients')"><i class="fas fa-file-pdf me-1"></i>Export PDF</button>
-          <button class="btn btn-sm" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:10px;" onclick="exportExcel()"><i class="fas fa-file-excel me-1"></i>Export Excel</button>
+        <div class="action-bar d-flex gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" style="border-radius:10px;" onclick="printTable('customersTable','Liste des Clients')"><i class="fas fa-print me-1"></i>Imprimer</button>
+          <button class="btn btn-sm btn-outline-danger" style="border-radius:10px;" onclick="exportTableToPDF('customersTable','clients','Liste des Clients')"><i class="fas fa-file-pdf me-1"></i>Export PDF</button>
+          <button class="btn btn-sm btn-outline-success" style="border-radius:10px;" onclick="exportTableToExcel('customersTable','clients')"><i class="fas fa-file-excel me-1"></i>Export Excel</button>
         </div>
 
         <div class="table-card">
@@ -82,20 +82,18 @@
                   <td><%= client.date_creation ? new Date(client.date_creation).toLocaleDateString('fr-FR') : '-' %></td>
                   <td>
                     <div class="d-flex gap-1 flex-wrap">
-                      <% if (clientStatut === 'en_attente') { %>
-                        <form action="/admin/customers/approve/<%= client.id_client %>" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-outline-success" style="border-radius: 8px; font-size: 0.75rem;" title="Approuver" onclick="return confirm('Approuver ce client ?')">
-                            <i class="fas fa-check"></i>
-                          </button>
-                        </form>
-                        <form action="/admin/customers/reject/<%= client.id_client %>" method="POST" class="d-inline">
-                          <button type="submit" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;" title="Refuser" onclick="return confirm('Refuser ce client ?')">
-                            <i class="fas fa-times"></i>
-                          </button>
-                        </form>
-                      <% } %>
+                      <form action="/admin/customers/approve/<%= client.id_client %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;font-size:0.75rem;font-weight:600;" title="Approuver" onclick="return confirmApprove(event)">
+                          <i class="fas fa-check me-1"></i>Approuver
+                        </button>
+                      </form>
+                      <form action="/admin/customers/reject/<%= client.id_client %>" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-warning" style="border-radius:8px;font-size:0.75rem;font-weight:600;" title="Refuser" onclick="return confirmReject(event)">
+                          <i class="fas fa-times me-1"></i>Refuser
+                        </button>
+                      </form>
                       <form action="/admin/customers/delete/<%= client.id_client %>" method="POST" class="d-inline" onsubmit="return confirmDelete(event, 'ce client')">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;" title="Supprimer">
+                        <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;font-size:0.75rem;" title="Supprimer">
                           <i class="fas fa-trash"></i>
                         </button>
                       </form>
@@ -141,14 +139,24 @@
       }
     });
     function toggleSelectAll(el) { document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = el.checked); }
-    function confirmDelete(e, name) {
+    function confirmApprove(e) {
       e.preventDefault();
-      Swal.fire({ title: 'Êtes-vous sûr ?', text: 'Voulez-vous vraiment supprimer ' + name + ' ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, supprimer', cancelButtonText: 'Annuler', background: '#1a1a2e', color: '#fff' }).then(function(result) { if (result.isConfirmed) e.target.submit(); });
+      var form = e.target.closest('form');
+      Swal.fire({ title: 'Approuver ce client ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#22c55e', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, approuver', cancelButtonText: 'Annuler' }).then(function(r) { if (r.isConfirmed) form.submit(); });
       return false;
     }
-    function printTable() { window.print(); }
-    function exportPDF() { if (typeof generatePDF === 'function') generatePDF('customersTable', 'Clients'); else alert('Fonctionnalité PDF en cours'); }
-    function exportExcel() { if (typeof generateExcel === 'function') generateExcel('customersTable', 'Clients'); else alert('Fonctionnalité Excel en cours'); }
+    function confirmReject(e) {
+      e.preventDefault();
+      var form = e.target.closest('form');
+      Swal.fire({ title: 'Refuser ce client ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#f59e0b', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, refuser', cancelButtonText: 'Annuler' }).then(function(r) { if (r.isConfirmed) form.submit(); });
+      return false;
+    }
+    function confirmDelete(e, name) {
+      e.preventDefault();
+      var form = e.target.closest('form');
+      Swal.fire({ title: 'Êtes-vous sûr ?', text: 'Voulez-vous vraiment supprimer ' + name + ' ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#6b7280', confirmButtonText: 'Oui, supprimer', cancelButtonText: 'Annuler' }).then(function(result) { if (result.isConfirmed) form.submit(); });
+      return false;
+    }
   </script>
 </body>
 </html>

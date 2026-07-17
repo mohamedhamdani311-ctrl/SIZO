@@ -19,7 +19,7 @@
     .table-card .badge.bg-warning { color: #212529 !important; }
     .table-card .badge.bg-info { color: #fff !important; }
     /* Montant */
-    .montant-cell { color: #4ade80 !important; font-weight: 700; }
+    .montant-cell { color: #198754 !important; font-weight: 700; }
     .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { background: #ffffff; border: 1px solid #ced4da; color: #212529; border-radius: 8px; padding: 0.4rem 0.8rem; }
     .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #6c757d; margin-top: 1rem; }
     .dataTables_wrapper .dataTables_paginate .paginate_button { color: #495057 !important; background: #ffffff !important; border: 1px solid #dee2e6 !important; border-radius: 6px !important; margin: 0 2px; }
@@ -31,7 +31,7 @@
     @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
   </style>
 </head>
-<body data-theme="dark">
+<body>
   <div class="dashboard-layout">
     <%- include('../partials/sidebar') %>
     <main class="main-content">
@@ -44,10 +44,10 @@
           <h2><i class="fas fa-credit-card me-2" style="color: #6c5ce7;"></i>Gestion des Paiements</h2>
         </div>
 
-        <div class="action-bar mb-3">
-          <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:#e2e8f0;border:1px solid rgba(255,255,255,0.2);border-radius:10px;" onclick="printTable('paymentsTable','Liste des Paiements')"><i class="fas fa-print me-1"></i>Imprimer</button>
-          <button class="btn btn-sm" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:10px;" onclick="exportTableToPDF('paymentsTable','paiements','Liste des Paiements')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
-          <button class="btn btn-sm" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:10px;" onclick="exportTableToExcel('paymentsTable','paiements')"><i class="fas fa-file-excel me-1"></i>Excel</button>
+        <div class="action-bar mb-3 d-flex gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" style="border-radius:10px;" onclick="printTable('paymentsTable','Liste des Paiements')"><i class="fas fa-print me-1"></i>Imprimer</button>
+          <button class="btn btn-sm btn-outline-danger" style="border-radius:10px;" onclick="exportTableToPDF('paymentsTable','paiements','Liste des Paiements')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+          <button class="btn btn-sm btn-outline-success" style="border-radius:10px;" onclick="exportTableToExcel('paymentsTable','paiements')"><i class="fas fa-file-excel me-1"></i>Excel</button>
         </div>
 
         <div class="table-card">
@@ -105,22 +105,18 @@
                     <% } %>
                   </td>
                   <td>
-                    <% if (p.statut === 'en_attente') { %>
                     <div class="d-flex gap-1 flex-wrap">
                       <form action="/admin/payments/approve/<%= p.id_paiement %>" method="POST" class="d-inline">
-                        <button type="submit" class="btn btn-sm btn-outline-success" style="border-radius:8px;font-size:0.75rem;" onclick="return confirmAction(event,'Confirmer ce paiement ?')">
+                        <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;font-size:0.75rem;font-weight:600;" onclick="return confirmAction(event,'Confirmer ce paiement ?')">
                           <i class="fas fa-check me-1"></i>Valider
                         </button>
                       </form>
                       <form action="/admin/payments/reject/<%= p.id_paiement %>" method="POST" class="d-inline">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius:8px;font-size:0.75rem;" onclick="return confirmAction(event,'Refuser ce paiement ?')">
+                        <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;font-size:0.75rem;font-weight:600;" onclick="return confirmAction(event,'Refuser ce paiement ?')">
                           <i class="fas fa-times me-1"></i>Refuser
                         </button>
                       </form>
                     </div>
-                    <% } else { %>
-                      <span style="color:rgba(255,255,255,0.3);">—</span>
-                    <% } %>
                   </td>
                 </tr>
                 <% }); %>
@@ -169,7 +165,7 @@
         confirmButtonColor: isApprove ? '#22c55e' : '#ef4444',
         cancelButtonColor: '#6b7280',
         confirmButtonText: isApprove ? 'Oui, confirmer' : 'Oui, refuser',
-        cancelButtonText: 'Retour', background: '#1a1a2e', color: '#fff'
+        cancelButtonText: 'Retour'
       }).then(function(r) { if (r.isConfirmed) form.submit(); });
       return false;
     }
