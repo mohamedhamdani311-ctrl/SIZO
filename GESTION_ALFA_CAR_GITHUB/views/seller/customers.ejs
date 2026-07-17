@@ -80,7 +80,29 @@
                         <button type="submit" class="btn btn-sm btn-danger" style="border-radius:6px;" onclick="return confirmReject(event)"><i class="fas fa-times"></i></button>
                       </form>
                     </div>
-                    <% } else { %><span class="text-muted" style="font-size:0.8rem;">—</span><% } %>
+                    <% } else { %>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" style="border-radius:6px;font-size:0.75rem;" type="button" data-bs-toggle="dropdown" title="Modifier Statut">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <form action="/seller/customers/approve/<%= c.id_utilisateur %>" method="POST">
+                            <button type="submit" class="dropdown-item text-success" onclick="return confirmApprove(event)">
+                              <i class="fas fa-check me-2"></i>Approuver
+                            </button>
+                          </form>
+                        </li>
+                        <li>
+                          <form action="/seller/customers/reject/<%= c.id_utilisateur %>" method="POST">
+                            <button type="submit" class="dropdown-item text-danger" onclick="return confirmReject(event)">
+                              <i class="fas fa-times me-2"></i>Refuser
+                            </button>
+                          </form>
+                        </li>
+                      </ul>
+                    </div>
+                    <% } %>
                   </td>
                 </tr>
                 <% }); %>

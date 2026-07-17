@@ -105,6 +105,7 @@
                     <% } %>
                   </td>
                   <td>
+                    <% if (p.statut === 'en_attente') { %>
                     <div class="d-flex gap-1 flex-wrap">
                       <form action="/admin/payments/approve/<%= p.id_paiement %>" method="POST" class="d-inline">
                         <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;font-size:0.75rem;font-weight:600;" onclick="return confirmAction(event,'Confirmer ce paiement ?')">
@@ -117,6 +118,29 @@
                         </button>
                       </form>
                     </div>
+                    <% } else { %>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" style="border-radius:8px;font-size:0.75rem;font-weight:600;" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-edit me-1"></i>Modifier Statut
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <form action="/admin/payments/approve/<%= p.id_paiement %>" method="POST">
+                            <button type="submit" class="dropdown-item text-success" onclick="return confirmAction(event,'Confirmer ce paiement ?')">
+                              <i class="fas fa-check me-2"></i>Valider
+                            </button>
+                          </form>
+                        </li>
+                        <li>
+                          <form action="/admin/payments/reject/<%= p.id_paiement %>" method="POST">
+                            <button type="submit" class="dropdown-item text-danger" onclick="return confirmAction(event,'Refuser ce paiement ?')">
+                              <i class="fas fa-times me-2"></i>Refuser
+                            </button>
+                          </form>
+                        </li>
+                      </ul>
+                    </div>
+                    <% } %>
                   </td>
                 </tr>
                 <% }); %>

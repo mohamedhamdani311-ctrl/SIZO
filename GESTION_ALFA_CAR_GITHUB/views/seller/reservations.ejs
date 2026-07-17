@@ -71,6 +71,7 @@
                     <% } else { %><span class="badge bg-danger">Annulée</span><% } %>
                   </td>
                   <td>
+                    <% if (r.statut === 'en_attente') { %>
                     <div class="d-flex gap-1">
                       <form action="/seller/reservations/approve/<%= r.id_reservation %>" method="POST" class="d-inline">
                         <button type="submit" class="btn btn-sm btn-success" style="border-radius:6px;" onclick="return confirmApprove(event)" title="Valider"><i class="fas fa-check"></i></button>
@@ -79,6 +80,29 @@
                         <button type="submit" class="btn btn-sm btn-danger" style="border-radius:6px;" onclick="return confirmReject(event)" title="Refuser"><i class="fas fa-times"></i></button>
                       </form>
                     </div>
+                    <% } else { %>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" style="border-radius:6px;font-size:0.75rem;" type="button" data-bs-toggle="dropdown" title="Modifier Statut">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <form action="/seller/reservations/approve/<%= r.id_reservation %>" method="POST">
+                            <button type="submit" class="dropdown-item text-success" onclick="return confirmApprove(event)">
+                              <i class="fas fa-check me-2"></i>Valider
+                            </button>
+                          </form>
+                        </li>
+                        <li>
+                          <form action="/seller/reservations/reject/<%= r.id_reservation %>" method="POST">
+                            <button type="submit" class="dropdown-item text-danger" onclick="return confirmReject(event)">
+                              <i class="fas fa-times me-2"></i>Refuser
+                            </button>
+                          </form>
+                        </li>
+                      </ul>
+                    </div>
+                    <% } %>
                   </td>
                 </tr>
                 <% }); %>

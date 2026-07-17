@@ -82,6 +82,7 @@
                   <td><%= client.date_creation ? new Date(client.date_creation).toLocaleDateString('fr-FR') : '-' %></td>
                   <td>
                     <div class="d-flex gap-1 flex-wrap">
+                      <% if (clientStatut === 'en_attente') { %>
                       <form action="/admin/customers/approve/<%= client.id_client %>" method="POST" class="d-inline">
                         <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;font-size:0.75rem;font-weight:600;" title="Approuver" onclick="return confirmApprove(event)">
                           <i class="fas fa-check me-1"></i>Approuver
@@ -92,6 +93,29 @@
                           <i class="fas fa-times me-1"></i>Refuser
                         </button>
                       </form>
+                      <% } else { %>
+                      <div class="dropdown d-inline">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" style="border-radius:8px;font-size:0.75rem;font-weight:600;" type="button" data-bs-toggle="dropdown">
+                          <i class="fas fa-edit me-1"></i>Modifier Statut
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <form action="/admin/customers/approve/<%= client.id_client %>" method="POST">
+                              <button type="submit" class="dropdown-item text-success" onclick="return confirmApprove(event)">
+                                <i class="fas fa-check me-2"></i>Approuver
+                              </button>
+                            </form>
+                          </li>
+                          <li>
+                            <form action="/admin/customers/reject/<%= client.id_client %>" method="POST">
+                              <button type="submit" class="dropdown-item text-warning" onclick="return confirmReject(event)">
+                                <i class="fas fa-times me-2"></i>Refuser
+                              </button>
+                            </form>
+                          </li>
+                        </ul>
+                      </div>
+                      <% } %>
                       <form action="/admin/customers/delete/<%= client.id_client %>" method="POST" class="d-inline" onsubmit="return confirmDelete(event, 'ce client')">
                         <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;font-size:0.75rem;" title="Supprimer">
                           <i class="fas fa-trash"></i>
