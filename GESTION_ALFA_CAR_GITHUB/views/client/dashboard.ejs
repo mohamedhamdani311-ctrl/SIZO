@@ -37,37 +37,37 @@
 
         <div class="row g-4 mb-4">
           <div class="col-md-4">
-            <div class="stat-card">
+            <a href="/client/reservations" class="stat-card text-decoration-none" style="cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(9,132,227,0.18)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
               <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:60px;height:60px;background:linear-gradient(135deg,#74b9ff,#0984e3)">
                 <i class="fas fa-calendar-check text-white fa-xl"></i>
               </div>
               <div>
-                <h2><%= typeof stats !== 'undefined' ? stats.reservations || 0 : 0 %></h2>
-                <p>Mes Réservations</p>
+                <h2 style="color:#212529;"><%= typeof stats !== 'undefined' ? stats.totalReservations || 0 : 0 %></h2>
+                <p style="color:#6c757d;">Mes Réservations</p>
               </div>
-            </div>
+            </a>
           </div>
           <div class="col-md-4">
-            <div class="stat-card">
+            <a href="/client/purchases" class="stat-card text-decoration-none" style="cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,184,148,0.18)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
               <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:60px;height:60px;background:linear-gradient(135deg,#00b894,#00cec9)">
                 <i class="fas fa-shopping-cart text-white fa-xl"></i>
               </div>
               <div>
-                <h2><%= typeof stats !== 'undefined' ? stats.purchases || 0 : 0 %></h2>
-                <p>Mes Achats</p>
+                <h2 style="color:#212529;"><%= typeof stats !== 'undefined' ? stats.totalPurchases || 0 : 0 %></h2>
+                <p style="color:#6c757d;">Mes Achats</p>
               </div>
-            </div>
+            </a>
           </div>
           <div class="col-md-4">
-            <div class="stat-card">
+            <a href="/client/invoices" class="stat-card text-decoration-none" style="cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(108,92,231,0.18)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
               <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:60px;height:60px;background:linear-gradient(135deg,#a29bfe,#6c5ce7)">
                 <i class="fas fa-file-invoice text-white fa-xl"></i>
               </div>
               <div>
-                <h2><%= typeof stats !== 'undefined' ? stats.invoices || 0 : 0 %></h2>
-                <p>Mes Factures</p>
+                <h2 style="color:#212529;"><%= typeof stats !== 'undefined' ? stats.totalInvoices || 0 : 0 %></h2>
+                <p style="color:#6c757d;">Mes Factures</p>
               </div>
-            </div>
+            </a>
           </div>
         </div>
 

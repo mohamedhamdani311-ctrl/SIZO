@@ -49,6 +49,7 @@
                 <tr>
                   <th>#</th>
                   <th>Vente</th>
+                  <th>Voiture</th>
                   <th>Client</th>
                   <th>Montant</th>
                   <th>Type</th>
@@ -63,6 +64,7 @@
                 <tr>
                   <td><%= p.id_paiement %></td>
                   <td><strong>#<%= p.id_vente %></strong></td>
+                  <td><strong><%= (p.marque || '') + ' ' + (p.modele || '') %></strong><br><small class="text-muted"><%= p.annee || '' %></small></td>
                   <td><%= (p.client_nom || '') + ' ' + (p.client_prenom || '') %></td>
                   <td><span class="montant"><%= p.montant ? parseFloat(p.montant).toLocaleString('fr-FR') : '0' %> MAD</span></td>
                   <td>
@@ -130,7 +132,7 @@
         $('#paymentsTable').DataTable({
           language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' },
           scrollX: true, scrollCollapse: true, autoWidth: true, responsive: false,
-          columnDefs: [{ orderable: false, targets: [8] }],
+          columnDefs: [{ orderable: false, targets: [9] }],
           order: [[6, 'desc']]
         });
       }

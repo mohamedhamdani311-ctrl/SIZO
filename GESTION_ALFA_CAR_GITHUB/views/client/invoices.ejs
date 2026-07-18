@@ -34,7 +34,14 @@
         <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/client/dashboard'}, {name:'Factures'}]}) %>
       </div>
       <div class="content-body">
-        <h2 class="page-title"><i class="fas fa-file-invoice me-2" style="color:#6c5ce7;"></i>Mes Factures</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h2 class="page-title mb-0"><i class="fas fa-file-invoice me-2" style="color:#6c5ce7;"></i>Mes Factures</h2>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" style="border-radius:10px;" onclick="printTable('invoicesTable','Mes Factures')"><i class="fas fa-print me-1"></i>Imprimer</button>
+            <button class="btn btn-sm btn-outline-danger" style="border-radius:10px;" onclick="exportTableToPDF('invoicesTable','mes-factures','Mes Factures')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+            <button class="btn btn-sm btn-outline-success" style="border-radius:10px;" onclick="exportTableToExcel('invoicesTable','mes-factures')"><i class="fas fa-file-excel me-1"></i>Excel</button>
+          </div>
+        </div>
         <div class="table-card">
           <% if (typeof invoices !== 'undefined' && invoices && invoices.length > 0) { %>
           <div class="table-responsive">
@@ -84,6 +91,8 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/dashboard.js"></script>
+  <script src="/js/print.js"></script>
+  <script src="/js/export.js"></script>
   <script>
     $(document).ready(function() {
       if ($('#invoicesTable').length && !$.fn.DataTable.isDataTable('#invoicesTable')) {

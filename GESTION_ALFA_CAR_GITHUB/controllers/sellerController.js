@@ -396,8 +396,14 @@ const sellerController = {
 
     async rejectSale(req, res) {
         try {
-            await Sale.updateStatus(req.params.id, 'annulee');
-            req.flash('success', 'Vente annulée.');
+            const saleId = req.params.id;
+            const sale = await Sale.findById(saleId);
+            await Sale.updateStatus(saleId, 'annulee');
+            // Remettre la voiture en disponible si elle n'est pas encore vendue
+            if (sale && sale.id_voiture) {
+                await Car.updateStatus(sale.id_voiture, 'disponible');
+            }
+            req.flash('success', 'Vente annulée. La voiture est de nouveau disponible.');
             return res.redirect('/seller/sales');
         } catch (error) {
             console.error('Erreur rejet vente vendeur:', error);

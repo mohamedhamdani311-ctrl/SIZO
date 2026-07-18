@@ -59,6 +59,7 @@
                   <th><input type="checkbox" id="selectAll" class="form-check-input" onchange="document.querySelectorAll('.row-checkbox').forEach(c=>c.checked=this.checked)"></th>
                   <th>#</th>
                   <th>Vente</th>
+                  <th>Voiture</th>
                   <th>Client</th>
                   <th>Montant</th>
                   <th>Type</th>
@@ -74,6 +75,7 @@
                   <td><input type="checkbox" class="form-check-input row-checkbox" value="<%= p.id_paiement %>"></td>
                   <td><%= p.id_paiement %></td>
                   <td>#<%= p.id_vente %></td>
+                  <td><strong><%= (p.marque || '') + ' ' + (p.modele || '') %></strong><br><small class="text-muted"><%= p.annee || '' %></small></td>
                   <td><strong><%= p.client_nom || '' %> <%= p.client_prenom || '' %></strong></td>
                   <td><strong class="montant-cell"><%= p.montant ? parseFloat(p.montant).toLocaleString('fr-FR') : '0' %> MAD</strong></td>
                   <td>
@@ -157,7 +159,7 @@
         $('#paymentsTable').DataTable({
           language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json' },
           scrollX: true, autoWidth: false, responsive: false,
-          columnDefs: [{ orderable: false, targets: [0, 9] }],
+          columnDefs: [{ orderable: false, targets: [0, 10] }],
           order: [[1, 'desc']]
         });
       }
