@@ -31,6 +31,7 @@
       padding: 1.5rem;
     }
     .chart-card h5 { font-family: 'Poppins', sans-serif; font-weight: 700; color: #212529; margin-bottom: 1rem; font-size: 1rem; }
+    .chart-wrapper { position: relative; height: 220px; width: 100%; }
     .table-card {
       background: #ffffff;
       border: 1px solid #dee2e6;
@@ -126,14 +127,18 @@
         <div class="row g-3 mb-4">
           <div class="col-lg-8">
             <div class="chart-card">
-              <h5><i class="fas fa-chart-line me-2" style="color: #6c5ce7;"></i>Ventes par Mois</h5>
-              <canvas id="salesChart" height="300"></canvas>
+              <h5><i class="fas fa-chart-line me-2" style="color:#e94560;"></i>Ventes par Mois</h5>
+              <div class="chart-wrapper">
+                <canvas id="salesChart"></canvas>
+              </div>
             </div>
           </div>
           <div class="col-lg-4">
             <div class="chart-card">
-              <h5><i class="fas fa-chart-pie me-2" style="color: #00cec9;"></i>Ventes par Marque</h5>
-              <canvas id="brandsChart" height="300"></canvas>
+              <h5><i class="fas fa-chart-pie me-2" style="color: #6c5ce7;"></i>Ventes par Marque</h5>
+              <div class="chart-wrapper">
+                <canvas id="brandsChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
@@ -231,67 +236,60 @@
   <script src="/js/dashboard.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Sales by Month Chart
-      const salesCtx = document.getElementById('salesChart');
+      <% if (typeof chartData !== 'undefined' && chartData) { %>
+      var salesData = JSON.parse('<%- JSON.stringify(chartData.salesByMonth || []) %>');
+      var brandsData = JSON.parse('<%- JSON.stringify(chartData.salesByBrand || []) %>');
+
+      var salesCtx = document.getElementById('salesChart');
       if (salesCtx) {
-        const salesData = <%= typeof chartData !== 'undefined' && chartData && chartData.salesByMonth ? JSON.stringify(chartData.salesByMonth) : '[]' %>;
-        const salesLabels = salesData.map(item => item.month || item.mois || '');
-        const salesValues = salesData.map(item => item.total || item.count || 0);
         new Chart(salesCtx, {
           type: 'line',
           data: {
-            labels: salesLabels.length > 0 ? salesLabels : ['Jan','Fév','Mar','Avr','Mai','Juin','Jul','Aoû','Sep','Oct','Nov','Déc'],
+            labels: salesData.map(function(d) { return d.month || d.mois || ''; }),
             datasets: [{
-              label: 'Ventes validées',
-              data: salesValues.length > 0 ? salesValues : [0,0,0,0,0,0,0,0,0,0,0,0],
-              borderColor: '#6c5ce7',
-              backgroundColor: 'rgba(108,92,231,0.08)',
-              borderWidth: 2,
+              label: 'Ventes',
+              data: salesData.map(function(d) { return d.total || d.count || 0; }),
+              borderColor: '#e94560',
+              backgroundColor: 'rgba(233,69,96,0.1)',
               fill: true,
               tension: 0.4,
-              pointBackgroundColor: '#6c5ce7',
-              pointBorderColor: '#fff',
-              pointBorderWidth: 2,
-              pointRadius: 5
+              pointBackgroundColor: '#e94560',
+              pointRadius: 4
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#495057', font: { family: 'Inter', size: 12 } } } },
+            plugins: { legend: { display: false } },
             scales: {
-              x: { ticks: { color: '#6c757d', font: { family: 'Inter' } }, grid: { color: 'rgba(0,0,0,0.06)' } },
-              y: { ticks: { color: '#6c757d', font: { family: 'Inter' }, stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true }
+              y: { beginAtZero: true, ticks: { color: '#6c757d' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+              x: { ticks: { color: '#6c757d' }, grid: { display: false } }
             }
           }
         });
       }
 
-      // Brands Chart
-      const brandsCtx = document.getElementById('brandsChart');
+      var brandsCtx = document.getElementById('brandsChart');
       if (brandsCtx) {
-        const brandsData = <%= typeof chartData !== 'undefined' && chartData && chartData.salesByBrand ? JSON.stringify(chartData.salesByBrand) : '[]' %>;
-        const brandsLabels = brandsData.map(item => item.marque || item.brand || '');
-        const brandsValues = brandsData.map(item => item.total || item.count || 0);
-        const brandColors = ['#6c5ce7','#00cec9','#fd79a8','#fdcb6e','#00b894','#e17055','#0984e3','#a855f7','#f97316','#14b8a6'];
         new Chart(brandsCtx, {
           type: 'doughnut',
           data: {
-            labels: brandsLabels.length > 0 ? brandsLabels : ['Aucune donnée'],
+            labels: brandsData.map(function(d) { return d.marque || ''; }),
             datasets: [{
-              data: brandsValues.length > 0 ? brandsValues : [1],
-              backgroundColor: brandColors,
-              borderColor: '#0f0f23',
-              borderWidth: 3
+              data: brandsData.map(function(d) { return d.total || d.count || 0; }),
+              backgroundColor: ['#e94560','#0984e3','#00b894','#fdcb6e','#6c5ce7','#e17055','#74b9ff','#a29bfe'],
+              borderWidth: 2,
+              borderColor: '#ffffff'
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { color: '#495057', font: { family: 'Inter', size: 11 }, padding: 15, usePointStyle: true } } }
+            plugins: { legend: { position: 'bottom', labels: { color: '#212529', padding: 12, font: { size: 12 } } } }
           }
         });
       }
+      <% } %>
     });
   </script>
 </body>
