@@ -242,26 +242,26 @@
           data: {
             labels: salesLabels.length > 0 ? salesLabels : ['Jan','Fév','Mar','Avr','Mai','Juin','Jul','Aoû','Sep','Oct','Nov','Déc'],
             datasets: [{
-              label: 'Ventes',
+              label: 'Ventes validées',
               data: salesValues.length > 0 ? salesValues : [0,0,0,0,0,0,0,0,0,0,0,0],
               borderColor: '#6c5ce7',
-              backgroundColor: 'rgba(108,92,231,0.1)',
+              backgroundColor: 'rgba(108,92,231,0.08)',
               borderWidth: 2,
               fill: true,
               tension: 0.4,
               pointBackgroundColor: '#6c5ce7',
               pointBorderColor: '#fff',
               pointBorderWidth: 2,
-              pointRadius: 4
+              pointRadius: 5
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: 'rgba(255,255,255,0.7)', font: { family: 'Inter' } } } },
+            plugins: { legend: { labels: { color: '#495057', font: { family: 'Inter', size: 12 } } } },
             scales: {
-              x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-              y: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+              x: { ticks: { color: '#6c757d', font: { family: 'Inter' } }, grid: { color: 'rgba(0,0,0,0.06)' } },
+              y: { ticks: { color: '#6c757d', font: { family: 'Inter' }, stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true }
             }
           }
         });
@@ -288,7 +288,7 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.7)', font: { family: 'Inter', size: 11 }, padding: 15, usePointStyle: true } } }
+            plugins: { legend: { position: 'bottom', labels: { color: '#495057', font: { family: 'Inter', size: 11 }, padding: 15, usePointStyle: true } } }
           }
         });
       }

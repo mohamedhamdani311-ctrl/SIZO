@@ -62,6 +62,30 @@ const adminController = {
                 ORDER BY c.date_inscription DESC LIMIT 5
             `);
 
+            // Données graphique : ventes par mois (12 derniers mois)
+            const [salesByMonth] = await db.query(`
+                SELECT DATE_FORMAT(date_vente, '%b %Y') AS month,
+                       YEAR(date_vente) AS yr,
+                       MONTH(date_vente) AS mo,
+                       COUNT(*) AS total
+                FROM vente
+                WHERE statut_vente = 'validee'
+                  AND date_vente >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                GROUP BY YEAR(date_vente), MONTH(date_vente)
+                ORDER BY YEAR(date_vente) ASC, MONTH(date_vente) ASC
+            `);
+
+            // Données graphique : ventes par marque
+            const [salesByBrand] = await db.query(`
+                SELECT v.marque, COUNT(*) AS total
+                FROM vente vt
+                JOIN voiture v ON vt.id_voiture = v.id_voiture
+                WHERE vt.statut_vente = 'validee'
+                GROUP BY v.marque
+                ORDER BY total DESC
+                LIMIT 10
+            `);
+
             res.render('admin/dashboard', {
                 title: 'Tableau de bord - Admin',
                 stats: {
@@ -80,7 +104,8 @@ const adminController = {
                 },
                 recentSales,
                 recentReservations,
-                recentClients
+                recentClients,
+                chartData: { salesByMonth, salesByBrand }
             });
         } catch (error) {
             console.error('Erreur tableau de bord admin:', error);
