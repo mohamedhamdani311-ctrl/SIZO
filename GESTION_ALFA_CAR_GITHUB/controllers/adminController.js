@@ -327,7 +327,7 @@ const adminController = {
 
             const [userResult] = await conn.execute(
                 'INSERT INTO utilisateur (username, password, role, statut_compte) VALUES (?, ?, ?, ?)',
-                [username, hashedPassword, 'vendeur', 'actif']
+                [username, hashedPassword, 'vendeur', 'en_attente']
             );
             const userId = userResult.insertId;
 
@@ -338,12 +338,12 @@ const adminController = {
 
             await conn.commit();
 
-            req.flash('success', 'Vendeur créé avec succès.');
+            req.flash('success', 'Vendeur créé avec succès. Son compte est en attente d\'approbation dans l\'onglet Comptes.');
             return res.redirect('/admin/sellers');
         } catch (error) {
             await conn.rollback();
-            console.error('Erreur création vendeur:', error);
-            req.flash('error', 'Erreur lors de la création du vendeur.');
+            console.error('Erreur création vendeur:', error.message);
+            req.flash('error', 'Erreur lors de la création du vendeur : ' + error.message);
             return res.redirect('/admin/sellers/add');
         } finally {
             conn.release();
@@ -829,7 +829,18 @@ const adminController = {
     // ========================================================
     async accounts(req, res) {
         try {
-            const pendingUsers = await User.findPending();
+            const [pendingUsers] = await db.query(`
+                SELECT u.id_utilisateur, u.username, u.role, u.statut_compte, u.date_creation,
+                       COALESCE(v.nom, c.nom)       AS nom,
+                       COALESCE(v.prenom, c.prenom) AS prenom,
+                       COALESCE(v.email, c.email)   AS email,
+                       COALESCE(v.telephone, c.telephone) AS telephone
+                FROM utilisateur u
+                LEFT JOIN vendeur v ON u.id_utilisateur = v.id_utilisateur
+                LEFT JOIN client  c ON u.id_utilisateur = c.id_utilisateur
+                WHERE u.statut_compte = 'en_attente'
+                ORDER BY u.date_creation DESC
+            `);
             res.render('admin/accounts', {
                 title: 'Comptes en Attente - Admin',
                 pendingUsers

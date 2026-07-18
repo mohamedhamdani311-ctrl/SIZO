@@ -66,6 +66,8 @@ router.get('/reports', adminController.reports);
 
 // ---------- Comptes ----------
 router.get('/accounts', adminController.accounts);
+router.post('/accounts/approve/:id', adminController.approveAccount);
+router.post('/accounts/reject/:id', adminController.rejectAccount);
 
 // ---------- Paramètres ----------
 router.get('/settings', adminController.settings);
