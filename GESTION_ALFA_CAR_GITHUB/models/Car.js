@@ -144,6 +144,67 @@ const Car = {
     },
 
     /**
+     * Catalogue client : voitures disponibles + voitures reservee sans réservation active
+     * (auto-récupère les voitures bloquées si une réservation a été annulée sans remettre le statut)
+     */
+    async findAvailableForClient(filters = {}) {
+        const { marque, modele, annee, prix_min, prix_max, carburant, boite_vitesse } = filters;
+
+        let sql = `SELECT v.id_voiture, v.id_agence, v.marque, v.modele, v.annee, v.prix,
+                          v.kilometrage, v.carburant, v.boite_vitesse, v.couleur,
+                          v.description, v.image, v.statut, v.date_ajout,
+                          ag.nom_agence
+                   FROM voiture v
+                   LEFT JOIN agence ag ON v.id_agence = ag.id_agence
+                   WHERE v.statut != 'vendue'
+                     AND (
+                       v.statut = 'disponible'
+                       OR (
+                         v.statut = 'reservee'
+                         AND NOT EXISTS (
+                           SELECT 1 FROM reservation r
+                           WHERE r.id_voiture = v.id_voiture
+                             AND r.statut IN ('en_attente', 'confirmee')
+                         )
+                         AND NOT EXISTS (
+                           SELECT 1 FROM vente vt
+                           WHERE vt.id_voiture = v.id_voiture
+                             AND vt.statut_vente IN ('en_attente', 'validee')
+                         )
+                       )
+                     )`;
+
+        const conditions = [];
+        const values = [];
+
+        if (marque) { conditions.push('v.marque = ?'); values.push(marque); }
+        if (modele)  { conditions.push('v.modele LIKE ?'); values.push(`%${modele}%`); }
+        if (annee)   { conditions.push('v.annee = ?'); values.push(annee); }
+        if (prix_min){ conditions.push('v.prix >= ?'); values.push(prix_min); }
+        if (prix_max){ conditions.push('v.prix <= ?'); values.push(prix_max); }
+        if (carburant)     { conditions.push('v.carburant = ?'); values.push(carburant); }
+        if (boite_vitesse) { conditions.push('v.boite_vitesse = ?'); values.push(boite_vitesse); }
+
+        if (conditions.length > 0) {
+            sql += ' AND ' + conditions.join(' AND ');
+        }
+
+        sql += ' ORDER BY v.date_ajout DESC';
+
+        const [rows] = await db.execute(sql, values);
+
+        // Auto-récupérer les voitures bloquées : remettre leur statut à disponible en BG
+        const stuck = rows.filter(r => r.statut === 'reservee');
+        if (stuck.length > 0) {
+            Promise.all(stuck.map(r =>
+                db.execute('UPDATE voiture SET statut = ? WHERE id_voiture = ?', ['disponible', r.id_voiture])
+            )).catch(err => console.error('Auto-sync statut voiture:', err));
+        }
+
+        return rows;
+    },
+
+    /**
      * Récupérer les voitures disponibles
      */
     async findAvailable() {
@@ -248,7 +309,7 @@ const Car = {
         const [rows] = await db.execute(
             'SELECT DISTINCT marque FROM voiture ORDER BY marque ASC'
         );
-        return rows.map(row => row.marque);
+        return rows; // rows are already objects with { marque } property
     },
 
     /**

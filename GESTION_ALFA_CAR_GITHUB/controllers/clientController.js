@@ -104,12 +104,13 @@ const clientController = {
                 prix_min: req.query.prix_min || '',
                 prix_max: req.query.prix_max || '',
                 carburant: req.query.carburant || '',
-                boite_vitesse: req.query.boite_vitesse || '',
-                statut: 'disponible'
+                boite_vitesse: req.query.boite_vitesse || ''
             };
 
-            const cars = await Car.findAll(filters);
-            const brands = await Car.getBrands();
+            const [cars, brands] = await Promise.all([
+                Car.findAvailableForClient(filters),
+                Car.getBrands()
+            ]);
 
             res.render('client/cars', {
                 title: 'Catalogue de Voitures - Client',
