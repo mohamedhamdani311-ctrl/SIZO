@@ -12,10 +12,10 @@ VALUES (
     'actif'
 );
 
-INSERT INTO administrateur (id_utilisateur, nom, prenom, email)
+INSERT INTO administrateur (id_utilisateur, nom, prenom, niveau_acces)
 VALUES (
     LAST_INSERT_ID(),
     'Admin',
     'Deux',
-    'admin2@alfacar.com'
+    'super'
 );
