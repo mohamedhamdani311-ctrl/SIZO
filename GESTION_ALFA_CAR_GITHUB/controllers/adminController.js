@@ -237,8 +237,8 @@ const adminController = {
 
     async rejectAccount(req, res) {
         try {
-            await User.updateStatus(req.params.id, 'refuse');
-            req.flash('success', 'Compte refusé.');
+            await User.delete(req.params.id);
+            req.flash('success', 'Compte refusé et supprimé définitivement.');
             return res.redirect('back');
         } catch (error) {
             console.error('Erreur refus compte:', error);

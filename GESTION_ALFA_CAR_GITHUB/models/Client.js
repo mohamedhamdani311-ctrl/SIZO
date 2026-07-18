@@ -92,6 +92,7 @@ const Client = {
                     u.username, u.role, u.statut_compte, u.date_creation
              FROM client c
              INNER JOIN utilisateur u ON c.id_utilisateur = u.id_utilisateur
+             WHERE u.statut_compte = 'actif'
              ORDER BY c.date_inscription DESC`
         );
         return rows;
@@ -119,7 +120,9 @@ const Client = {
      */
     async count() {
         const [rows] = await db.execute(
-            'SELECT COUNT(*) AS total FROM client'
+            `SELECT COUNT(*) AS total FROM client c
+             INNER JOIN utilisateur u ON c.id_utilisateur = u.id_utilisateur
+             WHERE u.statut_compte = 'actif'`
         );
         return rows[0].total;
     }
