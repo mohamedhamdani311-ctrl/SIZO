@@ -22,8 +22,8 @@ const adminController = {
         try {
             const [totalCars] = await db.query('SELECT COUNT(*) as total FROM voiture');
             const [availableCars] = await db.query("SELECT COUNT(*) as total FROM voiture WHERE statut = 'disponible'");
-            const [totalClients] = await db.query('SELECT COUNT(*) as total FROM client');
-            const [totalSellers] = await db.query('SELECT COUNT(*) as total FROM vendeur');
+            const [totalClients] = await db.query("SELECT COUNT(*) as total FROM client c INNER JOIN utilisateur u ON c.id_utilisateur = u.id_utilisateur WHERE u.statut_compte = 'actif'");
+            const [totalSellers] = await db.query("SELECT COUNT(*) as total FROM vendeur v INNER JOIN utilisateur u ON v.id_utilisateur = u.id_utilisateur WHERE u.statut_compte = 'actif'");
             const [totalSales] = await db.query('SELECT COUNT(*) as total FROM vente');
             const [validatedSales] = await db.query("SELECT COUNT(*) as total FROM vente WHERE statut_vente = 'validee'");
             const [totalReservations] = await db.query('SELECT COUNT(*) as total FROM reservation');
