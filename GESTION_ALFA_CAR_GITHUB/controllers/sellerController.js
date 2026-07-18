@@ -335,8 +335,14 @@ const sellerController = {
 
     async rejectReservation(req, res) {
         try {
-            await Reservation.updateStatus(req.params.id, 'annulee');
-            req.flash('success', 'Réservation annulée.');
+            const reservationId = req.params.id;
+            const reservation = await Reservation.findById(reservationId);
+            await Reservation.updateStatus(reservationId, 'annulee');
+            // Remettre la voiture disponible pour qu'elle réapparaisse dans le catalogue client
+            if (reservation && reservation.id_voiture) {
+                await Car.updateStatus(reservation.id_voiture, 'disponible');
+            }
+            req.flash('success', 'Réservation annulée. La voiture est de nouveau disponible.');
             return res.redirect('/seller/reservations');
         } catch (error) {
             console.error('Erreur rejet réservation vendeur:', error);

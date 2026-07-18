@@ -66,8 +66,8 @@
                   <td><%= res.date_expiration ? new Date(res.date_expiration).toLocaleDateString('fr-FR') : '-' %></td>
                   <td>
                     <% var resStatus = res.statut || 'en_attente'; %>
-                    <span class="badge bg-<%= resStatus === 'approuve' || resStatus === 'approuvé' ? 'success' : (resStatus === 'refuse' || resStatus === 'refusé' ? 'danger' : (resStatus === 'expire' || resStatus === 'expiré' ? 'secondary' : 'warning')) %>">
-                      <%= resStatus === 'approuve' || resStatus === 'approuvé' ? 'Approuvée' : (resStatus === 'refuse' || resStatus === 'refusé' ? 'Refusée' : (resStatus === 'expire' || resStatus === 'expiré' ? 'Expirée' : 'En attente')) %>
+                    <span class="badge bg-<%= resStatus === 'confirmee' ? 'success' : (resStatus === 'annulee' ? 'danger' : 'warning') %>">
+                      <%= resStatus === 'confirmee' ? 'Confirmée' : (resStatus === 'annulee' ? 'Annulée' : 'En attente') %>
                     </span>
                   </td>
                   <td>
