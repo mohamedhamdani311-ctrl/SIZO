@@ -211,10 +211,10 @@ const adminController = {
     // ========================================================
     async listCustomers(req, res) {
         try {
-            const clients = await Client.findAll();
+            const customers = await Client.findAll();
             res.render('admin/customers', {
                 title: 'Gestion des Clients - Admin',
-                clients
+                customers
             });
         } catch (error) {
             console.error('Erreur liste clients:', error);
