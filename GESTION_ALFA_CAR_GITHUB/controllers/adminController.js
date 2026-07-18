@@ -100,6 +100,9 @@ const adminController = {
     // ========================================================
     async listCars(req, res) {
         try {
+            // Auto-répare les voitures bloquées en 'reservee' sans réservation/vente active
+            Car.repairStatuses().catch(err => console.error('[repairStatuses]', err));
+
             const filters = {
                 marque: req.query.marque || '',
                 statut: req.query.statut || '',
