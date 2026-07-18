@@ -300,53 +300,72 @@ const adminController = {
     },
 
     async createSeller(req, res) {
-        const conn = await db.getConnection();
+        let userId = null;
         try {
             const { username, password, nom, prenom, telephone, email, id_agence } = req.body;
 
-            // Validation: agence obligatoire
+            // ── 1. Validation des champs obligatoires ──────────────────────
             if (!id_agence) {
-                req.flash('error', 'Veuillez sélectionner une agence avant de créer un vendeur.');
+                req.flash('error', 'Veuillez sélectionner une agence. Si la liste est vide, créez d\'abord une agence dans l\'onglet Agences.');
+                return res.redirect('/admin/sellers/add');
+            }
+            if (!username || !password || !nom || !prenom) {
+                req.flash('error', 'Tous les champs obligatoires (nom d\'utilisateur, mot de passe, nom, prénom) doivent être remplis.');
                 return res.redirect('/admin/sellers/add');
             }
 
-            // Vérifier si le nom d'utilisateur existe
+            // ── 2. Vérifier que l'agence existe réellement en base ─────────
+            const agency = await Agency.findById(id_agence);
+            if (!agency) {
+                req.flash('error', 'L\'agence sélectionnée n\'existe pas. Veuillez recharger la page et réessayer.');
+                return res.redirect('/admin/sellers/add');
+            }
+
+            // ── 3. Vérifier que le nom d'utilisateur est disponible ────────
             const existingUser = await User.findByUsername(username);
             if (existingUser) {
-                req.flash('error', 'Ce nom d\'utilisateur est déjà utilisé. Choisissez un autre nom d\'utilisateur.');
+                req.flash('error', 'Ce nom d\'utilisateur est déjà utilisé. Choisissez un autre.');
                 return res.redirect('/admin/sellers/add');
             }
 
-            // Hasher le mot de passe
+            // ── 4. Créer le compte utilisateur ─────────────────────────────
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            // Transaction: créer utilisateur + vendeur ensemble
-            // Si l'une des deux échoue, tout est annulé automatiquement
-            await conn.beginTransaction();
+            const userResult = await User.create({
+                username,
+                password: hashedPassword,
+                role: 'vendeur',
+                statut_compte: 'en_attente'
+            });
+            userId = userResult.insertId;
 
-            const [userResult] = await conn.execute(
-                'INSERT INTO utilisateur (username, password, role, statut_compte) VALUES (?, ?, ?, ?)',
-                [username, hashedPassword, 'vendeur', 'en_attente']
-            );
-            const userId = userResult.insertId;
-
-            await conn.execute(
-                'INSERT INTO vendeur (id_utilisateur, id_agence, nom, prenom, telephone, email) VALUES (?, ?, ?, ?, ?, ?)',
-                [userId, id_agence, nom, prenom, telephone || null, email || null]
-            );
-
-            await conn.commit();
+            // ── 5. Créer le profil vendeur ─────────────────────────────────
+            //    Si cette étape échoue, on supprime le compte utilisateur
+            //    créé à l'étape précédente pour ne laisser aucun orphelin.
+            try {
+                await Seller.create({
+                    id_utilisateur: userId,
+                    id_agence: parseInt(id_agence, 10),
+                    nom,
+                    prenom,
+                    telephone,
+                    email
+                });
+            } catch (sellerErr) {
+                console.error('Échec création profil vendeur, suppression du compte utilisateur orphelin:', sellerErr.message);
+                await User.delete(userId);
+                userId = null;
+                throw new Error('Impossible de créer le profil vendeur : ' + sellerErr.message);
+            }
 
             req.flash('success', 'Vendeur créé avec succès. Son compte est en attente d\'approbation dans l\'onglet Comptes.');
             return res.redirect('/admin/sellers');
+
         } catch (error) {
-            await conn.rollback();
             console.error('Erreur création vendeur:', error.message);
-            req.flash('error', 'Erreur lors de la création du vendeur : ' + error.message);
+            req.flash('error', error.message);
             return res.redirect('/admin/sellers/add');
-        } finally {
-            conn.release();
         }
     },
 
