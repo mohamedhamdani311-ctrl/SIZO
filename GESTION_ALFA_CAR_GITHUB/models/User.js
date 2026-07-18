@@ -37,7 +37,7 @@ const User = {
             'INSERT INTO utilisateur (username, password, role, statut_compte) VALUES (?, ?, ?, ?)',
             [username, password, role, statut_compte || 'en_attente']
         );
-        return result;
+        return result.insertId;
     },
 
     /**

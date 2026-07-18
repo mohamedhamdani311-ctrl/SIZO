@@ -332,13 +332,12 @@ const adminController = {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            const userResult = await User.create({
+            userId = await User.create({
                 username,
                 password: hashedPassword,
                 role: 'vendeur',
                 statut_compte: 'en_attente'
             });
-            userId = userResult.insertId;
 
             // ── 5. Créer le profil vendeur ─────────────────────────────────
             //    Si cette étape échoue, on supprime le compte utilisateur
