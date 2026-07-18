@@ -98,6 +98,7 @@ const Seller = {
              FROM vendeur v
              INNER JOIN utilisateur u ON v.id_utilisateur = u.id_utilisateur
              INNER JOIN agence ag ON v.id_agence = ag.id_agence
+             WHERE u.statut_compte = 'actif'
              ORDER BY v.id_vendeur ASC`
         );
         return rows;
@@ -127,7 +128,9 @@ const Seller = {
      */
     async count() {
         const [rows] = await db.execute(
-            'SELECT COUNT(*) AS total FROM vendeur'
+            `SELECT COUNT(*) AS total FROM vendeur v
+             INNER JOIN utilisateur u ON v.id_utilisateur = u.id_utilisateur
+             WHERE u.statut_compte = 'actif'`
         );
         return rows[0].total;
     }
