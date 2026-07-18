@@ -206,6 +206,17 @@ const adminController = {
         }
     },
 
+    async fixCarStatuses(req, res) {
+        try {
+            const fixed = await Car.repairStatuses();
+            req.flash('success', `Synchronisation terminée : ${fixed} voiture(s) remise(s) en disponible.`);
+        } catch (error) {
+            console.error('Erreur sync statuts voitures:', error);
+            req.flash('error', 'Erreur lors de la synchronisation des statuts.');
+        }
+        return res.redirect('/admin/cars');
+    },
+
     // ========================================================
     // CLIENTS
     // ========================================================

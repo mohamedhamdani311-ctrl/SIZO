@@ -19,6 +19,7 @@ router.post('/cars/add', uploadMultiple, adminController.createCar);
 router.get('/cars/edit/:id', adminController.showCarForm);
 router.post('/cars/edit/:id', uploadMultiple, adminController.updateCar);
 router.post('/cars/delete/:id', adminController.deleteCar);
+router.post('/cars/fix-statuses', adminController.fixCarStatuses);
 
 // ---------- Gestion des clients ----------
 router.get('/customers', adminController.listCustomers);

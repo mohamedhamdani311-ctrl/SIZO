@@ -150,6 +150,9 @@ const Car = {
     async findAvailableForClient(filters = {}) {
         const { marque, modele, annee, prix_min, prix_max, carburant, boite_vitesse } = filters;
 
+        // On ignore complètement le champ statut (souvent désynchronisé).
+        // Une voiture est disponible si : elle n'est pas vendue ET elle n'a pas de
+        // réservation active ET elle n'a pas de vente active.
         let sql = `SELECT v.id_voiture, v.id_agence, v.marque, v.modele, v.annee, v.prix,
                           v.kilometrage, v.carburant, v.boite_vitesse, v.couleur,
                           v.description, v.image, v.statut, v.date_ajout,
@@ -157,33 +160,27 @@ const Car = {
                    FROM voiture v
                    LEFT JOIN agence ag ON v.id_agence = ag.id_agence
                    WHERE v.statut != 'vendue'
-                     AND (
-                       v.statut = 'disponible'
-                       OR (
-                         v.statut = 'reservee'
-                         AND NOT EXISTS (
-                           SELECT 1 FROM reservation r
-                           WHERE r.id_voiture = v.id_voiture
-                             AND r.statut IN ('en_attente', 'confirmee')
-                         )
-                         AND NOT EXISTS (
-                           SELECT 1 FROM vente vt
-                           WHERE vt.id_voiture = v.id_voiture
-                             AND vt.statut_vente IN ('en_attente', 'validee')
-                         )
-                       )
+                     AND NOT EXISTS (
+                       SELECT 1 FROM reservation r
+                       WHERE r.id_voiture = v.id_voiture
+                         AND r.statut IN ('en_attente', 'confirmee')
+                     )
+                     AND NOT EXISTS (
+                       SELECT 1 FROM vente vt
+                       WHERE vt.id_voiture = v.id_voiture
+                         AND vt.statut_vente IN ('en_attente', 'validee')
                      )`;
 
         const conditions = [];
         const values = [];
 
-        if (marque) { conditions.push('v.marque = ?'); values.push(marque); }
-        if (modele)  { conditions.push('v.modele LIKE ?'); values.push(`%${modele}%`); }
-        if (annee)   { conditions.push('v.annee = ?'); values.push(annee); }
-        if (prix_min){ conditions.push('v.prix >= ?'); values.push(prix_min); }
-        if (prix_max){ conditions.push('v.prix <= ?'); values.push(prix_max); }
-        if (carburant)     { conditions.push('v.carburant = ?'); values.push(carburant); }
-        if (boite_vitesse) { conditions.push('v.boite_vitesse = ?'); values.push(boite_vitesse); }
+        if (marque)        { conditions.push('v.marque = ?');          values.push(marque); }
+        if (modele)        { conditions.push('v.modele LIKE ?');        values.push(`%${modele}%`); }
+        if (annee)         { conditions.push('v.annee = ?');            values.push(annee); }
+        if (prix_min)      { conditions.push('v.prix >= ?');            values.push(prix_min); }
+        if (prix_max)      { conditions.push('v.prix <= ?');            values.push(prix_max); }
+        if (carburant)     { conditions.push('v.carburant = ?');        values.push(carburant); }
+        if (boite_vitesse) { conditions.push('v.boite_vitesse = ?');    values.push(boite_vitesse); }
 
         if (conditions.length > 0) {
             sql += ' AND ' + conditions.join(' AND ');
@@ -193,15 +190,37 @@ const Car = {
 
         const [rows] = await db.execute(sql, values);
 
-        // Auto-récupérer les voitures bloquées : remettre leur statut à disponible en BG
-        const stuck = rows.filter(r => r.statut === 'reservee');
-        if (stuck.length > 0) {
-            Promise.all(stuck.map(r =>
-                db.execute('UPDATE voiture SET statut = ? WHERE id_voiture = ?', ['disponible', r.id_voiture])
-            )).catch(err => console.error('Auto-sync statut voiture:', err));
+        // Sync de fond : remettre à disponible les voitures qui ressortent disponibles
+        // mais ont encore un statut obsolète (reservee)
+        const toSync = rows.filter(r => r.statut !== 'disponible');
+        if (toSync.length > 0) {
+            Promise.all(
+                toSync.map(r =>
+                    db.execute('UPDATE voiture SET statut = ? WHERE id_voiture = ?', ['disponible', r.id_voiture])
+                )
+            ).catch(err => console.error('[Car sync]', err));
         }
 
         return rows;
+    },
+
+    /**
+     * Répare tous les statuts de voitures désynchronisés (à appeler depuis l'admin).
+     * Remet à 'disponible' toutes les voitures bloquées en 'reservee' sans réservation ni vente active.
+     */
+    async repairStatuses() {
+        const [result] = await db.execute(`
+            UPDATE voiture
+            SET statut = 'disponible'
+            WHERE statut = 'reservee'
+              AND id_voiture NOT IN (
+                SELECT id_voiture FROM reservation WHERE statut IN ('en_attente', 'confirmee')
+              )
+              AND id_voiture NOT IN (
+                SELECT id_voiture FROM vente WHERE statut_vente IN ('en_attente', 'validee')
+              )
+        `);
+        return result.affectedRows;
     },
 
     /**

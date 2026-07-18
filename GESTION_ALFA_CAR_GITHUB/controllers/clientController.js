@@ -120,8 +120,14 @@ const clientController = {
             });
         } catch (error) {
             console.error('Erreur liste voitures client:', error);
-            req.flash('error', 'Erreur lors du chargement du catalogue.');
-            return res.redirect('/client');
+            // Render page with error visible instead of redirecting silently
+            return res.render('client/cars', {
+                title: 'Catalogue de Voitures - Client',
+                cars: [],
+                brands: [],
+                filters: {},
+                fatalError: error.message
+            });
         }
     },
 
