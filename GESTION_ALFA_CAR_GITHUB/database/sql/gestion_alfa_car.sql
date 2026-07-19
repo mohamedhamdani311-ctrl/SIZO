@@ -1,189 +1,372 @@
 -- ============================================================
 -- GESTION ALFA CAR - Base de Données
--- Système de Gestion de Vente de Voitures (Cash / Crédit)
--- Multi-Agences
+-- Données de démonstration - Contexte Marocain
+-- Généré le : 2026-07-19
+-- ============================================================
+-- Comptes de démonstration (mot de passe : Admin@123)
+--   admin      / Admin@123  (rôle: admin)
+--   ybenali    / Admin@123  (rôle: vendeur - Casablanca)
+--   ftahiri    / Admin@123  (rôle: vendeur - Rabat)
+--   kziani     / Admin@123  (rôle: vendeur - Marrakech)
+--   mamrani    / Admin@123  (rôle: client)
+--   sidrissi   / Admin@123  (rôle: client)
+--   ... (tous les clients ont le même mot de passe)
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS GESTION_ALFA_CAR
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 USE GESTION_ALFA_CAR;
 
+SET FOREIGN_KEY_CHECKS = 0;
+
 -- ============================================================
--- Table: utilisateur
+-- STRUCTURE DES TABLES
 -- ============================================================
-CREATE TABLE IF NOT EXISTS utilisateur (
-    id_utilisateur INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'vendeur', 'client') NOT NULL,
-    statut_compte ENUM('en_attente', 'actif', 'refuse') NOT NULL DEFAULT 'en_attente',
-    date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+DROP TABLE IF EXISTS `facture`;
+DROP TABLE IF EXISTS `paiement`;
+DROP TABLE IF EXISTS `vente`;
+DROP TABLE IF EXISTS `reservation`;
+DROP TABLE IF EXISTS `voiture`;
+DROP TABLE IF EXISTS `client`;
+DROP TABLE IF EXISTS `vendeur`;
+DROP TABLE IF EXISTS `agence`;
+DROP TABLE IF EXISTS `administrateur`;
+DROP TABLE IF EXISTS `utilisateur`;
+
+CREATE TABLE `utilisateur` (
+  `id_utilisateur` INT NOT NULL AUTO_INCREMENT,
+  `username`       VARCHAR(100) NOT NULL UNIQUE,
+  `password`       VARCHAR(255) NOT NULL,
+  `role`           ENUM('admin','vendeur','client') NOT NULL,
+  `statut_compte`  ENUM('en_attente','actif','refuse') NOT NULL DEFAULT 'en_attente',
+  `date_creation`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_utilisateur`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `administrateur` (
+  `id_admin`        INT NOT NULL AUTO_INCREMENT,
+  `id_utilisateur`  INT NOT NULL,
+  `nom`             VARCHAR(100) NOT NULL,
+  `prenom`          VARCHAR(100) NOT NULL,
+  `niveau_acces`    ENUM('super','normal') NOT NULL DEFAULT 'normal',
+  PRIMARY KEY (`id_admin`),
+  FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur`(`id_utilisateur`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `agence` (
+  `id_agence`     INT NOT NULL AUTO_INCREMENT,
+  `nom_agence`    VARCHAR(150) NOT NULL,
+  `adresse`       VARCHAR(255) NOT NULL,
+  `telephone`     VARCHAR(20) DEFAULT NULL,
+  `email`         VARCHAR(100) DEFAULT NULL,
+  `date_creation` DATE NOT NULL DEFAULT (CURRENT_DATE),
+  PRIMARY KEY (`id_agence`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `vendeur` (
+  `id_vendeur`     INT NOT NULL AUTO_INCREMENT,
+  `id_utilisateur` INT NOT NULL,
+  `id_agence`      INT NOT NULL,
+  `nom`            VARCHAR(100) NOT NULL,
+  `prenom`         VARCHAR(100) NOT NULL,
+  `telephone`      VARCHAR(20) DEFAULT NULL,
+  `email`          VARCHAR(100) DEFAULT NULL,
+  `date_embauche`  DATE NOT NULL DEFAULT (CURRENT_DATE),
+  PRIMARY KEY (`id_vendeur`),
+  FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur`(`id_utilisateur`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`id_agence`)      REFERENCES `agence`(`id_agence`)           ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `client` (
+  `id_client`        INT NOT NULL AUTO_INCREMENT,
+  `id_utilisateur`   INT NOT NULL,
+  `nom`              VARCHAR(100) NOT NULL,
+  `prenom`           VARCHAR(100) NOT NULL,
+  `telephone`        VARCHAR(20) DEFAULT NULL,
+  `email`            VARCHAR(100) DEFAULT NULL,
+  `adresse`          VARCHAR(255) DEFAULT NULL,
+  `date_inscription` DATE NOT NULL DEFAULT (CURRENT_DATE),
+  PRIMARY KEY (`id_client`),
+  FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur`(`id_utilisateur`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `voiture` (
+  `id_voiture`   INT NOT NULL AUTO_INCREMENT,
+  `id_agence`    INT NOT NULL,
+  `marque`       VARCHAR(100) NOT NULL,
+  `modele`       VARCHAR(100) NOT NULL,
+  `annee`        YEAR NOT NULL,
+  `prix`         DECIMAL(12,2) NOT NULL,
+  `kilometrage`  INT DEFAULT 0,
+  `carburant`    VARCHAR(50) NOT NULL,
+  `boite_vitesse` VARCHAR(50) NOT NULL,
+  `couleur`      VARCHAR(50) DEFAULT NULL,
+  `description`  TEXT DEFAULT NULL,
+  `image`        VARCHAR(255) DEFAULT NULL,
+  `statut`       ENUM('disponible','reservee','vendue') NOT NULL DEFAULT 'disponible',
+  `date_ajout`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_voiture`),
+  INDEX `idx_marque` (`marque`),
+  INDEX `idx_statut` (`statut`),
+  INDEX `idx_prix`   (`prix`),
+  FOREIGN KEY (`id_agence`) REFERENCES `agence`(`id_agence`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `reservation` (
+  `id_reservation`  INT NOT NULL AUTO_INCREMENT,
+  `id_client`       INT NOT NULL,
+  `id_voiture`      INT NOT NULL,
+  `id_vendeur`      INT NOT NULL,
+  `date_reservation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `statut`          ENUM('en_attente','confirmee','annulee') NOT NULL DEFAULT 'en_attente',
+  `date_expiration` DATE DEFAULT NULL,
+  `note`            TEXT DEFAULT NULL,
+  PRIMARY KEY (`id_reservation`),
+  INDEX `idx_statut_res` (`statut`),
+  FOREIGN KEY (`id_client`)  REFERENCES `client`(`id_client`)   ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`id_voiture`) REFERENCES `voiture`(`id_voiture`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`id_vendeur`) REFERENCES `vendeur`(`id_vendeur`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `vente` (
+  `id_vente`       INT NOT NULL AUTO_INCREMENT,
+  `id_client`      INT NOT NULL,
+  `id_voiture`     INT NOT NULL,
+  `id_vendeur`     INT NOT NULL,
+  `id_agence`      INT NOT NULL,
+  `id_reservation` INT DEFAULT NULL,
+  `date_vente`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `montant_total`  DECIMAL(12,2) NOT NULL,
+  `type_paiement`  ENUM('cash','credit') NOT NULL,
+  `statut_vente`   ENUM('en_attente','validee','annulee') NOT NULL DEFAULT 'en_attente',
+  `notes`          TEXT DEFAULT NULL,
+  PRIMARY KEY (`id_vente`),
+  INDEX `idx_statut_vente` (`statut_vente`),
+  INDEX `idx_date_vente`   (`date_vente`),
+  FOREIGN KEY (`id_client`)      REFERENCES `client`(`id_client`)           ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`id_voiture`)     REFERENCES `voiture`(`id_voiture`)         ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`id_vendeur`)     REFERENCES `vendeur`(`id_vendeur`)         ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`id_agence`)      REFERENCES `agence`(`id_agence`)           ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`id_reservation`) REFERENCES `reservation`(`id_reservation`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `paiement` (
+  `id_paiement`              INT NOT NULL AUTO_INCREMENT,
+  `id_vente`                 INT NOT NULL,
+  `montant`                  DECIMAL(12,2) NOT NULL,
+  `type_paiement`            ENUM('cash','credit') NOT NULL,
+  `statut`                   ENUM('en_attente','confirme','refuse') NOT NULL DEFAULT 'en_attente',
+  `date_paiement`            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id_admin_validation`      INT DEFAULT NULL,
+  `montant_avance`           DECIMAL(12,2) DEFAULT NULL,
+  `nombre_mensualites`       INT DEFAULT NULL,
+  `mensualite`               DECIMAL(12,2) DEFAULT NULL,
+  `taux_interet`             DECIMAL(5,2) DEFAULT NULL,
+  `date_debut_remboursement` DATE DEFAULT NULL,
+  PRIMARY KEY (`id_paiement`),
+  INDEX `idx_statut_paiement` (`statut`),
+  FOREIGN KEY (`id_vente`)            REFERENCES `vente`(`id_vente`)               ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`id_admin_validation`) REFERENCES `utilisateur`(`id_utilisateur`)   ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `facture` (
+  `id_facture`      INT NOT NULL AUTO_INCREMENT,
+  `id_paiement`     INT NOT NULL,
+  `numero_facture`  VARCHAR(50) NOT NULL UNIQUE,
+  `fichier_pdf`     VARCHAR(255) DEFAULT NULL,
+  `date_facture`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `statut_envoi`    ENUM('envoyee','non_envoyee') NOT NULL DEFAULT 'non_envoyee',
+  PRIMARY KEY (`id_facture`),
+  FOREIGN KEY (`id_paiement`) REFERENCES `paiement`(`id_paiement`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- Table: administrateur
+-- DONNÉES : utilisateur
+-- Mot de passe pour tous : Admin@123
+-- Hash bcrypt : $2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke
 -- ============================================================
-CREATE TABLE IF NOT EXISTS administrateur (
-    id_admin INT AUTO_INCREMENT PRIMARY KEY,
-    id_utilisateur INT NOT NULL,
-    nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100) NOT NULL,
-    niveau_acces ENUM('super', 'normal') NOT NULL DEFAULT 'normal',
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `utilisateur` (`id_utilisateur`, `username`, `password`, `role`, `statut_compte`, `date_creation`) VALUES
+(1,  'admin',     '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'admin',   'actif',       '2024-01-01 08:00:00'),
+(2,  'ybenali',   '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'vendeur', 'actif',       '2024-01-10 09:00:00'),
+(3,  'ftahiri',   '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'vendeur', 'actif',       '2024-01-10 09:30:00'),
+(4,  'kziani',    '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'vendeur', 'actif',       '2024-02-01 10:00:00'),
+(5,  'mamrani',   '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-03-15 11:00:00'),
+(6,  'sidrissi',  '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-04-02 14:00:00'),
+(7,  'akhalifi',  '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-05-20 10:30:00'),
+(8,  'nbennani',  '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-06-08 09:15:00'),
+(9,  'hchraibi',  '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-07-11 16:00:00'),
+(10, 'mboukhari', '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-07-25 12:00:00'),
+(11, 'aelouafi',  '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-08-03 08:45:00'),
+(12, 'zbenhaddou','$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-09-17 15:30:00'),
+(13, 'ybouazizi', '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'actif',       '2025-10-05 11:20:00'),
+(14, 'lmansouri', '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'client',  'en_attente',  '2026-07-18 10:00:00');
 
 -- ============================================================
--- Table: agence
+-- DONNÉES : administrateur
 -- ============================================================
-CREATE TABLE IF NOT EXISTS agence (
-    id_agence INT AUTO_INCREMENT PRIMARY KEY,
-    nom_agence VARCHAR(150) NOT NULL,
-    adresse VARCHAR(255) NOT NULL,
-    telephone VARCHAR(20),
-    email VARCHAR(100),
-    date_creation DATE NOT NULL DEFAULT (CURRENT_DATE)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `administrateur` (`id_admin`, `id_utilisateur`, `nom`, `prenom`, `niveau_acces`) VALUES
+(1, 1, 'ALFA', 'Admin', 'super');
 
 -- ============================================================
--- Table: vendeur
+-- DONNÉES : agence
 -- ============================================================
-CREATE TABLE IF NOT EXISTS vendeur (
-    id_vendeur INT AUTO_INCREMENT PRIMARY KEY,
-    id_utilisateur INT NOT NULL,
-    id_agence INT NOT NULL,
-    nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100) NOT NULL,
-    telephone VARCHAR(20),
-    email VARCHAR(100),
-    date_embauche DATE NOT NULL DEFAULT (CURRENT_DATE),
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_agence) REFERENCES agence(id_agence) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `agence` (`id_agence`, `nom_agence`, `adresse`, `telephone`, `email`, `date_creation`) VALUES
+(1, 'ALFA CAR - Siège Casablanca', '123 Boulevard Mohammed V, Casablanca 20000',       '+212 522 123 456', 'casablanca@alfacar.ma', '2020-03-01'),
+(2, 'ALFA CAR - Agence Rabat',     '45 Avenue Hassan II, Rabat 10000',                  '+212 537 654 321', 'rabat@alfacar.ma',       '2021-06-15'),
+(3, 'ALFA CAR - Agence Marrakech', '78 Avenue Mohammed VI, Gueliz, Marrakech 40000',   '+212 524 789 012', 'marrakech@alfacar.ma',   '2022-01-10');
 
 -- ============================================================
--- Table: client
+-- DONNÉES : vendeur
 -- ============================================================
-CREATE TABLE IF NOT EXISTS client (
-    id_client INT AUTO_INCREMENT PRIMARY KEY,
-    id_utilisateur INT NOT NULL,
-    nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100) NOT NULL,
-    telephone VARCHAR(20),
-    email VARCHAR(100),
-    adresse VARCHAR(255),
-    date_inscription DATE NOT NULL DEFAULT (CURRENT_DATE),
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `vendeur` (`id_vendeur`, `id_utilisateur`, `id_agence`, `nom`, `prenom`, `telephone`, `email`, `date_embauche`) VALUES
+(1, 2, 1, 'Benali',  'Youssef', '+212 661 111 234', 'y.benali@alfacar.ma',  '2020-03-01'),
+(2, 3, 2, 'Tahiri',  'Fatima',  '+212 661 222 345', 'f.tahiri@alfacar.ma',  '2021-06-15'),
+(3, 4, 3, 'Ziani',   'Khalid',  '+212 661 333 456', 'k.ziani@alfacar.ma',   '2022-01-10');
 
 -- ============================================================
--- Table: voiture
+-- DONNÉES : client
 -- ============================================================
-CREATE TABLE IF NOT EXISTS voiture (
-    id_voiture INT AUTO_INCREMENT PRIMARY KEY,
-    id_agence INT NOT NULL,
-    marque VARCHAR(100) NOT NULL,
-    modele VARCHAR(100) NOT NULL,
-    annee YEAR NOT NULL,
-    prix DECIMAL(12,2) NOT NULL,
-    kilometrage INT DEFAULT 0,
-    carburant VARCHAR(50) NOT NULL,
-    boite_vitesse VARCHAR(50) NOT NULL,
-    couleur VARCHAR(50),
-    description TEXT,
-    image VARCHAR(255),
-    statut ENUM('disponible', 'vendue') NOT NULL DEFAULT 'disponible',
-    date_ajout DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_agence) REFERENCES agence(id_agence) ON DELETE CASCADE ON UPDATE CASCADE,
-    INDEX idx_marque (marque),
-    INDEX idx_statut (statut),
-    INDEX idx_prix (prix)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `client` (`id_client`, `id_utilisateur`, `nom`, `prenom`, `telephone`, `email`, `adresse`, `date_inscription`) VALUES
+(1,  5,  'Amrani',     'Mohamed', '+212 662 100 111', 'med.amrani@gmail.com',     '12 Rue de Fès, Quartier Maarif, Casablanca',         '2025-03-15'),
+(2,  6,  'Idrissi',    'Sara',    '+212 662 200 222', 'sara.idrissi@gmail.com',   '78 Avenue de Marrakech, Agdal, Rabat',               '2025-04-02'),
+(3,  7,  'Khalifi',    'Ahmed',   '+212 662 300 333', 'a.khalifi@hotmail.com',    '34 Boulevard Zerktouni, Casablanca',                 '2025-05-20'),
+(4,  8,  'Bennani',    'Nadia',   '+212 662 400 444', 'n.bennani@gmail.com',      '15 Rue Ibn Batouta, Marrakech',                      '2025-06-08'),
+(5,  9,  'Chraibi',    'Hassan',  '+212 662 500 555', 'h.chraibi@yahoo.fr',       '56 Avenue des FAR, Casablanca',                      '2025-07-11'),
+(6,  10, 'Boukhari',   'Mehdi',   '+212 662 600 666', 'm.boukhari@gmail.com',     '23 Rue Allal Ben Abdellah, Fès',                     '2025-07-25'),
+(7,  11, 'Elouafi',    'Amine',   '+212 662 700 777', 'amine.elouafi@gmail.com',  '7 Rue Ibn Rochd, Tanger',                            '2025-08-03'),
+(8,  12, 'Benhaddou',  'Zineb',   '+212 662 800 888', 'z.benhaddou@gmail.com',    '90 Avenue Yaacoub El Mansour, Marrakech',            '2025-09-17'),
+(9,  13, 'Bouazizi',   'Yassine', '+212 662 900 999', 'y.bouazizi@hotmail.com',   '44 Rue Oued Souss, Ain Sebaa, Casablanca',           '2025-10-05'),
+(10, 14, 'Mansouri',   'Leila',   '+212 663 000 101', 'l.mansouri@gmail.com',     '18 Avenue Annakhil, Hay Riad, Rabat',                '2026-07-18');
 
 -- ============================================================
--- Table: reservation
+-- DONNÉES : voiture
+-- Voitures 1-15  : vendue
+-- Voitures 16-18 : reservee (réservations actives)
+-- Voitures 19-25 : disponible
 -- ============================================================
-CREATE TABLE IF NOT EXISTS reservation (
-    id_reservation INT AUTO_INCREMENT PRIMARY KEY,
-    id_client INT NOT NULL,
-    id_voiture INT NOT NULL,
-    id_vendeur INT NOT NULL,
-    date_reservation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    statut ENUM('en_attente', 'confirmee', 'annulee') NOT NULL DEFAULT 'en_attente',
-    date_expiration DATE,
-    note TEXT,
-    FOREIGN KEY (id_client) REFERENCES client(id_client) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_voiture) REFERENCES voiture(id_voiture) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_vendeur) REFERENCES vendeur(id_vendeur) ON DELETE CASCADE ON UPDATE CASCADE,
-    INDEX idx_statut_res (statut)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `voiture` (`id_voiture`, `id_agence`, `marque`, `modele`, `annee`, `prix`, `kilometrage`, `carburant`, `boite_vitesse`, `couleur`, `description`, `statut`, `date_ajout`) VALUES
+-- Vendues
+(1,  1, 'Dacia',          'Logan 1.0 SCe',           2022,  98000.00,  45000, 'Essence',  'Manuelle',    'Blanc',   'Dacia Logan en excellent état, première main, carnet d entretien complet.',                           'vendue',     '2025-07-01 09:00:00'),
+(2,  1, 'Renault',        'Clio 1.5 dCi',            2021, 145000.00,  38000, 'Diesel',   'Manuelle',    'Rouge',   'Renault Clio diesel économique, idéale pour la ville, faible consommation.',                         'vendue',     '2025-07-15 10:30:00'),
+(3,  1, 'Volkswagen',     'Golf 1.6 TDI',            2020, 235000.00,  62000, 'Diesel',   'Automatique', 'Gris',    'Volkswagen Golf automatique, équipée GPS, caméra de recul, sièges chauffants.',                      'vendue',     '2025-07-20 11:00:00'),
+(4,  2, 'Peugeot',        '208 1.2 PureTech',        2022, 168000.00,  25000, 'Essence',  'Manuelle',    'Bleu',    'Peugeot 208 récente, faible kilométrage, garantie constructeur encore active.',                      'vendue',     '2025-08-05 08:30:00'),
+(5,  2, 'Hyundai',        'i20 1.4 MPi',             2021, 125000.00,  41000, 'Essence',  'Manuelle',    'Blanc',   'Hyundai i20 bien équipée, climatisation, Bluetooth, écran tactile.',                                 'vendue',     '2025-08-12 14:00:00'),
+(6,  1, 'Toyota',         'Yaris 1.5 VVT-i',         2023, 152000.00,  18000, 'Hybride',  'Automatique', 'Argent',  'Toyota Yaris hybride, consommation très faible, parfaite pour la ville.',                            'vendue',     '2025-09-01 09:00:00'),
+(7,  1, 'Mercedes-Benz',  'Classe C 200d',           2020, 420000.00,  55000, 'Diesel',   'Automatique', 'Noir',    'Mercedes Classe C diesel, pack AMG Line, toit panoramique, cuir beige.',                             'vendue',     '2025-09-10 10:00:00'),
+(8,  2, 'BMW',            'Série 3 320d',            2021, 465000.00,  48000, 'Diesel',   'Automatique', 'Bleu',    'BMW Série 3 sport, M Sport package, jantes 19 pouces, volant chauffant.',                            'vendue',     '2025-09-20 11:30:00'),
+(9,  3, 'Kia',            'Sportage 1.6 CRDi',       2022, 295000.00,  32000, 'Diesel',   'Automatique', 'Gris',    'Kia Sportage SUV, 4 roues motrices, caméra 360°, sièges cuir, grand coffre.',                       'vendue',     '2025-10-01 08:00:00'),
+(10, 1, 'Dacia',          'Sandero Stepway 1.0 TCe', 2023, 115000.00,  15000, 'Essence',  'Manuelle',    'Orange',  'Dacia Sandero Stepway neuve, garantie 3 ans, équipement complet Confort.',                           'vendue',     '2025-10-15 09:30:00'),
+(11, 2, 'Renault',        'Megane 1.5 dCi',          2020, 175000.00,  70000, 'Diesel',   'Manuelle',    'Noir',    'Renault Megane diesel, entretien Renault, bonne autonomie, equipement Intens.',                      'vendue',     '2025-11-01 10:00:00'),
+(12, 3, 'Ford',           'Focus 1.5 EcoBoost',      2021, 185000.00,  53000, 'Essence',  'Manuelle',    'Blanc',   'Ford Focus essence, boîte automatique disponible, confort et dynamisme.',                            'vendue',     '2025-11-15 11:00:00'),
+(13, 1, 'SEAT',           'Ibiza 1.0 TSI',           2022, 148000.00,  29000, 'Essence',  'Manuelle',    'Rouge',   'Seat Ibiza sportive, écran tactile 9.2 pouces, aide au stationnement.',                              'vendue',     '2025-12-01 09:00:00'),
+(14, 2, 'Citroën',        'C3 1.2 PureTech',         2021, 132000.00,  44000, 'Essence',  'Manuelle',    'Jaune',   'Citroën C3 feel, personnalisée avec toit bicolore, confort urbain.',                                 'vendue',     '2025-12-10 14:00:00'),
+(15, 3, 'Opel',           'Corsa 1.2 Turbo',         2022, 118000.00,  27000, 'Essence',  'Manuelle',    'Vert',    'Opel Corsa turbo, finition GS Line, économique et agréable à conduire.',                             'vendue',     '2026-01-05 08:30:00'),
+-- Réservées
+(16, 1, 'Peugeot',        '308 1.5 BlueHDi',         2022, 198000.00,  35000, 'Diesel',   'Automatique', 'Gris',    'Peugeot 308 diesel automatique, i-Cockpit, grip control, très bien entretenu.',                      'reservee',   '2026-02-10 10:00:00'),
+(17, 2, 'Hyundai',        'Tucson 1.6 CRDi',         2021, 285000.00,  46000, 'Diesel',   'Automatique', 'Blanc',   'Hyundai Tucson SUV, smart sense, toit ouvrant panoramique, cuir full.',                              'reservee',   '2026-03-01 09:00:00'),
+(18, 3, 'Toyota',         'Corolla 1.8 Hybrid',      2023, 218000.00,  12000, 'Hybride',  'Automatique', 'Argent',  'Toyota Corolla hybride nouvelle génération, garantie 5 ans, très économique.',                       'reservee',   '2026-04-15 11:00:00'),
+-- Disponibles
+(19, 1, 'Dacia',          'Duster 1.5 dCi 4x4',      2023, 145000.00,   8000, 'Diesel',   'Manuelle',    'Marron',  'Dacia Duster 4x4 tout terrain, idéal pour les routes difficiles, nouvelles options 2023.',           'disponible', '2026-05-01 08:00:00'),
+(20, 1, 'BMW',            'X3 xDrive20d',            2022, 485000.00,  38000, 'Diesel',   'Automatique', 'Noir',    'BMW X3 SUV premium, xDrive intégral, Driving Assistant, toit ouvrant électrique.',                   'disponible', '2026-05-10 10:00:00'),
+(21, 2, 'Mercedes-Benz',  'GLC 220d 4MATIC',         2021, 395000.00,  42000, 'Diesel',   'Automatique', 'Gris',    'Mercedes GLC 4MATIC, pack night, écran MBUX, sièges sport chauffants et ventilés.',                  'disponible', '2026-05-20 11:30:00'),
+(22, 2, 'Renault',        'Captur 1.3 TCe',          2022, 178000.00,  22000, 'Essence',  'Automatique', 'Rouge',   'Renault Captur EDC automatique, Easy Link multimédia, aide au stationnement avant/arrière.',          'disponible', '2026-06-01 09:00:00'),
+(23, 3, 'Kia',            'Picanto 1.2 MPi',         2023, 108000.00,   5000, 'Essence',  'Manuelle',    'Blanc',   'Kia Picanto pratiquement neuve, idéale citadine, faible consommation, garantie 7 ans.',              'disponible', '2026-06-15 10:00:00'),
+(24, 3, 'Volkswagen',     'Polo 1.0 TSI',            2022, 155000.00,  19000, 'Essence',  'Manuelle',    'Bleu',    'Volkswagen Polo Highline, carplay/android auto, détecteur fatigue, régulateur adaptatif.',            'disponible', '2026-07-01 08:00:00'),
+(25, 1, 'Fiat',           '500 1.2 Pop',             2021,  98000.00,  31000, 'Essence',  'Manuelle',    'Rouge',   'Fiat 500 rétro et stylée, climatisation automatique, excellent état général.',                        'disponible', '2026-07-05 09:30:00');
 
 -- ============================================================
--- Table: vente
+-- DONNÉES : reservation
+-- Réservations 1-3 : confirmees et liées à des ventes
+-- Réservation 4    : annulee (voiture vendue directement)
+-- Réservations 5-7 : actives (voitures 16,17,18 réservées)
+-- Réservation 8    : annulee (voiture toujours disponible)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS vente (
-    id_vente INT AUTO_INCREMENT PRIMARY KEY,
-    id_client INT NOT NULL,
-    id_voiture INT NOT NULL,
-    id_vendeur INT NOT NULL,
-    id_agence INT NOT NULL,
-    id_reservation INT NULL,
-    date_vente DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    montant_total DECIMAL(12,2) NOT NULL,
-    type_paiement ENUM('cash', 'credit') NOT NULL,
-    statut_vente ENUM('en_attente', 'validee', 'annulee') NOT NULL DEFAULT 'en_attente',
-    notes TEXT,
-    FOREIGN KEY (id_client) REFERENCES client(id_client) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_voiture) REFERENCES voiture(id_voiture) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_vendeur) REFERENCES vendeur(id_vendeur) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_agence) REFERENCES agence(id_agence) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_reservation) REFERENCES reservation(id_reservation) ON DELETE SET NULL ON UPDATE CASCADE,
-    INDEX idx_statut_vente (statut_vente),
-    INDEX idx_date_vente (date_vente)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `reservation` (`id_reservation`, `id_client`, `id_voiture`, `id_vendeur`, `date_reservation`, `statut`, `date_expiration`, `note`) VALUES
+(1, 2,  2,  1, '2025-08-20 10:00:00', 'confirmee', '2025-09-03', 'Client intéressé par la Renault Clio Rouge, essai effectué, dossier validé.'),
+(2, 4,  4,  2, '2025-09-28 14:30:00', 'confirmee', '2025-10-12', 'Mme Bennani souhaite la Peugeot 208 bleue, réservation avec acompte versé.'),
+(3, 6,  6,  1, '2025-11-01 09:15:00', 'confirmee', '2025-11-15', 'Réservation Toyota Yaris hybride confirmée, client très satisfait de l essai.'),
+(4, 1,  1,  1, '2025-08-05 11:00:00', 'annulee',   '2025-08-19', 'Réservation annulée sur demande du client, voiture vendue directement par la suite.'),
+(5, 7,  16, 1, '2026-07-10 10:00:00', 'en_attente','2026-07-24', 'Client Elouafi intéressé par la Peugeot 308, rendez-vous essai programmé.'),
+(6, 8,  17, 2, '2026-07-12 14:00:00', 'confirmee', '2026-07-26', 'Réservation Hyundai Tucson confirmée, Mme Benhaddou a versé un acompte.'),
+(7, 9,  18, 3, '2026-07-15 09:30:00', 'en_attente','2026-07-29', 'M. Bouazizi souhaite la Toyota Corolla Hybrid, attente confirmation financement.'),
+(8, 3,  19, 1, '2026-07-17 11:00:00', 'annulee',   '2026-07-24', 'Réservation annulée, client a finalement choisi un autre modèle.');
 
 -- ============================================================
--- Table: paiement
+-- DONNÉES : vente (15 ventes validées sur 12 mois)
+-- Distribution pour graphique :
+--  Août 2025: 2 | Sep: 1 | Oct: 2 | Nov: 1 | Déc: 2
+--  Jan 2026: 1 | Fév: 1 | Mar: 1 | Avr: 1 | Mai: 1 | Jun: 1 | Jul: 1
 -- ============================================================
-CREATE TABLE IF NOT EXISTS paiement (
-    id_paiement INT AUTO_INCREMENT PRIMARY KEY,
-    id_vente INT NOT NULL,
-    montant DECIMAL(12,2) NOT NULL,
-    type_paiement ENUM('cash', 'credit') NOT NULL,
-    statut ENUM('en_attente', 'confirme', 'refuse') NOT NULL DEFAULT 'en_attente',
-    date_paiement DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    id_admin_validation INT NULL,
-    montant_avance DECIMAL(12,2) NULL,
-    nombre_mensualites INT NULL,
-    mensualite DECIMAL(12,2) NULL,
-    taux_interet DECIMAL(5,2) NULL,
-    date_debut_remboursement DATE NULL,
-    FOREIGN KEY (id_vente) REFERENCES vente(id_vente) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_admin_validation) REFERENCES utilisateur(id_utilisateur) ON DELETE SET NULL ON UPDATE CASCADE,
-    INDEX idx_statut_paiement (statut)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `vente` (`id_vente`, `id_client`, `id_voiture`, `id_vendeur`, `id_agence`, `id_reservation`, `date_vente`, `montant_total`, `type_paiement`, `statut_vente`, `notes`) VALUES
+(1,  1,  1,  1, 1, NULL, '2025-08-10 10:30:00',  98000.00, 'cash',   'validee', 'Vente directe sans réservation préalable, paiement cash en agence.'),
+(2,  2,  2,  1, 1, 1,    '2025-08-25 14:00:00', 145000.00, 'credit', 'validee', 'Suite à réservation confirmée, financement accordé par la banque.'),
+(3,  3,  3,  1, 1, NULL, '2025-09-14 11:00:00', 235000.00, 'cash',   'validee', 'Vente cash Golf GTI, client comptant, dossier traité en une journée.'),
+(4,  4,  4,  2, 2, 2,    '2025-10-05 10:00:00', 168000.00, 'credit', 'validee', 'Mme Bennani, crédit 36 mois, dossier complet soumis à CIH Banque.'),
+(5,  5,  5,  2, 2, NULL, '2025-10-20 15:30:00', 125000.00, 'cash',   'validee', 'Vente directe Hyundai i20, client satisfait du service.'),
+(6,  6,  6,  1, 1, 3,    '2025-11-08 09:30:00', 152000.00, 'credit', 'validee', 'Toyota Yaris hybride, crédit 36 mois, profil client excellent.'),
+(7,  7,  7,  1, 1, NULL, '2025-12-03 11:00:00', 420000.00, 'credit', 'validee', 'Mercedes Classe C, crédit 48 mois, apport 100 000 MAD, Attijariwafa.'),
+(8,  8,  8,  2, 2, NULL, '2025-12-18 14:30:00', 465000.00, 'credit', 'validee', 'BMW Série 3, crédit 60 mois, apport 120 000 MAD, BMCE Bank.'),
+(9,  9,  9,  3, 3, NULL, '2026-01-15 10:00:00', 295000.00, 'cash',   'validee', 'Kia Sportage, paiement cash intégral, client chef d entreprise.'),
+(10, 10, 10, 1, 1, NULL, '2026-02-10 11:30:00', 115000.00, 'cash',   'validee', 'Dacia Sandero Stepway, première voiture du client, cash total.'),
+(11, 1,  11, 2, 2, NULL, '2026-03-05 09:00:00', 175000.00, 'credit', 'validee', 'M. Amrani, deuxième achat chez ALFA CAR, crédit 36 mois Banque Populaire.'),
+(12, 2,  12, 3, 3, NULL, '2026-04-22 15:00:00', 185000.00, 'cash',   'validee', 'Ford Focus, Mme Idrissi, paiement cash, reprise ancien véhicule.'),
+(13, 3,  13, 1, 1, NULL, '2026-05-12 10:30:00', 148000.00, 'cash',   'validee', 'Seat Ibiza, client régulier, troisième achat dans notre réseau.'),
+(14, 4,  14, 2, 2, NULL, '2026-06-08 11:00:00', 132000.00, 'credit', 'validee', 'Citroën C3, crédit 24 mois, Mme Bennani, dossier traité rapidement.'),
+(15, 5,  15, 3, 3, NULL, '2026-07-01 09:30:00', 118000.00, 'cash',   'validee', 'Opel Corsa, vente rapide, client recommandé par un ancien acheteur.');
 
 -- ============================================================
--- Table: facture
+-- DONNÉES : paiement
 -- ============================================================
-CREATE TABLE IF NOT EXISTS facture (
-    id_facture INT AUTO_INCREMENT PRIMARY KEY,
-    id_paiement INT NOT NULL,
-    numero_facture VARCHAR(50) NOT NULL UNIQUE,
-    fichier_pdf VARCHAR(255),
-    date_facture DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    statut_envoi ENUM('envoyee', 'non_envoyee') NOT NULL DEFAULT 'non_envoyee',
-    FOREIGN KEY (id_paiement) REFERENCES paiement(id_paiement) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `paiement` (`id_paiement`, `id_vente`, `montant`, `type_paiement`, `statut`, `date_paiement`, `id_admin_validation`, `montant_avance`, `nombre_mensualites`, `mensualite`, `taux_interet`, `date_debut_remboursement`) VALUES
+(1,  1,   98000.00, 'cash',   'confirme', '2025-08-10 10:30:00', 1, NULL,      NULL, NULL,     NULL, NULL),
+(2,  2,  145000.00, 'credit', 'confirme', '2025-08-25 14:00:00', 1,  30000.00,   48, 2604.17,  5.50, '2025-09-25'),
+(3,  3,  235000.00, 'cash',   'confirme', '2025-09-14 11:00:00', 1, NULL,      NULL, NULL,     NULL, NULL),
+(4,  4,  168000.00, 'credit', 'confirme', '2025-10-05 10:00:00', 1,  40000.00,   36, 3719.44,  5.50, '2025-11-05'),
+(5,  5,  125000.00, 'cash',   'confirme', '2025-10-20 15:30:00', 1, NULL,      NULL, NULL,     NULL, NULL),
+(6,  6,  152000.00, 'credit', 'confirme', '2025-11-08 09:30:00', 1,  35000.00,   36, 3325.00,  5.50, '2025-12-08'),
+(7,  7,  420000.00, 'credit', 'confirme', '2025-12-03 11:00:00', 1, 100000.00,  48, 7395.83,  6.00, '2026-01-03'),
+(8,  8,  465000.00, 'credit', 'confirme', '2025-12-18 14:30:00', 1, 120000.00,  60, 6375.00,  6.50, '2026-01-18'),
+(9,  9,  295000.00, 'cash',   'confirme', '2026-01-15 10:00:00', 1, NULL,      NULL, NULL,     NULL, NULL),
+(10, 10, 115000.00, 'cash',   'confirme', '2026-02-10 11:30:00', 1, NULL,      NULL, NULL,     NULL, NULL),
+(11, 11, 175000.00, 'credit', 'confirme', '2026-03-05 09:00:00', 1,  45000.00,   36, 3958.33,  5.50, '2026-04-05'),
+(12, 12, 185000.00, 'cash',   'confirme', '2026-04-22 15:00:00', 1, NULL,      NULL, NULL,     NULL, NULL),
+(13, 13, 148000.00, 'cash',   'confirme', '2026-05-12 10:30:00', 1, NULL,      NULL, NULL,     NULL, NULL),
+(14, 14, 132000.00, 'credit', 'confirme', '2026-06-08 11:00:00', 1,  32000.00,   24, 4583.33,  5.00, '2026-07-08'),
+(15, 15, 118000.00, 'cash',   'confirme', '2026-07-01 09:30:00', 1, NULL,      NULL, NULL,     NULL, NULL);
 
 -- ============================================================
--- ADMIN ACCOUNT (required to log in for the first time)
--- Username : admin
--- Password : Admin@123   ← change this after first login
+-- DONNÉES : facture
 -- ============================================================
-INSERT INTO utilisateur (username, password, role, statut_compte) VALUES
-('admin', '$2a$10$BJnPbqiRGcIKa9arVTJ1duuUVlFRmWHU9BOF1iNwjr/aa/ZppZ0Ke', 'admin', 'actif');
+INSERT INTO `facture` (`id_facture`, `id_paiement`, `numero_facture`, `fichier_pdf`, `date_facture`, `statut_envoi`) VALUES
+(1,  1,  'FAC-2025-0001', NULL, '2025-08-10 11:00:00', 'envoyee'),
+(2,  2,  'FAC-2025-0002', NULL, '2025-08-25 15:00:00', 'envoyee'),
+(3,  3,  'FAC-2025-0003', NULL, '2025-09-14 12:00:00', 'envoyee'),
+(4,  4,  'FAC-2025-0004', NULL, '2025-10-05 11:00:00', 'envoyee'),
+(5,  5,  'FAC-2025-0005', NULL, '2025-10-20 16:00:00', 'envoyee'),
+(6,  6,  'FAC-2025-0006', NULL, '2025-11-08 10:30:00', 'envoyee'),
+(7,  7,  'FAC-2025-0007', NULL, '2025-12-03 12:00:00', 'envoyee'),
+(8,  8,  'FAC-2025-0008', NULL, '2025-12-18 15:30:00', 'envoyee'),
+(9,  9,  'FAC-2026-0001', NULL, '2026-01-15 11:00:00', 'envoyee'),
+(10, 10, 'FAC-2026-0002', NULL, '2026-02-10 12:30:00', 'envoyee'),
+(11, 11, 'FAC-2026-0003', NULL, '2026-03-05 10:00:00', 'envoyee'),
+(12, 12, 'FAC-2026-0004', NULL, '2026-04-22 16:00:00', 'envoyee'),
+(13, 13, 'FAC-2026-0005', NULL, '2026-05-12 11:30:00', 'envoyee'),
+(14, 14, 'FAC-2026-0006', NULL, '2026-06-08 12:00:00', 'envoyee'),
+(15, 15, 'FAC-2026-0007', NULL, '2026-07-01 10:30:00', 'non_envoyee');
 
-INSERT INTO administrateur (id_utilisateur, nom, prenom, niveau_acces) VALUES
-(1, 'Admin', 'Principal', 'super');
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- ============================================================
+-- FIN DU FICHIER
+-- Résumé :
+--   Agences    : 3 (Casablanca, Rabat, Marrakech)
+--   Vendeurs   : 3
+--   Clients    : 10 (9 actifs, 1 en attente)
+--   Voitures   : 25 (15 vendues, 3 réservées, 7 disponibles)
+--   Ventes     : 15 validées sur 12 mois (août 2025 → juillet 2026)
+--   Paiements  : 15 (7 crédit, 8 cash) — tous confirmés
+--   Factures   : 15
+-- ============================================================
