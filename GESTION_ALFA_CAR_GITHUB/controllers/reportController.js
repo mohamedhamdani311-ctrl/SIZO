@@ -21,6 +21,7 @@ const reportController = {
             }
 
             // Construction du filtre de date selon la période
+            // period='all' (ou toute valeur inconnue) = aucun filtre → toutes les données
             let dateFilter = '';
             if (period === 'daily') {
                 dateFilter = 'AND DATE(##DATE_FIELD##) = CURDATE()';
@@ -29,6 +30,7 @@ const reportController = {
             } else if (period === 'yearly') {
                 dateFilter = 'AND YEAR(##DATE_FIELD##) = YEAR(CURDATE())';
             }
+            // period === 'all' → dateFilter reste vide, pas de filtrage
 
             let data = [];
             let summary = {};
