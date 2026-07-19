@@ -1,177 +1,328 @@
 <%- include('../partials/head', {title: 'Facture ' + (typeof invoice !== 'undefined' && invoice ? invoice.numero_facture : ''), extraCss: ['/css/dashboard.css', '/css/print.css']}) %>
-  <style>
-    body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: #212529; margin: 0; }
-    .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; }
-    .content-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6; }
-    .invoice-card { background: #ffffff; border: 1px solid #dee2e6; border-radius: 16px; }
-    .invoice-card .card-body { padding: 2.5rem; }
-    .invoice-title { color: #6c5ce7; font-weight: 800; }
-    .info-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 12px; padding: 1.25rem; }
-    .info-box h5 { color: #212529; font-weight: 700; margin-bottom: 1rem; }
-    .info-box p { color: #495057; margin-bottom: 0.4rem; }
-    .total-box { background: linear-gradient(135deg,#6c5ce7,#a855f7); color: #fff; border-radius: 12px; padding: 1.25rem; text-align: right; }
-    .total-box h4 { color: #fff; margin: 0; font-weight: 800; }
-    .credit-info { background: #fff8e1; border: 1px solid #ffe082; border-radius: 12px; padding: 1rem; }
-    .credit-info h6 { color: #212529; font-weight: 700; }
-    @media print {
-      .no-print { display: none !important; }
-      .main-content { margin-left: 0 !important; padding: 0 !important; }
-      .sidebar { display: none !important; }
-      .invoice-card { border: none !important; border-radius: 0 !important; }
-      @page { margin: 10mm; size: A4; }
-    }
-    @media (max-width: 991.98px) { .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; } }
-  </style>
+<style>
+  body { font-family: 'Inter', sans-serif; background: #f1f3f5; color: #212529; margin: 0; }
+  .main-content { margin-left: 175px; min-height: 100vh; padding: 2rem; }
+
+  /* ── Action bar ── */
+  .action-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .action-bar-left { display: flex; align-items: center; gap: 0.75rem; }
+  .action-bar-right { display: flex; gap: 0.5rem; }
+  .btn-action { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1.1rem; border-radius: 10px; font-size: 0.875rem; font-weight: 600; border: none; cursor: pointer; text-decoration: none; transition: all 0.18s; }
+  .btn-back    { background: #f8f9fa; color: #495057; border: 1px solid #dee2e6; }
+  .btn-back:hover { background: #e9ecef; color: #212529; }
+  .btn-print   { background: #1a1a2e; color: #fff; }
+  .btn-print:hover { background: #2d2d44; }
+  .btn-pdf     { background: #e94560; color: #fff; }
+  .btn-pdf:hover { background: #c73652; }
+
+  /* ── Invoice card ── */
+  .inv-wrap { max-width: 860px; margin: 0 auto; }
+  .inv-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+
+  /* Top accent strip */
+  .inv-strip { height: 6px; background: linear-gradient(90deg, #e94560, #1a1a2e); }
+
+  .inv-body { padding: 2.5rem; }
+
+  /* ── Header ── */
+  .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+  .inv-brand-name { font-size: 2rem; font-weight: 800; color: #1a1a2e; letter-spacing: -1px; line-height: 1; }
+  .inv-brand-name span { color: #e94560; }
+  .inv-brand-sub { color: #6c757d; font-size: 0.8rem; margin-top: 0.35rem; line-height: 1.7; }
+  .inv-title-block { text-align: right; }
+  .inv-title-word { font-size: 2.2rem; font-weight: 800; color: #e94560; text-transform: uppercase; letter-spacing: 3px; line-height: 1; }
+  .inv-number { font-size: 0.95rem; font-weight: 700; color: #1a1a2e; margin-top: 0.4rem; }
+  .inv-date   { font-size: 0.82rem; color: #6c757d; margin-top: 0.2rem; }
+
+  /* Status badge */
+  .inv-status-bar { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.5rem; padding: 0.6rem 1rem; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #e94560; font-size: 0.83rem; color: #495057; }
+  .inv-status-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.8rem; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+  .badge-validee  { background: #d1fae5; color: #065f46; }
+  .badge-attente  { background: #fef3c7; color: #92400e; }
+  .badge-annulee  { background: #fee2e2; color: #991b1b; }
+  .badge-confirme { background: #dbeafe; color: #1e40af; }
+
+  /* Divider */
+  .inv-divider { height: 2px; background: linear-gradient(90deg, #e94560 0%, #1a1a2e 60%, transparent 100%); border-radius: 2px; margin-bottom: 1.5rem; }
+
+  /* ── Info grid ── */
+  .inv-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .inv-info-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 1.1rem; }
+  .inv-info-box .box-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #e94560; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem; }
+  .inv-info-box .client-name { font-size: 1.05rem; font-weight: 700; color: #1a1a2e; margin-bottom: 0.4rem; }
+  .inv-info-box p { font-size: 0.83rem; color: #495057; margin-bottom: 0.25rem; line-height: 1.5; }
+  .inv-info-box p strong { color: #212529; }
+
+  /* ── Items table ── */
+  .inv-table-wrap { margin-bottom: 1.25rem; border-radius: 10px; overflow: hidden; border: 1px solid #e9ecef; }
+  .inv-table { width: 100%; border-collapse: collapse; }
+  .inv-table thead th { background: #1a1a2e; color: #fff; padding: 0.75rem 1rem; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border: none; }
+  .inv-table tbody td { padding: 0.9rem 1rem; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem; color: #212529; }
+  .inv-table tbody tr:last-child td { border-bottom: none; }
+  .inv-table tfoot td { background: #f8f9fa; padding: 0.75rem 1rem; font-size: 0.85rem; }
+
+  /* ── Credit box ── */
+  .credit-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 1.1rem; margin-bottom: 1.25rem; }
+  .credit-box h6 { font-size: 0.8rem; font-weight: 700; color: #92400e; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem; }
+  .credit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .credit-item { text-align: center; padding: 0.6rem 0.5rem; border-right: 1px solid #fde68a; }
+  .credit-item:last-child { border-right: none; }
+  .credit-item .lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #92400e; margin-bottom: 0.2rem; }
+  .credit-item .val { font-size: 1rem; font-weight: 700; color: #1a1a2e; }
+
+  /* ── Totals ── */
+  .inv-totals { display: flex; justify-content: flex-end; margin-bottom: 1.25rem; }
+  .totals-box { width: 260px; border-radius: 12px; overflow: hidden; border: 1px solid #e9ecef; }
+  .tot-row { display: flex; justify-content: space-between; padding: 0.6rem 1rem; font-size: 0.88rem; border-bottom: 1px solid #f0f0f0; }
+  .tot-row:last-child { background: #1a1a2e; color: #fff; font-weight: 700; font-size: 1rem; padding: 0.75rem 1rem; border-bottom: none; }
+  .tot-row:last-child span:last-child { color: #e94560; }
+
+  /* ── Notes ── */
+  .inv-notes { border-left: 4px solid #e94560; padding: 0.75rem 1rem; background: #fff5f7; border-radius: 0 8px 8px 0; margin-bottom: 1.25rem; font-size: 0.83rem; color: #555; }
+  .inv-notes strong { display: block; color: #1a1a2e; margin-bottom: 0.2rem; font-weight: 700; }
+
+  /* ── Signatures ── */
+  .inv-sigs { display: flex; justify-content: space-between; padding: 1.5rem 0 0.5rem; border-top: 1px solid #e9ecef; margin-top: 1.5rem; }
+  .sig-block { width: 200px; text-align: center; }
+  .sig-line { border-top: 1px solid #adb5bd; padding-top: 0.5rem; font-size: 0.8rem; color: #6c757d; margin-top: 2.5rem; }
+
+  /* ── Footer tagline ── */
+  .inv-tagline { text-align: center; color: #adb5bd; font-size: 0.78rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #f0f0f0; }
+  .inv-tagline strong { color: #e94560; }
+
+  /* ── Print overrides ── */
+  @media print {
+    body { background: #fff !important; }
+    .no-print, .action-bar, .sidebar { display: none !important; }
+    .main-content { margin-left: 0 !important; padding: 0 !important; }
+    .inv-card { box-shadow: none !important; border-radius: 0 !important; }
+    @page { margin: 10mm 12mm; size: A4; }
+  }
+  @media (max-width: 991.98px) {
+    .main-content { margin-left: 0; padding: 1rem; padding-top: 4rem; }
+    .inv-info-grid { grid-template-columns: 1fr; }
+    .credit-grid { grid-template-columns: 1fr 1fr; }
+    .totals-box { width: 100%; }
+  }
+</style>
 </head>
 <body>
-  <div class="dashboard-layout">
-    <%- include('../partials/sidebar') %>
-    <main class="main-content">
-      <div class="content-header no-print">
-        <button class="btn btn-link sidebar-toggle" id="sidebarToggle" style="color:#495057;font-size:1.2rem;text-decoration:none;"><i class="fas fa-bars"></i></button>
-        <%- include('../partials/breadcrumb', {breadcrumbs: [{name:'Dashboard', url:'/admin/dashboard'}, {name:'Factures', url:'/admin/invoices'}, {name: typeof invoice !== 'undefined' && invoice ? invoice.numero_facture : 'Facture'}]}) %>
-      </div>
-      <div class="content-body">
-        <div class="d-flex justify-content-end gap-2 mb-3 no-print">
-          <a href="/admin/invoices" class="btn btn-outline-secondary" style="border-radius:10px;">
-            <i class="fas fa-arrow-left me-2"></i>Retour
-          </a>
-          <button class="btn btn-outline-primary" style="border-radius:10px;" onclick="window.print()">
-            <i class="fas fa-print me-1"></i>Imprimer
-          </button>
-          <button class="btn btn-outline-danger" style="border-radius:10px;" onclick="exportInvoiceToPDF(invoiceData)">
-            <i class="fas fa-file-pdf me-1"></i>Exporter PDF
-          </button>
-        </div>
+<div class="dashboard-layout">
+  <%- include('../partials/sidebar') %>
+  <main class="main-content">
 
-        <% if (typeof invoice !== 'undefined' && invoice) { %>
-        <div class="invoice-card" id="invoiceContent">
-          <div class="card-body">
-            <div class="row mb-4">
-              <div class="col-6">
-                <h2 class="invoice-title"><i class="fas fa-car me-2"></i>ALFA CAR</h2>
-                <p class="text-muted mb-0">Système de Gestion de Vente de Voitures</p>
-                <p class="text-muted mb-0"><%= invoice.agence_nom || 'ALFA CAR' %></p>
-                <p class="text-muted mb-0"><%= invoice.agence_adresse || '' %></p>
-                <p class="text-muted mb-0"><%= invoice.agence_telephone || '' %><%= invoice.agence_email ? ' | ' + invoice.agence_email : '' %></p>
-              </div>
-              <div class="col-6 text-end">
-                <h3 class="fw-bold text-uppercase" style="color:#212529;">FACTURE</h3>
-                <p class="mb-1"><strong>N°:</strong> <span style="color:#6c5ce7;font-weight:700;"><%= invoice.numero_facture %></span></p>
-                <p class="mb-1"><strong>Date:</strong> <%= invoice.date_facture ? new Date(invoice.date_facture).toLocaleDateString('fr-FR', {year:'numeric',month:'long',day:'numeric'}) : 'N/A' %></p>
-              </div>
-            </div>
-            <hr style="border-color:#dee2e6;">
-            <div class="row mb-4 g-3">
-              <div class="col-md-6">
-                <div class="info-box">
-                  <h5><i class="fas fa-user me-2" style="color:#6c5ce7;"></i>Client</h5>
-                  <p><strong>Nom:</strong> <%= invoice.client_nom || '' %> <%= invoice.client_prenom || '' %></p>
-                  <p><strong>Email:</strong> <%= invoice.client_email || 'N/A' %></p>
-                  <p><strong>Tél:</strong> <%= invoice.client_telephone || 'N/A' %></p>
-                  <p><strong>Adresse:</strong> <%= invoice.client_adresse || 'N/A' %></p>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="info-box">
-                  <h5><i class="fas fa-car me-2" style="color:#6c5ce7;"></i>Véhicule</h5>
-                  <p><strong>Marque:</strong> <%= invoice.marque || '' %></p>
-                  <p><strong>Modèle:</strong> <%= invoice.modele || '' %></p>
-                  <p><strong>Année:</strong> <%= invoice.annee || '' %></p>
-                  <p><strong>Couleur:</strong> <%= invoice.couleur || 'N/A' %></p>
-                </div>
+    <!-- Action bar -->
+    <div class="action-bar no-print">
+      <div class="action-bar-left">
+        <button class="btn btn-link sidebar-toggle" id="sidebarToggle" style="color:#495057;font-size:1.2rem;text-decoration:none;padding:0;"><i class="fas fa-bars"></i></button>
+        <%- include('../partials/breadcrumb', {breadcrumbs: [
+          {name:'Dashboard', url:'/admin/dashboard'},
+          {name:'Factures', url:'/admin/invoices'},
+          {name: typeof invoice !== 'undefined' && invoice ? invoice.numero_facture : 'Facture'}
+        ]}) %>
+      </div>
+      <div class="action-bar-right">
+        <a href="/admin/invoices" class="btn-action btn-back"><i class="fas fa-arrow-left"></i> Retour</a>
+        <button class="btn-action btn-print" onclick="window.print()"><i class="fas fa-print"></i> Imprimer</button>
+        <button class="btn-action btn-pdf" onclick="exportInvoiceToPDF(invoiceData)"><i class="fas fa-file-pdf"></i> PDF</button>
+      </div>
+    </div>
+
+    <% if (typeof invoice !== 'undefined' && invoice) { %>
+    <div class="inv-wrap">
+      <div class="inv-card" id="invoiceContent">
+        <div class="inv-strip"></div>
+        <div class="inv-body">
+
+          <!-- Header -->
+          <div class="inv-header">
+            <div>
+              <div class="inv-brand-name">ALFA<span> CAR</span></div>
+              <div class="inv-brand-sub">
+                <%= invoice.agence_nom || 'Vente de Voitures' %><br>
+                <%= invoice.agence_adresse || 'Maroc' %><br>
+                <% if (invoice.agence_telephone) { %><%= invoice.agence_telephone %><% } %>
+                <% if (invoice.agence_email) { %> &nbsp;|&nbsp; <%= invoice.agence_email %><% } %>
               </div>
             </div>
-            <div class="table-responsive mb-4">
-              <table class="table table-bordered" style="color:#212529;">
-                <thead style="background:#6c5ce7;color:#fff;">
-                  <tr><th>Description</th><th>Type de Paiement</th><th class="text-end">Montant</th></tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><%= invoice.marque || '' %> <%= invoice.modele || '' %> (<%= invoice.annee || '' %>)</td>
-                    <td>
-                      <% if (invoice.type_paiement === 'cash') { %>
-                        <span class="badge bg-info">Cash</span>
-                      <% } else { %>
-                        <span class="badge bg-warning text-dark">Crédit</span>
-                      <% } %>
-                    </td>
-                    <td class="text-end fw-bold"><%= invoice.montant_total ? parseFloat(invoice.montant_total).toLocaleString('fr-FR') : '0' %> MAD</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <% if (invoice.type_paiement === 'credit') { %>
-            <div class="credit-info mb-4">
-              <h6><i class="fas fa-info-circle me-2"></i>Détails du Crédit</h6>
-              <div class="row">
-                <div class="col-md-3"><strong>Avance:</strong> <%= invoice.montant_avance ? parseFloat(invoice.montant_avance).toLocaleString('fr-FR') : '0' %> MAD</div>
-                <div class="col-md-3"><strong>Mensualités:</strong> <%= invoice.nombre_mensualites || 0 %> mois</div>
-                <div class="col-md-3"><strong>Mensualité:</strong> <%= invoice.mensualite ? parseFloat(invoice.mensualite).toLocaleString('fr-FR') : '0' %> MAD</div>
-                <div class="col-md-3"><strong>Taux:</strong> <%= invoice.taux_interet || 0 %>%</div>
-              </div>
-            </div>
-            <% } %>
-            <div class="row">
-              <div class="col-md-6 offset-md-6">
-                <div class="total-box">
-                  <h4>TOTAL: <%= invoice.montant_total ? parseFloat(invoice.montant_total).toLocaleString('fr-FR') : '0' %> MAD</h4>
-                </div>
-              </div>
-            </div>
-            <div class="text-center mt-5 text-muted">
-              <hr style="border-color:#dee2e6;">
-              <small>Merci pour votre confiance — ALFA CAR, votre partenaire automobile</small>
+            <div class="inv-title-block">
+              <div class="inv-title-word">Facture</div>
+              <div class="inv-number">N° <strong><%= invoice.numero_facture %></strong></div>
+              <div class="inv-date"><%= invoice.date_facture ? new Date(invoice.date_facture).toLocaleDateString('fr-FR', {year:'numeric', month:'long', day:'numeric'}) : 'N/A' %></div>
             </div>
           </div>
-        </div>
-        <% } else { %>
-        <div class="text-center py-5">
-          <i class="fas fa-file-invoice fa-4x text-muted mb-3"></i>
-          <h4 class="text-muted">Facture non trouvée</h4>
-        </div>
-        <% } %>
-      </div>
-    </main>
-  </div>
-  <%- include('../partials/flash') %>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="/js/main.js"></script>
-  <script src="/js/dashboard.js"></script>
-  <script src="/js/export.js"></script>
-  <% if (typeof invoice !== 'undefined' && invoice) { %>
-  <script>
-    const invoiceData = {
-      numero_facture: '<%= invoice.numero_facture %>',
-      date_facture: '<%= invoice.date_facture ? new Date(invoice.date_facture).toLocaleDateString("fr-FR") : "" %>',
-      client_nom: '<%= invoice.client_nom || "" %>',
-      client_prenom: '<%= invoice.client_prenom || "" %>',
-      client_email: '<%= invoice.client_email || "" %>',
-      client_telephone: '<%= invoice.client_telephone || "" %>',
-      client_adresse: '<%= invoice.client_adresse || "" %>',
-      agence_nom: '<%= invoice.agence_nom || "" %>',
-      agence_adresse: '<%= invoice.agence_adresse || "" %>',
-      agence_telephone: '<%= invoice.agence_telephone || "" %>',
-      agence_email: '<%= invoice.agence_email || "" %>',
-      marque: '<%= invoice.marque || "" %>',
-      modele: '<%= invoice.modele || "" %>',
-      annee: '<%= invoice.annee || "" %>',
-      couleur: '<%= invoice.couleur || "" %>',
-      montant_total: '<%= invoice.montant_total || 0 %>',
-      type_paiement: '<%= invoice.type_paiement || "cash" %>',
-      montant_avance: '<%= invoice.montant_avance || 0 %>',
-      nombre_mensualites: '<%= invoice.nombre_mensualites || 0 %>',
-      mensualite: '<%= invoice.mensualite || 0 %>',
-      taux_interet: '<%= invoice.taux_interet || 0 %>'
-    };
-  </script>
-  <% } %>
-  <script>
-    // Auto-print if ?print=1 in query string
-    if (new URLSearchParams(window.location.search).get('print') === '1') {
-      window.addEventListener('load', function() { setTimeout(function() { window.print(); }, 600); });
-    }
-  </script>
+
+          <!-- Status bar -->
+          <div class="inv-status-bar">
+            <span>Statut de la facture :</span>
+            <span class="inv-status-badge <%= invoice.statut_envoi === 'envoyee' ? 'badge-validee' : 'badge-attente' %>">
+              <i class="fas <%= invoice.statut_envoi === 'envoyee' ? 'fa-check-circle' : 'fa-clock' %>"></i>
+              <%= invoice.statut_envoi === 'envoyee' ? 'Envoyée' : 'Non envoyée' %>
+            </span>
+            <span style="margin-left:auto;font-size:0.78rem;color:#adb5bd;">Réf. vente : #<%= invoice.id_vente || 'N/A' %></span>
+          </div>
+
+          <div class="inv-divider"></div>
+
+          <!-- Info grid -->
+          <div class="inv-info-grid">
+            <div class="inv-info-box">
+              <div class="box-title"><i class="fas fa-user"></i> Informations Client</div>
+              <div class="client-name"><%= invoice.client_prenom || '' %> <%= invoice.client_nom || '' %></div>
+              <p><%= invoice.client_adresse || 'Adresse non renseignée' %></p>
+              <p><strong>Tél :</strong> <%= invoice.client_telephone || 'N/A' %></p>
+              <p><strong>Email :</strong> <%= invoice.client_email || 'N/A' %></p>
+            </div>
+            <div class="inv-info-box">
+              <div class="box-title"><i class="fas fa-car"></i> Véhicule</div>
+              <div class="client-name"><%= invoice.marque || '' %> <%= invoice.modele || '' %></div>
+              <p><strong>Année :</strong> <%= invoice.annee || 'N/A' %></p>
+              <p><strong>Couleur :</strong> <%= invoice.couleur || 'N/A' %></p>
+              <p><strong>Mode de paiement :</strong>
+                <% if (invoice.type_paiement === 'cash') { %>
+                  <span class="inv-status-badge badge-confirme">Cash</span>
+                <% } else { %>
+                  <span class="inv-status-badge badge-attente">Crédit</span>
+                <% } %>
+              </p>
+            </div>
+          </div>
+
+          <!-- Items table -->
+          <div class="inv-table-wrap">
+            <table class="inv-table">
+              <thead>
+                <tr>
+                  <th style="width:55%">Description</th>
+                  <th style="text-align:center">Type</th>
+                  <th style="text-align:right">Montant HT</th>
+                  <th style="text-align:right">Total TTC</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <strong><%= invoice.marque || '' %> <%= invoice.modele || '' %></strong>
+                    &mdash; Millésime <%= invoice.annee || '' %>
+                    <% if (invoice.couleur) { %><br><small style="color:#6c757d;">Couleur : <%= invoice.couleur %></small><% } %>
+                  </td>
+                  <td style="text-align:center">
+                    <% if (invoice.type_paiement === 'cash') { %>
+                      <span class="inv-status-badge badge-confirme">Cash</span>
+                    <% } else { %>
+                      <span class="inv-status-badge badge-attente">Crédit</span>
+                    <% } %>
+                  </td>
+                  <td style="text-align:right"><%= invoice.montant_total ? parseFloat(invoice.montant_total).toLocaleString('fr-FR') : '0' %> MAD</td>
+                  <td style="text-align:right;font-weight:700;"><%= invoice.montant_total ? parseFloat(invoice.montant_total).toLocaleString('fr-FR') : '0' %> MAD</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Credit details -->
+          <% if (invoice.type_paiement === 'credit') { %>
+          <div class="credit-box">
+            <h6><i class="fas fa-info-circle"></i> Détails du Financement Crédit</h6>
+            <div class="credit-grid">
+              <div class="credit-item">
+                <div class="lbl">Avance</div>
+                <div class="val"><%= invoice.montant_avance ? parseFloat(invoice.montant_avance).toLocaleString('fr-FR') : '0' %> <small>MAD</small></div>
+              </div>
+              <div class="credit-item">
+                <div class="lbl">Reste à financer</div>
+                <div class="val"><%= (invoice.montant_total && invoice.montant_avance) ? (parseFloat(invoice.montant_total) - parseFloat(invoice.montant_avance)).toLocaleString('fr-FR') : '0' %> <small>MAD</small></div>
+              </div>
+              <div class="credit-item">
+                <div class="lbl">Durée</div>
+                <div class="val"><%= invoice.nombre_mensualites || 0 %> <small>mois</small></div>
+              </div>
+              <div class="credit-item">
+                <div class="lbl">Mensualité</div>
+                <div class="val"><%= invoice.mensualite ? parseFloat(invoice.mensualite).toLocaleString('fr-FR') : '0' %> <small>MAD</small></div>
+              </div>
+            </div>
+            <div style="text-align:center;margin-top:0.6rem;font-size:0.78rem;color:#92400e;">
+              Taux d'intérêt appliqué : <strong><%= invoice.taux_interet || 0 %>%</strong>
+              <% if (invoice.date_debut_remboursement) { %> &nbsp;&mdash;&nbsp; Début remboursement : <strong><%= new Date(invoice.date_debut_remboursement).toLocaleDateString('fr-FR') %></strong><% } %>
+            </div>
+          </div>
+          <% } %>
+
+          <!-- Totals -->
+          <div class="inv-totals">
+            <div class="totals-box">
+              <div class="tot-row"><span>Sous-total</span><span><%= invoice.montant_total ? parseFloat(invoice.montant_total).toLocaleString('fr-FR') : '0' %> MAD</span></div>
+              <% if (invoice.type_paiement === 'credit' && invoice.montant_avance) { %>
+              <div class="tot-row"><span>Avance versée</span><span><%= parseFloat(invoice.montant_avance).toLocaleString('fr-FR') %> MAD</span></div>
+              <% } %>
+              <div class="tot-row"><span>TOTAL</span><span><%= invoice.montant_total ? parseFloat(invoice.montant_total).toLocaleString('fr-FR') : '0' %> MAD</span></div>
+            </div>
+          </div>
+
+          <!-- Signatures -->
+          <div class="inv-sigs">
+            <div class="sig-block"><div class="sig-line">Signature & Cachet Vendeur</div></div>
+            <div class="sig-block"><div class="sig-line">Signature Client</div></div>
+          </div>
+
+          <!-- Tagline -->
+          <div class="inv-tagline">
+            Merci pour votre confiance &mdash; <strong>ALFA CAR</strong>, votre partenaire automobile
+          </div>
+
+        </div><!-- /inv-body -->
+      </div><!-- /inv-card -->
+    </div><!-- /inv-wrap -->
+
+    <% } else { %>
+    <div class="text-center py-5">
+      <i class="fas fa-file-invoice fa-4x text-muted mb-3"></i>
+      <h4 class="text-muted">Facture non trouvée</h4>
+    </div>
+    <% } %>
+
+  </main>
+</div>
+
+<%- include('../partials/flash') %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/main.js"></script>
+<script src="/js/dashboard.js"></script>
+<script src="/js/print.js"></script>
+<script src="/js/export.js"></script>
+<% if (typeof invoice !== 'undefined' && invoice) { %>
+<script>
+  const invoiceData = {
+    numero_facture:      '<%- invoice.numero_facture %>',
+    numero:              '<%- invoice.numero_facture %>',
+    date:                '<%= invoice.date_facture ? new Date(invoice.date_facture).toLocaleDateString("fr-FR", {day:"2-digit",month:"long",year:"numeric"}) : "" %>',
+    client_nom:          '<%- invoice.client_nom || "" %>',
+    client_prenom:       '<%- invoice.client_prenom || "" %>',
+    client_email:        '<%- invoice.client_email || "" %>',
+    client_telephone:    '<%- invoice.client_telephone || "" %>',
+    client_adresse:      '<%- invoice.client_adresse || "" %>',
+    agence_nom:          '<%- invoice.agence_nom || "" %>',
+    agence_adresse:      '<%- invoice.agence_adresse || "" %>',
+    agence_telephone:    '<%- invoice.agence_telephone || "" %>',
+    agence_email:        '<%- invoice.agence_email || "" %>',
+    marque:              '<%- invoice.marque || "" %>',
+    modele:              '<%- invoice.modele || "" %>',
+    annee:               '<%= invoice.annee || "" %>',
+    couleur:             '<%- invoice.couleur || "" %>',
+    montant:             <%= parseFloat(invoice.montant_total) || 0 %>,
+    type_paiement:       '<%= invoice.type_paiement || "cash" %>',
+    avance:              <%= parseFloat(invoice.montant_avance) || 0 %>,
+    nombre_mensualites:  <%= invoice.nombre_mensualites || 0 %>,
+    mensualite:          <%= parseFloat(invoice.mensualite) || 0 %>,
+    taux_interet:        <%= invoice.taux_interet || 0 %>
+  };
+</script>
+<% } %>
+<script>
+  if (new URLSearchParams(window.location.search).get('print') === '1') {
+    window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 600); });
+  }
+</script>
 </body></html>
