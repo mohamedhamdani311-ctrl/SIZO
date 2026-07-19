@@ -35,6 +35,11 @@
 
         <div class="page-title-section">
           <h2><i class="fas fa-calendar-check me-2" style="color: #f59e0b;"></i>Gestion des Réservations</h2>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-secondary" style="border-radius:10px;" onclick="printTable('reservationsTable','Réservations')"><i class="fas fa-print me-1"></i>Imprimer</button>
+            <button class="btn btn-outline-danger"    style="border-radius:10px;" onclick="exportTableToPDF('reservationsTable','reservations','Réservations')"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+            <button class="btn btn-outline-success"   style="border-radius:10px;" onclick="exportTableToExcel('reservationsTable','reservations')"><i class="fas fa-file-excel me-1"></i>Excel</button>
+          </div>
         </div>
 
         <div class="table-card">
@@ -115,6 +120,8 @@
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/dashboard.js"></script>
+  <script src="/js/print.js"></script>
+  <script src="/js/export.js"></script>
   <script>
     $(document).ready(function() {
       if ($('#reservationsTable').length) {
